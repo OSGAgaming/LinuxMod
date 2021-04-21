@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "ce2wQk9/cLRqUbvIQQkRaTLbru0uywRN7JfQPu1u29DQzdIVSO+uaiA3V+EALTjLp9KqJD1SDjZhWjI1GbOvuw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\tafid\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\LinuxMod.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tafid\\.nuget\\packages\\tmodloader.codeassist\\0.1.2\\tmodloader.codeassist.0.1.2.nupkg.sha512"
+  ],
+  "logs": []
+}
