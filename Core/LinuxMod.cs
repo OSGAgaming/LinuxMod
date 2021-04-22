@@ -11,6 +11,7 @@ namespace LinuxMod.Core
         {
             Subworlds = new SubworldInstanceManager();
             GlobalZone = new ParticleZoneHandler();
+            GlobalZone.AddZone("Main", 40000);
             ShaderLoading();
             AutoloadMechanics.Load();
         }

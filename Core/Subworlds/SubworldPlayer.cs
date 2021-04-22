@@ -27,9 +27,6 @@ namespace LinuxMod.Core.Subworlds
             if (!InSubworld) PrimaryWorldName = Main.ActiveWorldFileData.Name;
 
             CurrentSubworld?.PlayerUpdate(player);
-
-            Utils.Particles.SetSpawningModules(new SpawnRandomly(0.03f));
-            Utils.Particles.SpawnParticles(player.Center, Vector2.Zero);
         }
     }
 }

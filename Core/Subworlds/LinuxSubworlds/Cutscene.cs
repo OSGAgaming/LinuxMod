@@ -1,3 +1,4 @@
+using LinuxMod.Core.Assets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
@@ -31,6 +32,12 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
             Utils.ActivateScreenShader("Linux:Viginette");
             Utils.GetScreenShader("Linux:Viginette").UseIntensity(Viginette);
 
+            Utils.Particles.SetSpawningModules(new SpawnRandomly(0.03f));
+            Utils.Particles.SpawnParticles(player.Center, Vector2.Zero);
+            Utils.Particles.SpawnParticles(player.Center, -Vector2.UnitY, 3, 
+                null, new SlowDown(0.98f), new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), 
+                new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f), 
+                new RotateVelocity(Main.rand.NextFloat(-0.02f, 0.02f)), new SetLighting(Color.White.ToVector3(), 0.1f));
         }
     }
 }
