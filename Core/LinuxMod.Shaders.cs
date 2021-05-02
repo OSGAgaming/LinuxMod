@@ -13,17 +13,25 @@ namespace LinuxMod.Core
         public static Effect LightingBufferEffect;
         public static Effect PrimitiveShaders;
         public static Effect WaterWallReflection;
+
+        static void QuickLoadShader(string Path)
+        {
+            Ref<Effect> Reference = new Ref<Effect>(ModContent.GetInstance<LinuxMod>().GetEffect(Path));
+
+            string End = Path.Split('/')[1];
+            string DictEntry = "Linux:" + End;
+
+            Filters.Scene[DictEntry] = new Filter(new ScreenShaderData(Reference, "P1"), EffectPriority.VeryHigh);
+            Filters.Scene[DictEntry].Load();
+        }
         internal static void ShaderLoading()
         {
             PrimitiveShaders = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/PrimitiveShader");
-            Ref<Effect> screenRef = new Ref<Effect>(ModContent.GetInstance<LinuxMod>().GetEffect("Effects/Viginette"));
-            Ref<Effect> screenRef2 = new Ref<Effect>(ModContent.GetInstance<LinuxMod>().GetEffect("Effects/WaterWallReflection"));
 
-            Filters.Scene["Linux:Viginette"] = new Filter(new ScreenShaderData(screenRef, "Viginette"), EffectPriority.VeryHigh);
-            Filters.Scene["Linux:Viginette"].Load();
+            QuickLoadShader("Effects/Viginette");
+            QuickLoadShader("Effects/WaterWallReflection");
+            QuickLoadShader("Effects/Sewers");
 
-            Filters.Scene["Linux:WaterWallReflection"] = new Filter(new ScreenShaderData(screenRef2, "Func1"), EffectPriority.VeryHigh);
-            Filters.Scene["Linux:WaterWallReflection"].Load();
         }
     }
 }

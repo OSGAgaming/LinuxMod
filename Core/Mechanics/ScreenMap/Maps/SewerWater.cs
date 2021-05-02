@@ -15,10 +15,10 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
         internal override void OnApplyShader()
         {
-            Utils.ActivateScreenShader("Linux:WaterWallReflection");
-            Utils.GetScreenShader("Linux:WaterWallReflection").Shader.Parameters["noiseTexture"]?.SetValue(Asset.GetTexture("Noise/noise"));
-            Utils.GetScreenShader("Linux:WaterWallReflection").Shader.Parameters["waterReflection"].SetValue(MapTarget);
-            Utils.GetScreenShader("Linux:WaterWallReflection").UseIntensity(Main.GameUpdateCount);
+            Utils.ActivateScreenShader("Linux:Sewers");
+            Utils.GetScreenShader("Linux:Sewers").Shader.Parameters["noiseTexture"]?.SetValue(Asset.GetTexture("Noise/noise"));
+            Utils.GetScreenShader("Linux:Sewers").Shader.Parameters["waterReflection"].SetValue(MapTarget);
+            Utils.GetScreenShader("Linux:Sewers").UseIntensity(Main.GameUpdateCount);
         }
 
         public override void Load()

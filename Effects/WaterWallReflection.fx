@@ -37,7 +37,7 @@ float GetNoise(float2 Coord)
     return tex2D(noiseSampler, Coord).r;
 }
 
-float4 Func1(float2 coords : TEXCOORD0) : COLOR0
+float4 P1(float2 coords : TEXCOORD0) : COLOR0
 {
     float4 wColor = tex2D(waterSampler, coords);
     float2 Sample1 = float2((coords.x / 2 + uIntensity / 1000 + 0.5f) % 1, (coords.y / 20 + uIntensity / 1000 + 0.5f) % 1);
@@ -50,8 +50,8 @@ float4 Func1(float2 coords : TEXCOORD0) : COLOR0
 
 technique Technique1
 {
-    pass Func1
+    pass P1
     {
-        PixelShader = compile ps_2_0 Func1();
+        PixelShader = compile ps_2_0 P1();
     }
 }

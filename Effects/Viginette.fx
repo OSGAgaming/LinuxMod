@@ -20,7 +20,7 @@ float uSaturation;
 float4 uSourceRect;
 float2 uZoom;
 
-float4 Viginette(float2 coords : TEXCOORD0) : COLOR0
+float4 P1(float2 coords : TEXCOORD0) : COLOR0
 {
     float4 colour = tex2D(uImage0, coords);
     float disX = 0.5f - coords.x;
@@ -32,8 +32,8 @@ float4 Viginette(float2 coords : TEXCOORD0) : COLOR0
 
 technique Technique1
 {
-    pass Viginette
+    pass P1
     {
-        PixelShader = compile ps_2_0 Viginette();
+        PixelShader = compile ps_2_0 P1();
     }
 }

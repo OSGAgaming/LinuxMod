@@ -18,3 +18,17 @@ bin/Debug/net45/LinuxMod.dll
 *.pdb
 *.dll
 *.cache
+*.opendb
+*.db-wal
+*.db-shm
+.vs/LinuxMod/v16/.suo
+*.pdb
+*.dll
+*.cache
+bin/Debug/net45/LinuxMod.pdb
+bin/Debug/net45/LinuxMod.dll
+.vs/LinuxMod/v16/.suo
+obj/Debug/net45/LinuxMod.csprojAssemblyReference.cache
+obj/Debug/net45/LinuxMod.dll
+obj/Debug/net45/LinuxMod.pdb
+obj/Debug/net45/LinuxMod.csproj.CoreCompileInputs.cache
