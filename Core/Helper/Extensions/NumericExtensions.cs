@@ -2,7 +2,7 @@
 using System;
 using Terraria;
 
-namespace EEMod.Extensions
+namespace LinuxMod.Core.Helper.Extensions
 {
     public static class NumericExtensions
     {

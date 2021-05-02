@@ -1,4 +1,5 @@
 using LinuxMod.Core.Assets;
+using LinuxMod.Core.Mechanics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
@@ -24,13 +25,13 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
             Utils.FillWall(500, 500, new Vector2(0, 0), WallID.BlueDungeon);
             //Utils.MakeCircleFromCenter();
         }
-        float Viginette = 5;
         internal override void PlayerUpdate(Player player)
         {
-            Viginette += (3 - Viginette) / 116f;
-
-            Utils.ActivateScreenShader("Linux:Viginette");
-            Utils.GetScreenShader("Linux:Viginette").UseIntensity(Viginette);
+            if (Main.GameUpdateCount == 3)
+            {
+                //LiquidRender.Instance.liquidHost.AddLiquid(new Rectangle(42 * 16, 205 * 16, 500, 100), 50, 0.04f, 0.05f);
+                LiquidRender.Instance.liquidHost.AddLiquid(new Rectangle(42 * 16 + 500, 207 * 16, 1000, 16), 50, 0.07f, 0.07f);
+            }
 
             Utils.Particles.SetSpawningModules(new SpawnRandomly(0.03f));
             Utils.Particles.SpawnParticles(player.Center, Vector2.Zero);

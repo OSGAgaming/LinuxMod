@@ -6,3 +6,15 @@ obj/Debug/net45/LinuxMod.csproj.CoreCompileInputs.cache
 obj/Debug/net45/LinuxMod.csprojAssemblyReference.cache
 obj/Debug/net45/LinuxMod.pdb
 obj/Debug/net45/LinuxMod.dll
+obj/Debug/net45/LinuxMod.csproj.CoreCompileInputs.cache
+obj/Debug/net45/LinuxMod.csprojAssemblyReference.cache
+obj/Debug/net45/LinuxMod.dll
+obj/Debug/net45/LinuxMod.pdb
+.vs/LinuxMod/DesignTimeBuild/.dtbcache.v2
+.vs/LinuxMod/v16/.suo
+.vs/LinuxMod/v16/Browse.VC.db
+bin/Debug/net45/LinuxMod.pdb
+bin/Debug/net45/LinuxMod.dll
+*.pdb
+*.dll
+*.cache

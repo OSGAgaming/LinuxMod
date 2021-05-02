@@ -1,4 +1,5 @@
 using LinuxMod.Core.Mechanics;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace LinuxMod.Core

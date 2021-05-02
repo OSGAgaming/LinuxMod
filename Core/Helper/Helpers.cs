@@ -1,5 +1,6 @@
 using EEMod.Extensions;
 using LinuxMod.Core;
+using LinuxMod.Core.Helper.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -81,6 +82,10 @@ namespace LinuxMod.Core
                 }
             }
             return Array;
+        }
+        public static Color GetColor(Point p)
+        {
+            return Lighting.GetColor(p.X, p.Y);
         }
         public static void TexToDust(string path, Vector2 position, int accuracy = 1, float spacing = 1, int threshold = 126)
         {

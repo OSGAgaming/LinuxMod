@@ -1,4 +1,5 @@
-using EEMod.Extensions;
+
+using LinuxMod.Core.Helper.Extensions;
 using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
