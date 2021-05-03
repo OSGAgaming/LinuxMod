@@ -5,7 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using LinuxMod.Core.Helper;
 using Terraria.ModLoader;
+using LinuxMod.Core;
 
 namespace LinuxMod.Content.Projectiles.Cutscene
 {
@@ -35,28 +37,20 @@ namespace LinuxMod.Content.Projectiles.Cutscene
 
         public override void AI()
         {
-            if(projectile.ai[0] == 0)
+            ScreenMapPass.Instance.GetMap("Sewers").DrawToTarget((SpriteBatch sb) =>
             {
-                WaterPositionCache.Positions.Add(projectile.position);
-                projectile.ai[0] = 1;
-            }
+                Vector2 v = projectile.position + new Vector2(10, 16);
+                int Y = LUtils.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
+                float Diff = Y*16 - v.Y;
+                sb.Draw(Main.magicPixel, v.ForDraw(), new Rectangle(0, 0, 20, (int)Diff - 10), Color.LightBlue);
+            });
         }
-
         public override void Kill(int timeLeft)
         {
             WaterPositionCache.Positions.Remove(projectile.position);
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {
-           /* ScreenMapPass.Instance.GetMap("Sewer").DrawToTarget((SpriteBatch sb) =>
-            {
-                Vector2 v = projectile.position.ForDraw();
-                Point p1 = v.ToPoint();
-                Point p2 = new Point(100, 100);
-                sb.Draw(Main.magicPixel, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), Color.Green);
-            });
-
-            ScreenMapPass.Instance.GetMap("Sewer").ApplyShader();*/
             return false;
         }
     }

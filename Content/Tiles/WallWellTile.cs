@@ -41,16 +41,24 @@ namespace LinuxMod.Content.Tiles
         }
         public override void PlaceInWorld(int i, int j, Item item)
         {
-            if (!WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
+            if (Framing.GetTileSafely(i, j).frameX == 0 && Framing.GetTileSafely(i, j).frameY == 0)
             {
-                Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
+                if (!WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
+                {
+                    Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
+                    WaterPositionCache.Positions.Add(new Vector2(i * 16, j * 16));
+                }
             }
         }
         public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
         {
-            if (!WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
+            if (Framing.GetTileSafely(i, j).frameX == 0 && Framing.GetTileSafely(i, j).frameY == 0)
             {
-                Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
+                if (!WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
+                {
+                    Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
+                    WaterPositionCache.Positions.Add(new Vector2(i * 16, j * 16));
+                }
             }
         }
     }

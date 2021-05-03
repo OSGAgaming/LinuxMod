@@ -10,8 +10,9 @@ using LinuxMod.Core.Assets;
 
 namespace LinuxMod.Core
 {
-    public static partial class Utils
+    public static partial class LUtils
     {
+        public static Vector2 DeltaScreen => Main.screenPosition - Main.screenLastPosition;
         public static void Draw(Texture2D tex, Vector2 position, Color colour, float scale, Rectangle frame = default)
         {
             Main.spriteBatch.Draw(tex, position, frame == default ? tex.Bounds : frame, colour, 0f, frame == default ? tex.TextureCenter() : frame.Center(), scale, SpriteEffects.None, 0f);

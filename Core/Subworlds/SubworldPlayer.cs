@@ -12,6 +12,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using static Terraria.ModLoader.ModContent;
 using Terraria.DataStructures;
+using LinuxMod.Core.Mechanics;
 
 namespace LinuxMod.Core.Subworlds
 {

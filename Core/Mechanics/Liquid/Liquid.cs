@@ -34,8 +34,12 @@ namespace LinuxMod.Core.Mechanics
         public Color color = Color.LightBlue;
         public void SetDampeningTo(float dampening) => this.dampening = dampening;
         public void SetFrame(Rectangle vertices) => frame = vertices;
+
+        public virtual void OnUpdate() { }
         public void Update()
         {
+            OnUpdate();
+
             Player entity = Main.LocalPlayer;
 
             Point pos = entity.position.ToPoint();

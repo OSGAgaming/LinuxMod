@@ -30,6 +30,12 @@ namespace LinuxMod.Core.Mechanics
             Liquids.Add(liquid);
         }
 
+        public void AddLiquid(Liquid liquid)
+        {
+            liquid.Initialize();
+
+            Liquids.Add(liquid);
+        }
         public void UpdateLiquids()
         {
             foreach (Liquid liquid in Liquids.ToArray())

@@ -26,7 +26,7 @@ namespace LinuxMod.Core
         Right,
         Left
     }
-    public static partial class Utils
+    public static partial class LUtils
     {
         public static void FillRegionNoEdit(int width, int height, Vector2 startingPoint, int type)
         {

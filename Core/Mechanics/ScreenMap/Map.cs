@@ -12,16 +12,30 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
     {
         internal Dictionary<string, MapPass> MapPasses = new Dictionary<string, MapPass>();
 
-        public void OrderedRenderPass(SpriteBatch sb, GraphicsDevice GD)
+        public void OrderedRenderPassBatched(SpriteBatch sb, GraphicsDevice GD)
         {
             RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
+            int i = 0;
 
-            int i = 0; 
-            foreach(KeyValuePair<string, MapPass> Map in MapPasses)
+            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+
+            for (int a = 0; a < MapPasses.Count; a++)
             {
-                var Pass = Map.Value;
+                foreach (KeyValuePair<string, MapPass> Map in MapPasses)
+                {
+                    var Pass = Map.Value;
 
-                if(Pass.Index == i) Pass.Render(sb, GD);
+                    if (Pass.Index != i) continue;
+                    Matrix ScalieMatrix = Matrix.CreateScale(1/ (float)Pass.PixelationFactor);
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
+                    Pass.DrawToPixelationTarget(sb, GD);
+                    sb.End();
+
+                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
+                    Pass.Render(sb, GD);
+                    sb.End();
+                }
 
                 i++;
             }
@@ -29,39 +43,50 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
             Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
         }
 
-        public List<RenderTarget2D> Buffers = new List<RenderTarget2D>();
-
-        public RenderTarget2D OrderedShaderPass(SpriteBatch sb, RenderTarget2D target)
+        public void OrderedRenderPass(SpriteBatch sb, GraphicsDevice GD)
         {
+            RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
+
             int i = 0;
+            sb.End();
             foreach (KeyValuePair<string, MapPass> Map in MapPasses)
             {
-                Main.graphics?.GraphicsDevice.SetRenderTarget(Buffers[i]);
-                Main.graphics?.GraphicsDevice.Clear(Color.Transparent);
-
-                sb.End();
-                sb.Begin(SpriteSortMode.Immediate, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
                 var Pass = Map.Value;
 
-                if (Pass.Index == i) Pass.ApplyShader();
-
-                RenderTarget2D rT;
-                if (i - 1 < 0) rT = target; else rT = Buffers[i - 1];
-
-                if (Main.graphics != null)
-                {
-                    Rectangle frame = new Rectangle(0,0,2560,1440);
-                    sb.Draw(rT, Vector2.Zero, frame, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-                }
+                if (Pass.Index == i) Pass.Render(sb, GD);
 
                 i++;
 
                 sb.End();
-                sb.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
             }
 
-            Main.graphics.GraphicsDevice.SetRenderTarget(null);
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
+
+        }
+
+        public List<RenderTarget2D> Buffers = new List<RenderTarget2D>();
+
+        public RenderTarget2D OrderedShaderPass()
+        {
+            int i = 0;
+
+            for (int a = 0; a < MapPasses.Count; a++)
+            {
+                foreach (KeyValuePair<string, MapPass> Map in MapPasses)
+                {
+                    var Pass = Map.Value;
+
+                    if (Pass.Index != i) continue;
+
+                    Pass.ApplyShader();
+                }
+
+                i++;
+            }
 
             return Buffers[Buffers.Count - 1];
         }

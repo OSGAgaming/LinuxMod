@@ -15,16 +15,17 @@ namespace LinuxMod.Core.Mechanics
         public PrimitiveManager Primitives = new PrimitiveManager();
         public override void AddHooks()
         {
-            On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            On.Terraria.Main.DrawProjectiles += Main_DrawProjectiles;
             Instance = this;
         }
 
-        public void CreateTrail(Primitive PT) => Primitives._trails.Add(PT);
-
-        private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
+        private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
             Primitives.Draw(Main.spriteBatch);
             orig(self);
         }
+
+        public void CreateTrail(Primitive PT) => Primitives._trails.Add(PT);
+
     }
 }

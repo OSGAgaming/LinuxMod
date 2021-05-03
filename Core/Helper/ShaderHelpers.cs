@@ -20,13 +20,13 @@ using Terraria.Graphics.Shaders;
 
 namespace LinuxMod.Core
 {
-    public static partial class Utils
+    public static partial class LUtils
     {
         public static void ActivateScreenShader(string ShaderName, Vector2 vec = default)
         {
             if (Main.netMode != NetmodeID.Server && !Filters.Scene[ShaderName].IsActive())
             {
-                Filters.Scene.Activate(ShaderName, vec).GetShader();
+                Filters.Scene.Activate(ShaderName, vec);
             }
         }
 

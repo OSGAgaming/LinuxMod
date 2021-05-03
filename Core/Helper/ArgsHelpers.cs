@@ -1,6 +1,6 @@
 ﻿namespace LinuxMod.Core
 {
-    public static partial class Utils
+    public static partial class LUtils
     {
         public static bool GetArgsOrDefault<T>(object[] args, out T val) => TryGetFromArray(args, 0, out val);
 

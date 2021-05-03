@@ -20,16 +20,8 @@ namespace LinuxMod.Core.Mechanics
             Maps = new Map();
 
             Maps.AddMap("CutsceneWaterReflection", 0, new CutsceneWater());
-            Maps.AddMap("Sewer", 1, new SewerWater());
+            Maps.AddMap("Sewers", 1, new SewerWater());
             Instance = this;
-        }
-        public override void AddHooks()
-        {
-            Main.OnPostDraw += Main_OnPostDraw;
-        }
-
-        private void Main_OnPostDraw(GameTime obj)
-        {
         }
     }
 

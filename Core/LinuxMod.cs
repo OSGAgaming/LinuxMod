@@ -16,7 +16,6 @@ namespace LinuxMod.Core
             ShaderLoading();
             AutoloadMechanics.Load();
         }
-
         public override void Unload()
         {
             Subworlds = null;

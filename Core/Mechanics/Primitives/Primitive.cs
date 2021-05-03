@@ -73,8 +73,15 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             PrimStructure(sb);
             SetShaders();
-            if (_noOfPoints >= 1)
-                _device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, _noOfPoints / 3);
+            try
+            {
+                if (_noOfPoints >= 1)
+                    _device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, _noOfPoints / 3);
+            }
+            catch
+            {
+                Main.NewText("Failed To Draw Primitives");
+            }
         }
         public virtual void OnUpdate() { }
         public virtual void PrimStructure(SpriteBatch spriteBatch) { }

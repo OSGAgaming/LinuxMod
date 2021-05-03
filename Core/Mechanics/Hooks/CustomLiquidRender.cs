@@ -1,3 +1,4 @@
+using LinuxMod.Core.Helper.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
@@ -14,26 +15,26 @@ namespace LinuxMod.Core.Mechanics
 
         public override void AddHooks()
         {
+            On.Terraria.Main.UpdateDisplaySettings += Main_UpdateDisplaySettings;
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
-            On.Terraria.Main.DrawCachedNPCs += Main_DrawCachedNPCs;
-            On.Terraria.Main.SortDrawCacheWorms += Main_SortDrawCacheWorms;
             Instance = this;
         }
 
-        private void Main_SortDrawCacheWorms(On.Terraria.Main.orig_SortDrawCacheWorms orig, Main self)
+        private void Main_UpdateDisplaySettings(On.Terraria.Main.orig_UpdateDisplaySettings orig, Main self)
         {
+            ScreenMapPass.Instance?.Maps?.OrderedRenderPassBatched(Main.spriteBatch, Main.graphics.GraphicsDevice);
+
             orig(self);
-        }
-        private void Main_DrawCachedNPCs(On.Terraria.Main.orig_DrawCachedNPCs orig, Main self, System.Collections.Generic.List<int> npcCache, bool behindTiles)
-        {
-            orig(self, npcCache, behindTiles);
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
-            orig(self);
+            ScreenMapPass.Instance.Maps.OrderedShaderPass();
+
             liquidHost.UpdateLiquids();
-            ScreenMapPass.Instance.Maps.OrderedRenderPass(Main.spriteBatch, Main.graphics.GraphicsDevice);
+
+            orig(self);
+
         }
     }
 }

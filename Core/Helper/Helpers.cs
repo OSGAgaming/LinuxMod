@@ -17,7 +17,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core
 {
-    public static partial class Utils
+    public static partial class LUtils
     {
         internal const string EmptyTexture = "EEMod/Empty";
         // public static InteritosGlobalNPC Interitos(this NPC npc) => npc.GetGlobalNPC<InteritosGlobalNPC>();

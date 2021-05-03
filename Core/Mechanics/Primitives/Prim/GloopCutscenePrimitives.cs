@@ -1,5 +1,6 @@
 ﻿
 using LinuxMod.Core.Assets;
+using LinuxMod.Core.Helper.Extensions;
 using LinuxMod.Core.Mechanics.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,13 +28,13 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             for (int i = 0; i < _points.Count - 1; i++)
             {
-                AddVertex(_points[i], colour, new Vector2(i / (float)(_points.Count), 0));
-                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
-                AddVertex(new Vector2(_points[i].X, water.frame.Bottom), colour, new Vector2(i / (float)(_points.Count), 1));
+                AddVertex(_points[i] - LUtils.DeltaScreen, colour, new Vector2(i / (float)(_points.Count), 0));
+                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom) - LUtils.DeltaScreen, colour, new Vector2((i + 1) / (float)(_points.Count), 1));
+                AddVertex(new Vector2(_points[i].X, water.frame.Bottom) - LUtils.DeltaScreen, colour, new Vector2(i / (float)(_points.Count), 1));
 
-                AddVertex(_points[i], colour, new Vector2(i / (float)(_points.Count), 0));
-                AddVertex(_points[i + 1], colour, new Vector2((i + 1) / (float)(_points.Count), 0));
-                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
+                AddVertex(_points[i] - LUtils.DeltaScreen, colour, new Vector2(i / (float)(_points.Count), 0));
+                AddVertex(_points[i + 1] - LUtils.DeltaScreen, colour, new Vector2((i + 1) / (float)(_points.Count), 0));
+                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom) - LUtils.DeltaScreen, colour, new Vector2((i + 1) / (float)(_points.Count), 1));
             }
         }
         public override void SetShaders()
@@ -47,8 +48,6 @@ namespace LinuxMod.Core.Mechanics.Primitives
         public override void OnUpdate()
         {
             ScreenMapPass.Instance.GetMap("CutsceneWaterReflection").DrawToTarget(Draw);
-
-            ScreenMapPass.Instance.GetMap("CutsceneWaterReflection").ApplyShader();
 
             _points = water.Pos.ToList();
             _counter++;
