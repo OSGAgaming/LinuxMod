@@ -15,22 +15,19 @@ namespace LinuxMod.Core.Mechanics
 
         public override void AddHooks()
         {
-            On.Terraria.Main.UpdateDisplaySettings += Main_UpdateDisplaySettings;
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            On.Terraria.Main.UpdateDisplaySettings += Main_UpdateDisplaySettings1;
             Instance = this;
         }
 
-        private void Main_UpdateDisplaySettings(On.Terraria.Main.orig_UpdateDisplaySettings orig, Main self)
+        private void Main_UpdateDisplaySettings1(On.Terraria.Main.orig_UpdateDisplaySettings orig, Main self)
         {
-            ScreenMapPass.Instance?.Maps?.OrderedRenderPassBatched(Main.spriteBatch, Main.graphics.GraphicsDevice);
 
             orig(self);
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
-            ScreenMapPass.Instance.Maps.OrderedShaderPass();
-
             liquidHost.UpdateLiquids();
 
             orig(self);

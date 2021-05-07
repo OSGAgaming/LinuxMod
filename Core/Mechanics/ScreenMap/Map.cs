@@ -12,12 +12,12 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
     {
         internal Dictionary<string, MapPass> MapPasses = new Dictionary<string, MapPass>();
 
-        public void OrderedRenderPassBatched(SpriteBatch sb, GraphicsDevice GD)
+        public void OrderedRenderPassBatched(SpriteBatch sb, GraphicsDevice GD, bool Batched = true)
         {
             RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
             int i = 0;
 
-            Matrix matrix = Main.GameViewMatrix.TransformationMatrix;
+            Matrix matrix = Main.GameViewMatrix.ZoomMatrix;
 
             for (int a = 0; a < MapPasses.Count; a++)
             {
@@ -26,15 +26,14 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
                     var Pass = Map.Value;
 
                     if (Pass.Index != i) continue;
-                    Matrix ScalieMatrix = Matrix.CreateScale(1/ (float)Pass.PixelationFactor);
+
+                    GD.SetRenderTarget(Pass.MapTarget);
+                    GD.Clear(Color.Transparent);
 
                     sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
-                    Pass.DrawToPixelationTarget(sb, GD);
+                    Pass.RenderBatched(sb, GD);
                     sb.End();
-
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
-                    Pass.Render(sb, GD);
-                    sb.End();
+                    Pass.RenderPrimitive(sb, GD);
                 }
 
                 i++;
@@ -43,26 +42,26 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
             Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
         }
 
-        public void OrderedRenderPass(SpriteBatch sb, GraphicsDevice GD)
+        public void OrderedRenderPass(SpriteBatch sb, GraphicsDevice GD, bool Batched = true)
         {
             RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
 
             int i = 0;
-            sb.End();
+           
             foreach (KeyValuePair<string, MapPass> Map in MapPasses)
             {
-                sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, null, null, null, Main.GameViewMatrix.TransformationMatrix);
-
+                
                 var Pass = Map.Value;
 
-                if (Pass.Index == i) Pass.Render(sb, GD);
+                if (Pass.Index == i)
+                {
+                    if (Batched) Pass.RenderBatched(sb, GD);
+                    else Pass.RenderPrimitive(sb, GD);
+                }
 
                 i++;
-
-                sb.End();
             }
 
-            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
             Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
 
@@ -90,7 +89,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
             return Buffers[Buffers.Count - 1];
         }
-        public void DrawToMap(string Map, MapRender MR) => MapPasses[Map].DrawToTarget(MR);
+        public void DrawToMap(string Map, MapRender MR) => MapPasses[Map].DrawToBatchedTarget(MR);
 
         public void AddMap(string MapName,int Index, MapPass MP) 
         {

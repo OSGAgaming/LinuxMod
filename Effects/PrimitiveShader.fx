@@ -113,14 +113,14 @@ float4 Example(VertexShaderOutput input) : COLOR
 	float diff = dimensions.y / averageDimensions.y;
 	input.Color += max(0,1 - input.TextureCoordinates.y * (6 / diff));
 	float2 coords = input.TextureCoordinates;
-	float2 Sample1 = float2((coords.x / 2 + progress / 10000 + 0.5f) % 1, (coords.y / 20 + progress / 10000 + 0.5f) % 1);
-	float2 Sample2 = float2((coords.x / 2 - progress / 5000 + 0.5f) % 1, (coords.y / 20 + progress / 20000 + 0.5f) % 1);
-	float disp = GetNoise(Sample1) * GetNoise(Sample2);
-	float4 polka = tex2D(waterSampler, float2(coords.x*1.5f + disp, coords.y)).g;
-	//input.Color += polka*max(0,coords.y*0.76f - 0.15f);
+
 	return input.Color;
 }
 
+float4 WReflect(VertexShaderOutput input) : COLOR
+{
+	return input.Color * pow(input.TextureCoordinates.y,3);
+}
 
 float4 BasicImage(VertexShaderOutput input) : COLOR
 {
@@ -133,6 +133,10 @@ technique BasicColorDrawing
 	pass Example
 	{
 		PixelShader = compile ps_2_0 Example();
+	}
+	pass WReflect
+	{
+		PixelShader = compile ps_2_0 WReflect();
 	}
 	pass BasicImagePass
 	{

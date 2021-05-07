@@ -21,6 +21,7 @@ namespace LinuxMod.Core.Mechanics
 
             Maps.AddMap("CutsceneWaterReflection", 0, new CutsceneWater());
             Maps.AddMap("Sewers", 1, new SewerWater());
+            Maps.AddMap("WaterWall", 2, new WaterWall());
             Instance = this;
         }
     }

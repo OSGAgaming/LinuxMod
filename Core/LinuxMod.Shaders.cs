@@ -31,7 +31,7 @@ namespace LinuxMod.Core
             QuickLoadShader("Effects/Viginette");
             QuickLoadShader("Effects/WaterWallReflection");
             QuickLoadShader("Effects/Sewers");
-
+            QuickLoadShader("Effects/WaterWall");
         }
     }
 }

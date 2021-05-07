@@ -72,5 +72,33 @@ namespace LinuxMod.Core
 
             return zero;
         }
+        public static void DrawBoxFill(Vector2 pos, int width, int height, Color tint) => Main.spriteBatch.Draw(Main.magicPixel, pos, new Rectangle(0, 0, width, height), tint);
+        public static void DrawBoxFill(Rectangle rectangle, Color tint) => Main.spriteBatch.Draw(Main.magicPixel, rectangle.Location.ToVector2(), new Rectangle(0, 0, rectangle.Width, rectangle.Height), tint);
+
+        public static void DrawSquare(Vector2 point, float size, Color color)
+        {
+            DrawLine(new Vector2(point.X + size, point.Y + size), new Vector2(point.X, point.Y + size), color);
+            DrawLine(new Vector2(point.X + size, point.Y + size), new Vector2(point.X + size, point.Y), color);
+            DrawLine(point, new Vector2(point.X, point.Y + size), color);
+            DrawLine(point, new Vector2(point.X + size, point.Y), color);
+        }
+
+        public static void DrawRectangle(Vector2 point, float sizeX, float sizeY, Color color, float thickness = 1)
+        {
+            DrawLine(new Vector2(point.X + sizeX, point.Y + sizeY), new Vector2(point.X, point.Y + sizeY), color, thickness);
+            DrawLine(new Vector2(point.X + sizeX, point.Y + sizeY), new Vector2(point.X + sizeX, point.Y), color, thickness);
+            DrawLine(point, new Vector2(point.X, point.Y + sizeY), color, thickness);
+            DrawLine(point, new Vector2(point.X + sizeX, point.Y), color, thickness);
+        }
+        public static void DrawRectangle(Rectangle rectangle, Color color, float thickness = 1)
+        {
+            Vector2 point = rectangle.Location.ToVector2();
+            int sizeX = (int)rectangle.Size().X;
+            int sizeY = (int)rectangle.Size().Y;
+            DrawLine(new Vector2(point.X + sizeX, point.Y + sizeY), new Vector2(point.X, point.Y + sizeY), color, thickness);
+            DrawLine(new Vector2(point.X + sizeX, point.Y + sizeY), new Vector2(point.X + sizeX, point.Y), color, thickness);
+            DrawLine(point, new Vector2(point.X, point.Y + sizeY), color, thickness);
+            DrawLine(point, new Vector2(point.X + sizeX, point.Y), color, thickness);
+        }
     }
 }

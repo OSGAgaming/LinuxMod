@@ -11,15 +11,24 @@ namespace LinuxMod.Core.Mechanics
     {
         public override void AddHooks()
         {
-            On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            On.Terraria.Main.DrawProjectiles += Main_DrawProjectiles;
+        }
+
+        private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
+        {
+            orig(self);
+
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+            LinuxMod.GlobalZone.Update();
+            LinuxMod.GlobalZone.Draw(Main.spriteBatch);
+
+            Main.spriteBatch.End();
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
-            orig(self);
-
-            LinuxMod.GlobalZone.Update();
-            LinuxMod.GlobalZone.Draw(Main.spriteBatch);
+            
 
         }
     }

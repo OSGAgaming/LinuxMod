@@ -32,6 +32,20 @@ sampler noiseSampler = sampler_state
     Texture = (Noise);
 };
 
+texture TileTarget;
+sampler tilesampler = sampler_state
+{
+    Texture = (TileTarget);
+};
+
+
+texture WallTarget;
+sampler wallsampler = sampler_state
+{
+    Texture = (WallTarget);
+};
+
+
 float2 WorldCoords(float2 coords)
 {
     return coords + uScreenPosition / uScreenResolution;

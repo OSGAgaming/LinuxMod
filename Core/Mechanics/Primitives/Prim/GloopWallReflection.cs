@@ -9,10 +9,11 @@ using Terraria;
 
 namespace LinuxMod.Core.Mechanics.Primitives
 {
-    internal class WaterPrimtives : Primitive
+    internal class GloopWallReflection : Primitive
     {
         private Liquid water;
-        public WaterPrimtives(Liquid water)
+        private int Height;
+        public GloopWallReflection(Liquid water)
         {
             this.water = water;
         }
@@ -21,20 +22,26 @@ namespace LinuxMod.Core.Mechanics.Primitives
             _alphaValue = 0.4f;
             _width = 1;
             _cap = 1000;
+            Height = 70;
         }
         public override void PrimStructure(SpriteBatch spriteBatch)
         {
-            Color colour = water.color*_alphaValue;
+            Color colour = Color.White*_alphaValue;
+
+            Main.NewText("lol");
 
             for (int i = 0; i < _points.Count - 1; i++)
             {
-                AddVertex(_points[i], colour, new Vector2(i / (float)(_points.Count), 0));
-                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
-                AddVertex(new Vector2(_points[i].X, water.frame.Bottom), colour, new Vector2(i / (float)(_points.Count), 1));
+                Vector2 v = new Vector2(_points[i].X, water.frame.Y - Height);
+                Vector2 v1 = new Vector2(_points[i + 1].X, water.frame.Y - Height);
 
-                AddVertex(_points[i], colour, new Vector2(i / (float)(_points.Count), 0));
-                AddVertex(_points[i + 1], colour, new Vector2((i + 1) / (float)(_points.Count), 0));
-                AddVertex(new Vector2(_points[i + 1].X, water.frame.Bottom), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
+                AddVertex(v, colour, new Vector2(i / (float)(_points.Count), 0));
+                AddVertex(new Vector2(_points[i + 1].X, _points[i + 1].Y), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
+                AddVertex(new Vector2(_points[i].X, _points[i].Y), colour, new Vector2(i / (float)(_points.Count), 1));
+
+                AddVertex(v, colour, new Vector2(i / (float)(_points.Count), 0));
+                AddVertex(v1, colour, new Vector2((i + 1) / (float)(_points.Count), 0));
+                AddVertex(new Vector2(_points[i + 1].X, _points[i + 1].Y), colour, new Vector2((i + 1) / (float)(_points.Count), 1));
             }
         }
         public override void SetShaders()
@@ -42,12 +49,12 @@ namespace LinuxMod.Core.Mechanics.Primitives
             Effect effect = LinuxMod.PrimitiveShaders;
             effect.Parameters["dimensions"].SetValue(water.frame.Size());
             effect.Parameters["averageDimensions"].SetValue(new Vector2(100,20));
-            PrepareShader(effect, "Example", _counter);
+            PrepareShader(effect, "WReflect", _counter);
         }
        
         public override void OnUpdate()
         {
-            ScreenMapPass.Instance.GetMap("CutsceneWaterReflection").DrawToPrimitiveTarget(Draw);
+            ScreenMapPass.Instance.GetMap("WaterWall").DrawToBatchedTarget(Draw);
 
             _points = water.Pos.ToList();
             _counter++;

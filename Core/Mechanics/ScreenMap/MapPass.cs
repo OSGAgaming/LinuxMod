@@ -17,7 +17,8 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
         public RenderTarget2D MapTarget;
 
-        internal event MapRender MapActions;
+        internal event MapRender BatchedCalls;
+        internal event MapRender PrimitiveCalls;
 
         public RenderTarget2D PixelationTarget { get; set; }
 
@@ -29,13 +30,17 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         internal virtual void OnApplyShader() { }
         public virtual void Load()
         {
-            MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
+            MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight, false,
+                                          SurfaceFormat.Color,
+                                           DepthFormat.Depth24, 0, RenderTargetUsage.PreserveContents);
             PixelationTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth / PixelationFactor, Main.screenHeight/ PixelationFactor);
         }
         public void ApplyShader()
         {
             MapEffect?.Shader.Parameters["Noise"]?.SetValue(Asset.GetTexture("Noise/noise"));
             MapEffect.Shader.Parameters["Map"].SetValue(MapTarget);
+            MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Main.instance.tile2Target);
+            MapEffect.Shader.Parameters["WallTarget"]?.SetValue(Main.instance.wallTarget);
 
             MapEffect.UseIntensity(Main.GameUpdateCount);
 
@@ -44,22 +49,20 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
             LUtils.ActivateScreenShader(MapEffectName);
         }
 
-        public void DrawToTarget(MapRender method) => MapActions += method;
-        public void Render(SpriteBatch spriteBatch, GraphicsDevice GD)
-        {
-            GD.SetRenderTarget(MapTarget);
-            GD.Clear(Color.Transparent);
+        public void DrawToBatchedTarget(MapRender method) => BatchedCalls += method;
 
-            spriteBatch.Draw(PixelationTarget, new Rectangle(0,0, Main.screenWidth, Main.screenHeight), Color.White);
+        public void DrawToPrimitiveTarget(MapRender method) => PrimitiveCalls += method;
+
+        public void RenderBatched(SpriteBatch spriteBatch, GraphicsDevice GD)
+        {
+            BatchedCalls?.Invoke(spriteBatch);
+            BatchedCalls = null;
         }
 
-        public void DrawToPixelationTarget(SpriteBatch spriteBatch, GraphicsDevice GD)
+        public void RenderPrimitive(SpriteBatch spriteBatch, GraphicsDevice GD)
         {
-            GD.SetRenderTarget(PixelationTarget);
-            GD.Clear(Color.Transparent);
-
-            MapActions?.Invoke(spriteBatch);
-            MapActions = null;
+            PrimitiveCalls?.Invoke(spriteBatch);
+            PrimitiveCalls = null;
         }
 
         public Map Parent;

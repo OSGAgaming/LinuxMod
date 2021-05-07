@@ -17,10 +17,20 @@ namespace LinuxMod.Core.Mechanics
 {
     public class Gloop : Liquid
     {
-        private const float IMPULSE = 0.8f; 
+        private const float IMPULSE = 0.15f;
+        GloopWallReflection WR;
+        public override void OnLoad()
+        {
+            WR = new GloopWallReflection(this);
+        }
+        public override void OnDraw(SpriteBatch sb)
+        {
+            WR.Draw(sb);
+        }
         public override void OnUpdate() 
         {
-            for(int i = 0; i < 200; i++)
+            WR.Update();
+            for (int i = 0; i < 200; i++)
             {
                 Projectile p = Main.projectile[i];
 
@@ -30,9 +40,15 @@ namespace LinuxMod.Core.Mechanics
                     if(p.position.X > pos.X && p.position.X < pos.X + frame.Width)
                     {
                         float perc = (p.position.X + 32 - pos.X) / frame.Width;
-                        if (Main.rand.Next(5) == 0)
+                        float perc2 = (p.position.X + 28 - pos.X) / frame.Width;
+                        float perc3 = (p.position.X + 36 - pos.X) / frame.Width;
+                        if (Main.rand.Next(2) == 0)
                         {
-                            SplashPerc(perc, Vector2.UnitY * IMPULSE);
+                            SplashPerc(perc, Vector2.UnitY * Main.rand.NextFloat(IMPULSE,IMPULSE*2));
+
+                            SplashPerc(perc2, Vector2.UnitY * Main.rand.NextFloat(IMPULSE, IMPULSE * 2));
+
+                            SplashPerc(perc3, Vector2.UnitY * Main.rand.NextFloat(IMPULSE, IMPULSE * 2));
 
                             Vector2 splashPoint = new Vector2(p.position.X + 25, frame.Y + 10);
 

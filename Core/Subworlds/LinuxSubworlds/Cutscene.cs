@@ -37,7 +37,8 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
                     accuracy = 50,
                     viscosity = 0.07f,
                     constant = 50,
-                    dampening = 0.07f
+                    dampening = 0.07f,
+                    color = Color.LightBlue
                 };
 
                 LiquidRender.Instance.liquidHost.AddLiquid(liquid);

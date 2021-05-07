@@ -36,12 +36,11 @@ namespace LinuxMod.Core.Mechanics
         public void SetFrame(Rectangle vertices) => frame = vertices;
 
         public virtual void OnUpdate() { }
-        public void Update()
+        public virtual void OnDraw(SpriteBatch sb) { }
+        public virtual void OnLoad() { }
+
+        public void TrackEntitySplash(Entity entity)
         {
-            OnUpdate();
-
-            Player entity = Main.LocalPlayer;
-
             Point pos = entity.position.ToPoint();
             Point dims = new Point(entity.width, entity.height);
 
@@ -50,13 +49,28 @@ namespace LinuxMod.Core.Mechanics
             float preContact = playerFrame.Bottom - entity.velocity.Y * entity.velocity.Y;
 
             if (preContact < frame.Y && frame.Intersects(playerFrame))
-                SplashPerc((entity.Center.X - frame.X) / frame.Width, new Vector2(entity.velocity.X / 4, entity.velocity.Y/4f));
+                SplashPerc((entity.Center.X - frame.X) / frame.Width, new Vector2(entity.velocity.X / 4, entity.velocity.Y / 4f));
 
             if (frame.Intersects(playerFrame))
             {
                 Vector2 v = new Vector2(Math.Abs(entity.velocity.X), Math.Abs(entity.velocity.Y));
                 SplashPerc((entity.Center.X - frame.X + entity.velocity.X) / frame.Width, new Vector2(0, -v.X / 4 * Main.rand.NextFloat(1, 1.5f)));
                 SplashPerc((entity.Center.X - frame.X - entity.velocity.X) / frame.Width, new Vector2(0, v.X / 7 * Main.rand.NextFloat(1, 1.5f)));
+            }
+        }
+        public void Update()
+        {
+            OnUpdate();
+
+            Player entity = Main.LocalPlayer;
+            TrackEntitySplash(entity);
+
+            for (int i = 0; i < 200; i++)
+            {
+                if(Main.projectile[i].active)
+                 TrackEntitySplash(Main.projectile[i]);
+                if (Main.npc[i].active)
+                    TrackEntitySplash(Main.npc[i]);
             }
 
             for (int i = 0; i < accuracy + 1; i++)
@@ -99,6 +113,7 @@ namespace LinuxMod.Core.Mechanics
         public void Draw(SpriteBatch spriteBatch)
         {
             Primitives.Draw(spriteBatch);
+            OnDraw(spriteBatch);
         }
         public void Splash(int index, float speed) => vel[index].Y = speed;
         public void SplashPerc(float perc, Vector2 speed) => vel[(int)(MathHelper.Clamp(perc, 0, 1) * accuracy)] += speed;
@@ -136,6 +151,7 @@ namespace LinuxMod.Core.Mechanics
             if (Main.netMode != NetmodeID.Server)
             {
                 Primitives = new WaterPrimtives(this);
+                OnLoad();
             }
         }
     }

@@ -32,6 +32,12 @@ sampler noiseSampler = sampler_state
     Texture = (Noise);
 };
 
+texture Water;
+sampler waterSampler = sampler_state
+{
+    Texture = (Water);
+};
+
 texture TileTarget;
 sampler tilesampler = sampler_state
 {
@@ -45,31 +51,40 @@ sampler wallsampler = sampler_state
     Texture = (WallTarget);
 };
 
-float GetNoise(float2 Coord)
-{
-    return tex2D(noiseSampler, Coord).r;
-}
 float2 WorldCoords(float2 coords)
 {
     return coords + uScreenPosition / uScreenResolution;
 }
 
+float GetNoise(float2 Coord)
+{
+    return tex2D(noiseSampler, Coord).r;
+}
+
 float2 Round(float2 coords, int accuracy)
 {
     float2 pixel = float2(uScreenResolution.x / accuracy, uScreenResolution.y / accuracy);
-    return float2(floor(coords.x * pixel.x), floor(coords.y * pixel.y)) / pixel;
+    return float2(floor(coords.x * pixel.x), floor(coords.y * pixel.y))/ pixel;
 }
 
 float4 P1(float2 coords : TEXCOORD0) : COLOR0
 {
-    float2 WC = WorldCoords(coords);
+    float2 WC = Round(WorldCoords(coords),2);
 
-    float4 wColor = tex2D(mapSampler, Round(coords,2));
-    float2 Sample1 = float2((WC.x / 2 + uIntensity / 1000 + 0.5f) % 1, (WC.y * 10 + uIntensity / 1000 + 0.5f) % 1);
-    float2 Sample2 = float2((WC.x / 2 - uIntensity / 500 + 0.5f) % 1, (WC.y *10 + uIntensity / 2000 + 0.5f) % 1);
-    float2 disp = float2(GetNoise(Sample1)*0.02f, GetNoise(Sample2)*0.02f);
-    float4 colour = tex2D(uImage0, coords + disp*wColor*0.2f) + wColor;
+    float lerp1 = uIntensity / 1000;
+    float lerp2 = uIntensity / 8;
+    float Y = WC.y * 20;
 
+    float4 mColor = tex2D(mapSampler, Round(coords,2));
+    float4 tileColor = tex2D(tilesampler, Round(coords, 2));
+
+    float2 Sample1 = float2((WC.x + uIntensity / 8000 + 0.5f) % 1, (WC.y+ uIntensity / 6000 + 0.5f) % 1);
+    float2 Sample2 = float2((WC.x - uIntensity / 2000 + 0.5f) % 1, (WC.y + uIntensity / 4000 + 0.5f) % 1);
+    float disp = GetNoise(Sample1) * GetNoise(Sample2);
+
+    float4 wColor = tex2D(waterSampler, WC + disp/2);
+
+    float4 colour = tex2D(uImage0, coords) + mColor* wColor*0.4f;
     return colour;
 }
 
