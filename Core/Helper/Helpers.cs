@@ -29,7 +29,10 @@ namespace LinuxMod.Core
 
         public const float DegreeInRadians = (float)(Math.PI / 180);
         public const float RadianInDegrees = (float)(180 / Math.PI);
-
+        public static Type[] GetInheritedClasses(Type MyType)
+        {
+            return MyType.Assembly.GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && MyType.IsAssignableFrom(TheType)).ToArray();
+        }
         public static float X(float t,
     float x0, float x1, float x2, float x3)
         {

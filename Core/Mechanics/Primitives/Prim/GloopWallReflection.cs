@@ -28,8 +28,6 @@ namespace LinuxMod.Core.Mechanics.Primitives
         {
             Color colour = Color.White*_alphaValue;
 
-            Main.NewText("lol");
-
             for (int i = 0; i < _points.Count - 1; i++)
             {
                 Vector2 v = new Vector2(_points[i].X, water.frame.Y - Height);

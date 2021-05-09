@@ -76,15 +76,17 @@ float4 P1(float2 coords : TEXCOORD0) : COLOR0
     float Y = WC.y * 20;
 
     float4 mColor = tex2D(mapSampler, Round(coords,2));
-    float4 tileColor = tex2D(tilesampler, Round(coords, 2));
+
+    float4 tileColor = tex2D(tilesampler, coords);
+    float4 tileColor2 = tex2D(tilesampler, coords + float2(0, 0.006f));
 
     float2 Sample1 = float2((WC.x + uIntensity / 8000 + 0.5f) % 1, (WC.y+ uIntensity / 6000 + 0.5f) % 1);
     float2 Sample2 = float2((WC.x - uIntensity / 2000 + 0.5f) % 1, (WC.y + uIntensity / 4000 + 0.5f) % 1);
     float disp = GetNoise(Sample1) * GetNoise(Sample2);
 
     float4 wColor = tex2D(waterSampler, WC + disp/2);
-
-    float4 colour = tex2D(uImage0, coords) + mColor* wColor*0.4f;
+    float tiledisp = max(tileColor.a - tileColor2.a, 0);
+    float4 colour = tex2D(uImage0, coords) + (1 - tileColor.a) * mColor* wColor*0.4f;
     return colour;
 }
 

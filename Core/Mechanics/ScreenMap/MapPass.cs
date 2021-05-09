@@ -15,13 +15,13 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
     {
         public int Index;
 
-        public RenderTarget2D MapTarget;
 
         internal event MapRender BatchedCalls;
         internal event MapRender PrimitiveCalls;
 
+        public RenderTarget2D MapTarget;
         public RenderTarget2D PixelationTarget { get; set; }
-
+        public RenderTarget2D OcclusionTarget { get; set; }
         public int PixelationFactor { get; } = 1;
 
         protected abstract string MapEffectName { get; }
@@ -30,16 +30,14 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         internal virtual void OnApplyShader() { }
         public virtual void Load()
         {
-            MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight, false,
-                                          SurfaceFormat.Color,
-                                           DepthFormat.Depth24, 0, RenderTargetUsage.PreserveContents);
+            MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
             PixelationTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth / PixelationFactor, Main.screenHeight/ PixelationFactor);
         }
         public void ApplyShader()
         {
             MapEffect?.Shader.Parameters["Noise"]?.SetValue(Asset.GetTexture("Noise/noise"));
             MapEffect.Shader.Parameters["Map"].SetValue(MapTarget);
-            MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Main.instance.tile2Target);
+            MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Targets.Instance.ScaledTileTarget);
             MapEffect.Shader.Parameters["WallTarget"]?.SetValue(Main.instance.wallTarget);
 
             MapEffect.UseIntensity(Main.GameUpdateCount);
@@ -52,7 +50,10 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         public void DrawToBatchedTarget(MapRender method) => BatchedCalls += method;
 
         public void DrawToPrimitiveTarget(MapRender method) => PrimitiveCalls += method;
-
+        public void RenderOcclusion(SpriteBatch spriteBatch, GraphicsDevice GD)
+        {
+            
+        }
         public void RenderBatched(SpriteBatch spriteBatch, GraphicsDevice GD)
         {
             BatchedCalls?.Invoke(spriteBatch);

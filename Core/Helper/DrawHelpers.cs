@@ -7,6 +7,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ObjectData;
 using LinuxMod.Core.Assets;
+using ReLogic.Graphics;
 
 namespace LinuxMod.Core
 {
@@ -27,7 +28,19 @@ namespace LinuxMod.Core
         public static Vector2 TextureCenter(this Texture2D texture) => new Vector2(texture.Width / 2, texture.Height / 2);
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
-
+        public static void UITextToCenter(string text, Color colour, Vector2 position, int style)
+        {
+            var font = style == 0 ? Main.fontDeathText : Main.fontMouseText;
+            Vector2 textSize = font.MeasureString(text);
+            float textPositionLeft = position.X - textSize.X / 2;
+            Main.spriteBatch.DrawString(font, text, new Vector2(textPositionLeft, position.Y), colour, 0f, Vector2.Zero, 1, SpriteEffects.None, 0f);
+        }
+        public static void UITextToLeft(string text, Color colour, Vector2 position, int style)
+        {
+            var font = style == 0 ? Main.fontDeathText : Main.fontMouseText;
+            Vector2 textSize = font.MeasureString(text);
+            Main.spriteBatch.DrawString(font, text, new Vector2(position.X, position.Y), colour, 0f, Vector2.Zero, 1, SpriteEffects.None, 0f);
+        }
         public static void DrawTileGlowmask(Texture2D texture, int i, int j)
         {
             int frameX = Framing.GetTileSafely(i, j).frameX;

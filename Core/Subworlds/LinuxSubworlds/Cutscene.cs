@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using LinuxMod.Core.Helper;
+using LinuxMod.Core.Mechanics.Verlet;
 
 namespace LinuxMod.Core.Subworlds.LinuxSubworlds
 {
@@ -30,6 +31,11 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
         {
             if (Main.GameUpdateCount == 3)
             {
+                LinuxMod.verletSystem.BindPoints(new VPoint[]
+                { new VPoint(Main.LocalPlayer.Center, true),
+                  new VPoint(Main.LocalPlayer.Center + new Vector2(10, 10), false),
+                  new VPoint(Main.LocalPlayer.Center + new Vector2(0, 20), false)
+                });
                 //LiquidRender.Instance.liquidHost.AddLiquid(new Rectangle(42 * 16, 205 * 16, 500, 100), 50, 0.04f, 0.05f);
                 Gloop liquid = new Gloop
                 {

@@ -52,7 +52,7 @@ namespace LinuxMod.Core
             }
         }
 
-        private static void FillRegionDiag(int width, int height, Vector2 startingPoint, int type, int leftOrRight)
+        public static void FillRegionDiag(int width, int height, Vector2 startingPoint, int type, int leftOrRight)
         {
             if (leftOrRight == 0)
             {

@@ -8,27 +8,17 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class LiquidRender : Mechanic
+    public class InsigniaHook : Mechanic
     {
-        public static LiquidRender Instance;
-        public LiquidHost liquidHost = new LiquidHost();
-
+        InsigniaHost Host = new InsigniaHost();
         public override void AddHooks()
         {
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
-            On.Terraria.Main.UpdateDisplaySettings += Main_UpdateDisplaySettings1;
-            Instance = this;
-        }
-
-        private void Main_UpdateDisplaySettings1(On.Terraria.Main.orig_UpdateDisplaySettings orig, Main self)
-        {
-
-            orig(self);
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
-            liquidHost.UpdateLiquids();
+            Host.Update();
             orig(self);
 
         }

@@ -76,10 +76,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)),
             new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f),
             new SetLighting(Color.White.ToVector3(), 0.1f));
-        }
-        public override void Kill(int timeLeft)
-        {
-            WaterPositionCache.Positions.Remove(projectile.position);
+
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {

@@ -13,19 +13,26 @@ namespace LinuxMod.Core.Mechanics.Verlet
     {
         private int RENDERDISTANCE => 2000;
 
-        private readonly float _gravity = 0.4f;
-        private readonly float _airResistance = 0.999f;
+        private readonly float _gravity = 0.3f;
+        private readonly float _airResistance = 0.998f;
 
         public List<Stick> Sticks = new List<Stick>();
-        public List<Point> Points = new List<Point>();
+        public List<VPoint> Points = new List<VPoint>();
 
         public int CreateVerletPoint(Vector2 pos, bool isStatic = false)
         {
-            Points.Add(new Point(pos, pos - new Vector2(Main.rand.Next(-10, 10), Main.rand.Next(-10, 10)), isStatic));
+            Points.Add(new VPoint(pos, pos, isStatic));
 
             return Points.Count - 1;
         }
 
+        public VPoint GetPoint(int i) => Points[i];
+        public int CreateVerletPoint(VPoint p)
+        {
+            Points.Add(p);
+
+            return Points.Count - 1;
+        }
         public void ClearPoints()
         {
             Points.Clear();
@@ -33,7 +40,39 @@ namespace LinuxMod.Core.Mechanics.Verlet
         }
 
         public void BindPoints(int a, int b, int Length = 10, Texture2D tex = null) => Sticks.Add(new Stick(new int[] {a, b}, Length, tex));
-        
+
+        public void BindPoints(VPoint[] points, int Length = 10, Texture2D tex = null)
+        {
+            for(int i = 0; i < points.Length; i++)
+            {
+                int a = CreateVerletPoint(points[i]);
+                if(i > 0)
+                {
+                    Sticks.Add(new Stick(new int[] { a, a - 1 }, Length, tex));
+                }
+            }
+        }
+
+        public int BindPoints(Vector2 startingPoint, int noOfChains, int Length = 10, Texture2D tex = null)
+        {
+            int returnNo = 0;
+
+            for (int i = 0; i < noOfChains; i++)
+            {
+                if (i > 0)
+                {
+                    returnNo = CreateVerletPoint(startingPoint + new Vector2(0, Length*i), false);
+                    Sticks.Add(new Stick(new int[] { returnNo, returnNo - 1 }, Length, tex));
+                }
+                else
+                {
+                    CreateVerletPoint(startingPoint, true);
+                }
+            }
+
+            return returnNo;
+        }
+
         public void Update()
         {
             UpdatePoints();
@@ -56,8 +95,8 @@ namespace LinuxMod.Core.Mechanics.Verlet
                 Stick stick = Sticks[i];
                 if ((Main.LocalPlayer.Center - (Points[stick.StickPoints[0]].point + Points[stick.StickPoints[1]].point) / 2f).LengthSquared() < RENDERDISTANCE * RENDERDISTANCE)
                 {
-                    Point p1 = Points[stick.StickPoints[0]];
-                    Point p2 = Points[stick.StickPoints[1]];
+                    VPoint p1 = Points[stick.StickPoints[0]];
+                    VPoint p2 = Points[stick.StickPoints[1]];
                     float dx = p2.point.X - p1.point.X;
                     float dy = p2.point.Y - p1.point.Y;
                     float currentLength = (float)Math.Sqrt(dx * dx + dy * dy);
@@ -93,7 +132,8 @@ namespace LinuxMod.Core.Mechanics.Verlet
                     Points[i].oldPoint.Y = Points[i].point.Y;
                     Points[i].point.X += Points[i].vel.X;
                     Points[i].point.Y += Points[i].vel.Y;
-                    Points[i].point.Y += _gravity;
+                    if(Points[i].hasGravity) Points[i].point.Y += _gravity;
+                    Points[i].hasGravity = true;
                 }
             }
         }
@@ -105,8 +145,8 @@ namespace LinuxMod.Core.Mechanics.Verlet
                 Vector2 p1 = Points[Sticks[i].StickPoints[0]].point;
                 Vector2 p2 = Points[Sticks[i].StickPoints[1]].point;
                 Vector2 mid = p1 * 0.5f + p2 * 0.5f;
-
-                LUtils.DrawLine(p1.ForDraw(), p2.ForDraw());
+                Color color = LUtils.GetColor(mid.ToTileCoordinates());
+                LUtils.DrawLine(p1.ForDraw(), p2.ForDraw(), color);
             }
         }
     }

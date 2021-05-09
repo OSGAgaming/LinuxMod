@@ -5,6 +5,7 @@ using LinuxMod.Core.Mechanics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
+using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -50,14 +51,21 @@ namespace LinuxMod.Content.Tiles
                 }
             }
         }
+        public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
+        {
+            if (WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
+            {
+                WaterPositionCache.Positions.Remove(new Vector2(i * 16, j * 16));
+            }
+        }
         public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
         {
             if (Framing.GetTileSafely(i, j).frameX == 0 && Framing.GetTileSafely(i, j).frameY == 0)
             {
                 if (!WaterPositionCache.Positions.Contains(new Vector2(i * 16, j * 16)))
                 {
-                    Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
                     WaterPositionCache.Positions.Add(new Vector2(i * 16, j * 16));
+                    Projectile.NewProjectile(new Vector2(i * 16, j * 16), Vector2.Zero, ModContent.ProjectileType<WallWellWater>(), 0, 0);
                 }
             }
         }
