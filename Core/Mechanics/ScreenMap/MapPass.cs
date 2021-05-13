@@ -50,10 +50,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         public void DrawToBatchedTarget(MapRender method) => BatchedCalls += method;
 
         public void DrawToPrimitiveTarget(MapRender method) => PrimitiveCalls += method;
-        public void RenderOcclusion(SpriteBatch spriteBatch, GraphicsDevice GD)
-        {
-            
-        }
+
         public void RenderBatched(SpriteBatch spriteBatch, GraphicsDevice GD)
         {
             BatchedCalls?.Invoke(spriteBatch);

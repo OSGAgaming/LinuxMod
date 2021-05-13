@@ -16,9 +16,11 @@ namespace LinuxMod.Core
         public static ParticleZoneHandler GlobalZone;
         public static VerletSystem verletSystem;
         public static UIManager UI;
+        public static InsigniaHost InsigniaSystem;
         private GameTime lastGameTime;
         public override void Load()
         {
+            InsigniaSystem = new InsigniaHost();
             Subworlds = new SubworldInstanceManager();
             GlobalZone = new ParticleZoneHandler();
             verletSystem = new VerletSystem();
@@ -28,6 +30,7 @@ namespace LinuxMod.Core
             ShaderLoading();
             UI.LoadUI();
             AutoloadMechanics.Load();
+            InsigniaSystem.Load();
         }
         public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
         {
