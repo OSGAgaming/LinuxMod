@@ -15,22 +15,25 @@ namespace LinuxMod.Core.Mechanics
         public List<InsigniaAbility> Abilities = new List<InsigniaAbility>();
 
         public const int ACCURACY = 50;
+        public static string DebugTry = "bab";
 
         public Insignia CompareInsignias(Insignia insignia)
         {
             float Lowest = 1000;
             Insignia ins = new Insignia();
-
+            string Name = "";
             foreach(InsigniaAbility IA in Abilities)
             {
                 float Accuracy = insignia.CompareInsignia(IA.Insignia);
                 if(Accuracy < Lowest)
                 {
                     ins = IA.Insignia;
+                    Name = IA.InsigniaName;
                     Lowest = Accuracy;
                 }
-                Main.NewText(Accuracy);
             }
+
+            DebugTry = Name;
 
             ins.PerformanceIndicator = 1;
             return ins;

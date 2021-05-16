@@ -38,7 +38,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
 
         public override void AI()
         {
-            ScreenMapPass.Instance.GetMap("Sewers").DrawToBatchedTarget((SpriteBatch sb) =>
+            ScreenMapPass.Instance.GetMap("SewerWater").DrawToBatchedTarget((SpriteBatch sb) =>
             {
                 Vector2 v = projectile.position + new Vector2(10, 16 + 15);
                 int Y = LUtils.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
@@ -46,7 +46,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
                 sb.Draw(Main.magicPixel, v.ForDraw(), new Rectangle(0, 0, 20, (int)Diff - 10), Color.LightBlue);
             });
 
-            ScreenMapPass.Instance.GetMap("Sewers").DrawToBatchedTarget((SpriteBatch sb) =>
+            ScreenMapPass.Instance.GetMap("SewerWater").DrawToBatchedTarget((SpriteBatch sb) =>
             {
                 Vector2 v = projectile.position + new Vector2(10, 16);
                 int Y = LUtils.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
@@ -63,8 +63,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             Vector2.UnitX.RotatedBy(Main.rand.NextFloat(6.24f))*0.2f, 2,
             Color.LightBlue * 0.5f,
             new SlowDown(0.97f),
-            new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)),
-            new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f),
+            new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), new AfterImageTrail(1f),
             new SetLighting(Color.White.ToVector3(), 0.1f),
             new AddVelocity(new Vector2(0, 0.05f)));
 
@@ -73,8 +72,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.5f, -0.1f)), 7,
             Color.White * 0.1f,
             new SlowDown(0.97f),
-            new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)),
-            new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f),
+            new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), new AfterImageTrail(1f),
             new SetLighting(Color.White.ToVector3(), 0.1f));
 
         }

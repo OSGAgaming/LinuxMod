@@ -25,15 +25,18 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
                 {
                     var Pass = Map.Value;
 
-                    if (Pass.Index != i) continue;
+                    if (Pass.Priority != i) continue;
 
-                    GD.SetRenderTarget(Pass.MapTarget);
-                    GD.Clear(Color.Transparent);
+                    if (Pass.ManualTarget == null)
+                    {
+                        GD.SetRenderTarget(Pass.MapTarget);
+                        GD.Clear(Color.Transparent);
 
-                    sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
-                    Pass.RenderBatched(sb, GD);
-                    sb.End();
-                    Pass.RenderPrimitive(sb, GD);
+                        sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
+                        Pass.RenderBatched(sb, GD);
+                        sb.End();
+                        Pass.RenderPrimitive(sb, GD);
+                    }
                 }
 
                 i++;
@@ -53,7 +56,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
                 
                 var Pass = Map.Value;
 
-                if (Pass.Index == i)
+                if (Pass.Priority == i)
                 {
                     if (Batched) Pass.RenderBatched(sb, GD);
                     else Pass.RenderPrimitive(sb, GD);
@@ -79,7 +82,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
                 {
                     var Pass = Map.Value;
 
-                    if (Pass.Index != i) continue;
+                    if (Pass.Priority != i) continue;
 
                     Pass.ApplyShader();
                 }
@@ -91,10 +94,9 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         }
         public void DrawToMap(string Map, MapRender MR) => MapPasses[Map].DrawToBatchedTarget(MR);
 
-        public void AddMap(string MapName,int Index, MapPass MP) 
+        public void AddMap(string MapName, MapPass MP) 
         {
             MP.Parent = this;
-            MP.Index = Index;
             MapPasses.Add(MapName, MP);
             Buffers.Add(new RenderTarget2D(Main.graphics.GraphicsDevice,2560,1440));
         }

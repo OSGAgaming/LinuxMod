@@ -47,7 +47,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
        
         public override void OnUpdate()
         {
-            ScreenMapPass.Instance.GetMap("CutsceneWaterReflection").DrawToPrimitiveTarget(Draw);
+            ScreenMapPass.Instance.GetMap("CutsceneWater").DrawToPrimitiveTarget(Draw);
 
             _points = water.Pos.ToList();
             _counter++;

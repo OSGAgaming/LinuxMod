@@ -59,8 +59,7 @@ namespace LinuxMod.Core.Mechanics
                                 new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-0.5f, -0.1f)), 10,
                                 Color.White * 0.2f, 
                                 new SlowDown(0.96f), 
-                                new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)),
-                                new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f), 
+                                new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), new AfterImageTrail(1f), 
                                 new SetLighting(Color.White.ToVector3(), 0.1f));
                         }
                     }

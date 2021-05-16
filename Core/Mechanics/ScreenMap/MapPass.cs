@@ -13,28 +13,30 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
     public delegate void MapRender(SpriteBatch spriteBatch);
     public abstract class MapPass
     {
-        public int Index;
-
-
         internal event MapRender BatchedCalls;
+
         internal event MapRender PrimitiveCalls;
 
         public RenderTarget2D MapTarget;
-        public RenderTarget2D PixelationTarget { get; set; }
-        public RenderTarget2D OcclusionTarget { get; set; }
-        public int PixelationFactor { get; } = 1;
+
+        public virtual RenderTarget2D ManualTarget => null;
+
+        public abstract int Priority { get; }
 
         protected abstract string MapEffectName { get; }
 
         protected ScreenShaderData MapEffect => LUtils.GetScreenShader(MapEffectName);
+
         internal virtual void OnApplyShader() { }
         public virtual void Load()
         {
             MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
-            PixelationTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth / PixelationFactor, Main.screenHeight/ PixelationFactor);
         }
+
         public void ApplyShader()
         {
+            if (ManualTarget != null) MapTarget = ManualTarget;
+
             MapEffect?.Shader.Parameters["Noise"]?.SetValue(Asset.GetTexture("Noise/noise"));
             MapEffect.Shader.Parameters["Map"].SetValue(MapTarget);
             MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Targets.Instance.ScaledTileTarget);

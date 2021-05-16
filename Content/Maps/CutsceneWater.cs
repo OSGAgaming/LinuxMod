@@ -12,6 +12,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 {
     public class CutsceneWater : MapPass
     {
+        public override int Priority => 2;
         protected override string MapEffectName => "Linux:WaterWallReflection";
 
     }

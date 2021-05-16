@@ -10,14 +10,10 @@ using Terraria.Graphics.Shaders;
 
 namespace LinuxMod.Core.Mechanics.ScreenMap
 {
-    public class WaterWall : MapPass
+    public class SewerWater : MapPass
     {
-        protected override string MapEffectName => "Linux:WaterWall";
-
-        internal override void OnApplyShader()
-        {
-            MapEffect.Shader.Parameters["Water"].SetValue(Asset.GetTexture("Noise/WaterShaderLightMap"));
-        }
+        protected override string MapEffectName => "Linux:Sewers";
+        public override int Priority => 0;
 
     }
     //Too lazy to inherit. Just want it to fucking work

@@ -1,6 +1,8 @@
 ﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
+using System.IO;
 using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
@@ -14,12 +16,12 @@ namespace LinuxMod.Core
         public static Effect PrimitiveShaders;
         public static Effect WaterWallReflection;
 
-        static void QuickLoadShader(string Path)
+        static void QuickLoadScreenShader(string Path)
         {
-            Ref<Effect> Reference = new Ref<Effect>(ModContent.GetInstance<LinuxMod>().GetEffect(Path));
+            string EffectPath = "Effects/ScreenShaders/" + Path;
+            string DictEntry = "Linux:" + Path;
 
-            string End = Path.Split('/')[1];
-            string DictEntry = "Linux:" + End;
+            Ref<Effect> Reference = new Ref<Effect>(ModContent.GetInstance<LinuxMod>().GetEffect(EffectPath));
 
             Filters.Scene[DictEntry] = new Filter(new ScreenShaderData(Reference, "P1"), EffectPriority.VeryHigh);
             Filters.Scene[DictEntry].Load();
@@ -28,10 +30,21 @@ namespace LinuxMod.Core
         {
             PrimitiveShaders = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/PrimitiveShader");
 
-            QuickLoadShader("Effects/Viginette");
-            QuickLoadShader("Effects/WaterWallReflection");
-            QuickLoadShader("Effects/Sewers");
-            QuickLoadShader("Effects/WaterWall");
+            string[] Shaders = Directory.GetFiles($@"{Main.SavePath}\Mod Sources\LinuxMod\Effects\ScreenShaders");
+            for (int i = 0; i < Shaders.Length; i++)
+            {
+                string filePath = Shaders[i];
+
+                if (filePath.Contains(".xnb") || 
+                    filePath.Contains(".exe") ||
+                    filePath.Contains(".dll")) continue;
+
+                string charSeprator = @"ScreenShaders\";
+                int Index = filePath.IndexOf(charSeprator) + charSeprator.Length;
+                string AlteredPath = filePath.Substring(Index);
+
+                QuickLoadScreenShader(AlteredPath.Replace(".fx",""));
+            }
         }
     }
 }

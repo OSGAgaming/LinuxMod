@@ -1,5 +1,6 @@
 
 using LinuxMod.Core.Helper.Extensions;
+using LinuxMod.Core.Mechanics;
 using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -118,7 +119,11 @@ namespace LinuxMod.Core
             }
             Vector2 positionDraw = position.ForDraw();
             spriteBatch.Draw(texture, positionDraw.ParalaxX(paralax), new Rectangle(0, CurrentFrame * (Frame.Height / noOfFrames), Frame.Width, Frame.Height / noOfFrames), LightingBlend ? Lighting.GetColor((int)PARALAXPOSITION.X / 16, (int)PARALAXPOSITION.Y / 16) * alpha : colour * alpha, rotation, Frame.Size() / 2, varScale, SpriteEffects.None, 0f);
-
+            AdditiveCalls.Instance.AddCall((SpriteBatch sb) =>
+            {
+                if (mask != null)
+                    spriteBatch.Draw(mask, positionDraw.ParalaxX(paralax), mask.Bounds, colour * varScale * MaskAlpha, 0f, mask.TextureCenter(), 0.1f * varScale, SpriteEffects.None, 0f);
+            });
             OnDraw(spriteBatch);
         }
 
@@ -127,8 +132,8 @@ namespace LinuxMod.Core
             Vector2 positionDraw = position.ForDraw();
             /*if (PresetNoiseMask != null)
                 Helpers.DrawAdditiveFunkyNoBatch(PresetNoiseMask, positionDraw.ParalaxX(paralax), colour * alpha, 0.4f, 0.14f);
-            if (mask != null)
-                spriteBatch.Draw(mask, positionDraw.ParalaxX(paralax), mask.Bounds, colour * varScale * MaskAlpha, 0f, mask.TextureCenter(), 0.1f * varScale, SpriteEffects.None, 0f);*/
+            */
+
         }
     }
     class TestModule : IParticleModule
@@ -164,6 +169,20 @@ namespace LinuxMod.Core
         public void Update(in Particle particle)
         {
             particle.velocity *= slowDownFactor;
+        }
+        public void Draw(in Particle particle) {; }
+    }
+
+    class SetShrinkSpeed : IParticleModule
+    {
+        float slowDownFactor;
+        public SetShrinkSpeed(float slowDownFactor)
+        {
+            this.slowDownFactor = slowDownFactor;
+        }
+        public void Update(in Particle particle)
+        {
+            particle.shrinkSpeed = slowDownFactor;
         }
         public void Draw(in Particle particle) {; }
     }

@@ -23,7 +23,8 @@ namespace LinuxMod.Core.Subworlds
         public bool InSubworld;
 
         public Subworld CurrentSubworld = null;
-        public override void PostUpdate()
+
+        public override void PreUpdate()
         {
             if (!InSubworld) PrimaryWorldName = Main.ActiveWorldFileData.Name;
 

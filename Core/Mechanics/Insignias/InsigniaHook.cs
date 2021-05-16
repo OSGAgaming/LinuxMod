@@ -25,7 +25,7 @@ namespace LinuxMod.Core.Mechanics
 
             for(int i = 0; i<Abilities.Count; i++)
             {
-                Abilities[i].Insignia.DebugDraw(Main.LocalPlayer.Center + new Vector2(100 * i,0), 100);
+                //Abilities[i].Insignia.DebugDraw(Main.LocalPlayer.Center + new Vector2(120 * i,0), 100);
             }
             orig(self);
 

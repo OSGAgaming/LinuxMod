@@ -27,14 +27,14 @@ namespace LinuxMod.Core
             panel.VAlign = 0.01f;
             Append(panel);
 
-            UIImageButton clear = new UIImageButton(Asset.GetTexture("Tiles/Cutscene/WallWellTile"));
+            UIImageButton clear = new UIImageButton(Asset.GetTexture("GUI/Delete"));
 
             clear.OnClick += Clear_OnClick;
             clear.HAlign = 0.9f;
             clear.VAlign = 0.9f;
             panel.Append(clear);
 
-            UIImageButton create = new UIImageButton(Asset.GetTexture("Tiles/Cutscene/WallWellTile"));
+            UIImageButton create = new UIImageButton(Asset.GetTexture("GUI/Save"));
 
             create.OnClick += CreateInsignia;
             create.HAlign = 0.1f;

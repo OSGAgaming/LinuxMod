@@ -1,5 +1,6 @@
 using EEMod.Extensions;
 using LinuxMod.Core;
+using LinuxMod.Core.Assets;
 using LinuxMod.Core.Helper.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -290,6 +291,12 @@ namespace LinuxMod.Core
                 && !player.ZoneMeteor
                 && !player.ZoneBeach
                 && player.ZoneOverworldHeight;
+        }
+        public static void DrawCircle(Vector2 position, Vector2 dimensions, Color tint = default)
+        {
+            Texture2D tex = Asset.GetTexture("Misc/Circle");
+            Vector2 scale = new Vector2(dimensions.X / tex.Width, dimensions.Y / tex.Height);
+            Main.spriteBatch.Draw(tex, position, tex.Bounds, tint == default ? Color.White : tint, 0f, tex.TextureCenter(), scale, SpriteEffects.None, 0f);
         }
         public static void DrawLine(Vector2 p1, Vector2 p2, Color tint = default, float lineWidth = 1f)
         {

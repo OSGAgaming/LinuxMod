@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using LinuxMod.Core.Helper;
 using LinuxMod.Core.Mechanics.Verlet;
+using Microsoft.Xna.Framework.Input;
 
 namespace LinuxMod.Core.Subworlds.LinuxSubworlds
 {
@@ -23,12 +24,49 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
         internal override void WorldGeneration()
         {
             LUtils.FillRegion(500, 500, new Vector2(0,0), TileID.BlueDungeonBrick);
-            LUtils.ClearRegion(100,8,new Vector2(10,200));
+            LUtils.ClearRegion(172,8,new Vector2(10,200));
+            for (int i = 2; i < 10; i++)
+            {
+                if(WorldGen.InWorld(20 * i, 203))
+                WorldGen.PlaceTile(20 * i, 203, TileID.Torches);
+            }
             LUtils.FillWall(500, 500, new Vector2(0, 0), WallID.BlueDungeon);
             //Utils.MakeCircleFromCenter();
         }
         internal override void PlayerUpdate(Player player)
         {
+            player.gravity = 0;
+            player.maxFallSpeed = 50;
+            //player.frozen = true;
+
+            Vector2 size = new Vector2(32, 32);
+
+            player.width = (int)player.DefaultSize.X;
+
+            KeyboardState state = Keyboard.GetState();
+
+            if(state.IsKeyDown(Keys.A))
+            {
+                player.velocity.X -= 0.01f;
+            }
+            if (state.IsKeyDown(Keys.D))
+            {
+                player.velocity.X += 0.01f;
+            }
+            if (state.IsKeyDown(Keys.W))
+            {
+                player.velocity.Y -= 0.01f;
+            }
+            if (state.IsKeyDown(Keys.S))
+            {
+                player.velocity.Y += 0.01f;
+            }
+
+            //player.velocity *= 0.95f;
+            player.position.Y += player.height - size.Y;
+            player.height = (int)size.Y;
+            player.width = (int)size.X;
+
             if (Main.GameUpdateCount == 3)
             {
                 LinuxMod.verletSystem.BindPoints(new VPoint[]
@@ -39,7 +77,7 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
                 //LiquidRender.Instance.liquidHost.AddLiquid(new Rectangle(42 * 16, 205 * 16, 500, 100), 50, 0.04f, 0.05f);
                 Gloop liquid = new Gloop
                 {
-                    frame = new Rectangle(42 * 16 + 500, 207 * 16, 1000, 16),
+                    frame = new Rectangle(16*72, 207 * 16, 1600, 16),
                     accuracy = 50,
                     viscosity = 0.07f,
                     constant = 50,

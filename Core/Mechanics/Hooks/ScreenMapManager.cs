@@ -3,9 +3,11 @@ using LinuxMod.Core.Mechanics.ScreenMap;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace LinuxMod.Core.Mechanics
 {
@@ -19,12 +21,22 @@ namespace LinuxMod.Core.Mechanics
         {
             Maps = new Map();
 
-            Maps.AddMap("CutsceneWaterReflection", 0, new CutsceneWater());
-            Maps.AddMap("Sewers", 1, new SewerWater());
-            Maps.AddMap("WaterWall", 2, new WaterWall());
-            Instance = this;
+            if (!Main.dedServ)
+            {
+                //autobind
+                Mod mod = ModContent.GetInstance<LinuxMod>();
+
+                foreach (Type t in mod.Code.GetTypes())
+                {
+                    if (t.IsSubclassOf(typeof(MapPass)))
+                    {
+                        var state = (MapPass)Activator.CreateInstance(t);
+                        Maps.AddMap(t.Name, state);
+                    }
+                }
+
+                Instance = this;
+            }
         }
     }
-
-
 }
