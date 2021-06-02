@@ -51,7 +51,7 @@ float GetNoise(float2 Coord)
 }
 float2 WorldCoords(float2 coords)
 {
-    return coords + uScreenPosition / uScreenResolution;
+    return coords * uZoom + uScreenPosition / uScreenResolution;
 }
 
 float2 Round(float2 coords, int accuracy)

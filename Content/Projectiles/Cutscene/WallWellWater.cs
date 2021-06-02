@@ -62,7 +62,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             b,
             Vector2.UnitX.RotatedBy(Main.rand.NextFloat(6.24f))*0.2f, 2,
             Color.LightBlue * 0.5f,
-            new SlowDown(0.97f),
+            new SlowDown(0.97f), new SetShrinkSpeed(0.9f),
             new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), new AfterImageTrail(1f),
             new SetLighting(Color.White.ToVector3(), 0.1f),
             new AddVelocity(new Vector2(0, 0.05f)));

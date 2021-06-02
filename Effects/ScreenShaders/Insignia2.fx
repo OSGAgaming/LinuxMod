@@ -48,7 +48,7 @@ sampler wallsampler = sampler_state
 
 float2 WorldCoords(float2 coords)
 {
-    return coords + uScreenPosition / uScreenResolution;
+    return coords / uZoom + uScreenPosition / uScreenResolution;
 }
 
 float GetNoise(float2 Coord)

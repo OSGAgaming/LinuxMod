@@ -18,13 +18,16 @@ namespace LinuxMod.Core
         public InsigniaMakerPanel panel = new InsigniaMakerPanel();
         NewUITextBox Acc = new NewUITextBox("Count");
         NewUITextBox Name = new NewUITextBox("Name");
+        public override void OnActivate()
+        {
+            panel.HAlign = -0.5f;
+        }
         public override void OnInitialize()
         {
 
-            panel.Height.Set(500, 0);
-            panel.Width.Set(500, 0);
-            panel.HAlign = 0.5f;
-            panel.VAlign = 0.01f;
+            panel.Height.Set(250, 0);
+            panel.Width.Set(250, 0);
+            panel.VAlign = 0.6f;
             Append(panel);
 
             UIImageButton clear = new UIImageButton(Asset.GetTexture("GUI/Delete"));
@@ -77,6 +80,7 @@ namespace LinuxMod.Core
 
         public override void Update(GameTime gameTime)
         {
+            panel.HAlign *= 0.94f;
         }
     }
 

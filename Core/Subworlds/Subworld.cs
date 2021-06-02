@@ -27,7 +27,6 @@ namespace LinuxMod.Core.Subworlds
 
         internal void Generate(int seed, GenerationProgress customProgressObject = null) 
         {
-
             Main.maxTilesX = Dimensions.X;
             Main.maxTilesY = Dimensions.Y;
             Main.spawnTileX = SpawnTile.X;

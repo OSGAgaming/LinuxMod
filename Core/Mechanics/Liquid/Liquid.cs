@@ -54,8 +54,8 @@ namespace LinuxMod.Core.Mechanics
             if (frame.Intersects(playerFrame))
             {
                 Vector2 v = new Vector2(Math.Abs(entity.velocity.X), Math.Abs(entity.velocity.Y));
-                SplashPerc((entity.Center.X - frame.X + entity.velocity.X) / frame.Width, new Vector2(0, -v.X / 4 * Main.rand.NextFloat(1, 1.5f)));
-                SplashPerc((entity.Center.X - frame.X - entity.velocity.X) / frame.Width, new Vector2(0, v.X / 7 * Main.rand.NextFloat(1, 1.5f)));
+                SplashPerc((entity.Center.X - frame.X + entity.velocity.X) / frame.Width, new Vector2(0, -v.X / 4 * Main.rand.NextFloat(1, 1.5f)), false);
+                SplashPerc((entity.Center.X - frame.X - entity.velocity.X) / frame.Width, new Vector2(0, v.X / 7 * Main.rand.NextFloat(1, 1.5f)), false);
             }
         }
         public void Update()
@@ -115,10 +115,30 @@ namespace LinuxMod.Core.Mechanics
             Primitives.Draw(spriteBatch);
             OnDraw(spriteBatch);
         }
+
         public void Splash(int index, float speed) => vel[index].Y = speed;
-        public void SplashPerc(float perc, Vector2 speed) => vel[(int)(MathHelper.Clamp(perc, 0, 1) * accuracy)] += speed;
+
+        public void SplashPerc(float perc, Vector2 speed, bool splash = true)
+        {
+            vel[(int)(MathHelper.Clamp(perc, 0, 1) * accuracy)] += speed;
+
+
+            LUtils.Particles.SetSpawningModules(new SpawnRandomly(1f));
+            if (speed.Y > 2 && splash)
+            {
+                for (int a = 0; a < 20; a++)
+                    LUtils.Particles.SpawnParticles(
+                    frame.Location.ToVector2() + new Vector2(perc * frame.Width, speed.Y * 2),
+                    new Vector2(Main.rand.NextFloat(-3,3), Main.rand.NextFloat(-speed.Y - 1f, -speed.Y + 1f)), 6,
+                    Color.White * 0.2f,
+                    new SlowDown(0.96f), new SetTimeLeft(10f), new SetShrinkSpeed(0.88f),
+                    new RotateTexture(Main.rand.NextFloat(-0.03f, 0.03f)), new AfterImageTrail(1f),
+                    new SetLighting(Color.White.ToVector3(), 0.1f), new AddVelocity(new Vector2(0,0.1f)));
+            }
+        }
 
         private WaterPrimtives Primitives;
+
         public void Initialize()
         {
             disLeft = new float[accuracy + 1];

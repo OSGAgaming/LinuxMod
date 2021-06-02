@@ -11,15 +11,23 @@ namespace LinuxMod.Core.Mechanics
 {
     public class InsigniaHook : Mechanic
     {
-        InsigniaMaker Host = new InsigniaMaker();
+        public InsigniaMaker Host = new InsigniaMaker();
         public override void AddHooks()
         {
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            On.Terraria.Main.DrawPlayer += Main_DrawPlayer;
+        }
+
+        private void Main_DrawPlayer(On.Terraria.Main.orig_DrawPlayer orig, Main self, Player drawPlayer, Vector2 Position, float rotation, Vector2 rotationOrigin, float shadow)
+        {
+            if(!drawPlayer.GetModPlayer<InsigniaPlayer>().Invisible)
+              orig(self, drawPlayer, Position, rotation, rotationOrigin, shadow);
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
             Host.Update();
+            LinuxMod.InsigniaSystem.Draw(Main.spriteBatch);
 
             List<InsigniaAbility> Abilities = LinuxMod.InsigniaSystem.Abilities;
 

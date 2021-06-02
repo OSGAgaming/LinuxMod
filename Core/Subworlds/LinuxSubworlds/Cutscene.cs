@@ -35,38 +35,6 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
         }
         internal override void PlayerUpdate(Player player)
         {
-            player.gravity = 0;
-            player.maxFallSpeed = 50;
-            //player.frozen = true;
-
-            Vector2 size = new Vector2(32, 32);
-
-            player.width = (int)player.DefaultSize.X;
-
-            KeyboardState state = Keyboard.GetState();
-
-            if(state.IsKeyDown(Keys.A))
-            {
-                player.velocity.X -= 0.01f;
-            }
-            if (state.IsKeyDown(Keys.D))
-            {
-                player.velocity.X += 0.01f;
-            }
-            if (state.IsKeyDown(Keys.W))
-            {
-                player.velocity.Y -= 0.01f;
-            }
-            if (state.IsKeyDown(Keys.S))
-            {
-                player.velocity.Y += 0.01f;
-            }
-
-            //player.velocity *= 0.95f;
-            player.position.Y += player.height - size.Y;
-            player.height = (int)size.Y;
-            player.width = (int)size.X;
-
             if (Main.GameUpdateCount == 3)
             {
                 LinuxMod.verletSystem.BindPoints(new VPoint[]
@@ -87,8 +55,6 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
 
                 LiquidRender.Instance.liquidHost.AddLiquid(liquid);
             }
-
-
         }
     }
 }

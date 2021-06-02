@@ -20,5 +20,9 @@ namespace LinuxMod.Core.Helper.Extensions
         public static float PositiveSin(this float num) => (num / 2f) + 0.5f;
 
         public static float PositiveSin(this double num) => (float)(num / 2f) + 0.5f;
+
+        public static int RoundTo(this float num, int r) => (int)(num/r)*r;
+
+        public static Vector2 RoundTo(this Vector2 num, int r) => new Vector2(num.X.RoundTo(r), num.Y.RoundTo(r));
     }
 }

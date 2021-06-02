@@ -707,7 +707,7 @@ namespace LinuxMod.Core
             }
         }
 
-        public static int TileCheckVertical(int positionX, int positionY, int step, int maxIterations = 100)
+        public static int TileCheckVertical(int positionX, int positionY, int step = 1, int maxIterations = 100)
         {
             int a = 0;
             for (int i = positionY; i < Main.maxTilesY || i > 0; i += step)
@@ -716,6 +716,34 @@ namespace LinuxMod.Core
                 if (WorldGen.InWorld(positionX, i, 15))
                 {
                     Tile tile = Framing.GetTileSafely(positionX, i);
+                    if (a == maxIterations)
+                    {
+                        return 0;
+                    }
+                    if (tile.active() && Main.tileSolid[tile.type])
+                    {
+                        return i;
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            return 0;
+        }
+
+        public static int TileCheckVertical(Vector2 worldPos, int step = 1, int maxIterations = 100)
+        {
+            int a = 0;
+            Point p = worldPos.ToTileCoordinates();
+
+            for (int i = p.Y; i < Main.maxTilesY || i > 0; i += step)
+            {
+                a++;
+                if (WorldGen.InWorld(p.X, i, 15))
+                {
+                    Tile tile = Framing.GetTileSafely(p.X, i);
                     if (a == maxIterations)
                     {
                         return 0;

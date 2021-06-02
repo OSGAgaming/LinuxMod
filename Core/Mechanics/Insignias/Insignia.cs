@@ -110,7 +110,7 @@ namespace LinuxMod.Core.Mechanics
                 insignia.TempErrorNodes.Add(new INode(Nodes[nI].Position, i));
                 for (int j = -biasAmount; j < biasAmount + 1; j++)
                 {
-                    if (nI + j > 0 && nI + j < CompareNodes.Count)
+                    if (nI + j > 0 &&  nI + j < Nodes.Count)
                     {
                         float dist = Vector2.Distance(CompareNodes[i].Position, Nodes[nI + j].Position);
                         if (dist < biasCheck)

@@ -17,6 +17,7 @@ namespace LinuxMod.Core.Mechanics
 
         public Vector2 CurrentMousePos;
         public Vector2 DeltaMouseCache;
+        public bool CanDraw;
         public float Width;
         float down;
 
@@ -29,10 +30,10 @@ namespace LinuxMod.Core.Mechanics
             Player pa = Main.LocalPlayer;
             Vector2 pos = pa.position.ForDraw();
 
-            LUtils.DrawRectangle(new Rectangle((int)pos.X,(int)pos.Y, pa.width, pa.height), Color.White, 2);
+            LUtils.DrawRectangle(new Rectangle((int)pos.X, (int)pos.Y, pa.width, pa.height), Color.White, 2);
 
             LUtils.UITextToCenter(InsigniaHost.DebugTry, Color.White, Main.LocalPlayer.Center.ForDraw() - new Vector2(0, -50), 1);
-            if (JustPressedMouse)
+            if (JustPressedMouse && CanDraw)
             {
                 CurrentMousePos = Main.MouseScreen;
                 CurrentNodeCache.Clear();
@@ -51,7 +52,7 @@ namespace LinuxMod.Core.Mechanics
                     for (int i = 0; i < CurrentNodeCache.Count - 1; i++)
                     {
                         LUtils.Particles.SpawnParticles(
-               CurrentMousePos + CurrentNodeCache[i].Position + Main.screenPosition,
+                CurrentMousePos + CurrentNodeCache[i].Position + Main.screenPosition,
                 Vector2.One.RotatedBy(Main.rand.NextFloat(-3f, 3f)) * 3, 3,
                 Color.Yellow,
                 new SlowDown(0.97f),
@@ -65,7 +66,7 @@ namespace LinuxMod.Core.Mechanics
                     Width = 0;
                 }
             }
-            if (Main.LocalPlayer.controlUseItem)
+            if (Main.LocalPlayer.controlUseItem && CanDraw)
             {
                 LUtils.Particles.SetSpawningModules(new SpawnRandomly(1f));
                 Vector2 Norm = Vector2.Normalize(DeltaMouseCache - Main.MouseScreen);
@@ -79,10 +80,9 @@ namespace LinuxMod.Core.Mechanics
                     new SetMask(Asset.GetTexture("Masks/RadialGradient")), new AfterImageTrail(1f),
                     new SetLighting(Color.Yellow.ToVector3(), 0.1f),
                     new RotateVelocity(Main.rand.NextFloat(-0.012f, 0.012f)), new SetShrinkSize(0.87f), new SetTimeLeft(10));
-
-                CurrentNodeCache.Add(new INode(Main.MouseScreen - CurrentMousePos, CurrentNodeCache.Count));
-
-
+               
+                    CurrentNodeCache.Add(new INode(Main.MouseScreen - CurrentMousePos, CurrentNodeCache.Count));
+                
             }
             else if (JustLiftedMouse && CurrentNodeCache.Count > InsigniaHost.ACCURACY)
             {
@@ -117,8 +117,10 @@ namespace LinuxMod.Core.Mechanics
                     }
                 }
             });
+
             MouseState = Main.LocalPlayer.controlUseItem;
             DeltaMouseCache = Main.MouseScreen;
+            CanDraw = true;
         }
 
     }

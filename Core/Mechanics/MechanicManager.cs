@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace LinuxMod.Core.Mechanics
 {
     public static class AutoloadMechanics
     {
-
+        public static List<Mechanic> MechanicsCache = new List<Mechanic>();
         public static void Load()
         {
             Type[] Mechanics = LUtils.GetInheritedClasses(typeof(Mechanic));
@@ -20,6 +21,7 @@ namespace LinuxMod.Core.Mechanics
             {
                 Mechanic m = (Mechanic)Activator.CreateInstance(type);
                 m.Load();
+                MechanicsCache.Add(m);
             }
         }
     }

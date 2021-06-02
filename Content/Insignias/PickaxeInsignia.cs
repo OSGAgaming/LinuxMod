@@ -19,21 +19,11 @@ namespace LinuxMod.Core.Mechanics
     {
         public override string InsigniaName => "Pickaxe";
 
-        protected override void Ability()
-        {
-            base.Ability();
-        }
-
     }
 
     public class CircleInsignia : InsigniaAbility
     {
         public override string InsigniaName => "Circle";
-
-        protected override void Ability()
-        {
-            base.Ability();
-        }
 
     }
 }

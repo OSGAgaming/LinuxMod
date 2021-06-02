@@ -32,12 +32,70 @@ namespace LinuxMod.Core.Mechanics
 
         internal Insignia Insignia { get; set; }
 
+        internal virtual int AbilityLength => 600;
+
+        internal int AbilityTimer { get; set; }
+
+        protected InsigniaMaker Maker => Mechanic.GetMechanic<InsigniaHook>().Host;
+
         internal void Load()
         {
             Insignia = Insignia.Deserialize(FileStream);
         }
 
-        protected virtual void Ability() { }
+        private int prevTimer;
+        public void Update()
+        {
+            if (AbilityTimer > 0)
+            {
+                OnActive(Main.LocalPlayer);
+                AbilityTimer--;
+            }
+            else UpdatePassive(Main.LocalPlayer);
+
+            if (prevTimer == 1 && AbilityTimer == 0) 
+            {
+                Deactivate();
+            }
+
+            prevTimer = AbilityTimer;
+        }
+
+        public void Draw(SpriteBatch sb)
+        {
+            if (AbilityTimer > 0)
+            {
+                DrawEffects(Main.LocalPlayer, sb);
+            }
+
+            DrawAlways(Main.LocalPlayer, sb);
+        }
+
+        public void Activate()
+        {
+            if (AbilityTimer <= 0)
+            {
+                AbilityTimer = AbilityLength;
+                OnActivate(Main.LocalPlayer);
+            }
+        }
+
+        public void Deactivate()
+        {
+            AbilityTimer = 0;
+            OnDeactivate(Main.LocalPlayer);
+        }
+        protected virtual void OnActive(Player player) { }
+
+        protected virtual void DrawEffects(Player player, SpriteBatch sb) { }
+
+        protected virtual void DrawAlways(Player player, SpriteBatch sb) { }
+
+        protected virtual void UpdatePassive(Player player) { }
+
+        protected virtual void OnActivate(Player player) { }
+
+        protected virtual void OnDeactivate(Player player) { }
     }
 
    

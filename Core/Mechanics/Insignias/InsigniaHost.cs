@@ -14,28 +14,46 @@ namespace LinuxMod.Core.Mechanics
     {
         public List<InsigniaAbility> Abilities = new List<InsigniaAbility>();
 
-        public const int ACCURACY = 50;
+        public const int ACCURACY = 10;
         public static string DebugTry = "bab";
 
-        public Insignia CompareInsignias(Insignia insignia)
+        public void Update()
+        {
+            foreach(InsigniaAbility IA in Abilities)
+            {
+                IA.Update();
+            }
+        }
+
+        public void Draw(SpriteBatch sb)
+        {
+            foreach (InsigniaAbility IA in Abilities)
+            {
+                IA.Draw(sb);
+            }
+        }
+        public InsigniaAbility CompareInsignias(Insignia insignia)
         {
             float Lowest = 1000;
-            Insignia ins = new Insignia();
+            InsigniaAbility ins = null;
             string Name = "";
             foreach(InsigniaAbility IA in Abilities)
             {
                 float Accuracy = insignia.CompareInsignia(IA.Insignia);
                 if(Accuracy < Lowest)
                 {
-                    ins = IA.Insignia;
+                    ins = IA;
                     Name = IA.InsigniaName;
                     Lowest = Accuracy;
                 }
             }
 
-            DebugTry = Name;
-
-            ins.PerformanceIndicator = 1;
+            if (ins != null)
+            {
+                DebugTry = Name;
+                ins.Activate();
+                ins.Insignia.PerformanceIndicator = 1;
+            }
             return ins;
         }
 

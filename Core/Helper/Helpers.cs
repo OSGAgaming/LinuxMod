@@ -20,7 +20,6 @@ namespace LinuxMod.Core
 {
     public static partial class LUtils
     {
-        internal const string EmptyTexture = "EEMod/Empty";
         // public static InteritosGlobalNPC Interitos(this NPC npc) => npc.GetGlobalNPC<InteritosGlobalNPC>();
         // public static InteritosGlobalProjectile Interitos(this Projectile proj) => proj.GetGlobalProjectile<InteritosGlobalProjectile>();
 
@@ -34,6 +33,11 @@ namespace LinuxMod.Core
         {
             return MyType.Assembly.GetTypes().Where(TheType => TheType.IsClass && !TheType.IsAbstract && MyType.IsAssignableFrom(TheType)).ToArray();
         }
+
+        public static Rectangle Rect(Point a, Point b) => new Rectangle(a.X, a.Y, b.X, b.Y);
+
+        public static Rectangle Rect(Vector2 a, Vector2 b) => new Rectangle((int)a.X, (int)a.Y, (int)b.X, (int)b.Y);
+
         public static float X(float t,
     float x0, float x1, float x2, float x3)
         {

@@ -17,6 +17,15 @@ namespace LinuxMod.Core.Mechanics
         public virtual void OnLoad() { }
         public virtual void AddHooks() { }
 
+        public static T GetMechanic<T>() where T : Mechanic
+        {
+            foreach(Mechanic m in AutoloadMechanics.MechanicsCache)
+            {
+                if (m is T) return m as T;
+            }
+
+            return null;
+        }
         public void Draw(SpriteBatch spritebatch)
         {
             OnDraw(spritebatch);

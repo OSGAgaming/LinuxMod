@@ -66,6 +66,7 @@ namespace LinuxMod.Core
             if (InsigniaActivator.JustPressed)
             {
                 UI.ToggleState<InsigniaUI>();
+                UI.ToggleState<StructureUI>();
             }
         }
         public override void Unload()

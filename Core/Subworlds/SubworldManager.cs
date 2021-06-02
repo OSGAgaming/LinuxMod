@@ -26,8 +26,7 @@ namespace LinuxMod.Core.Subworlds
             MultiPlayer
         }
 
-        private static string LinuxPath
-            ;
+        private static string LinuxPath;
         private static WorldGenerator _generator;
 
         internal static EEServerState serverState = EEServerState.None;
