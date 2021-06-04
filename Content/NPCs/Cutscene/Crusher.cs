@@ -18,13 +18,13 @@ namespace LinuxMod.Content.NPCs.Cutscene
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Ball Hazard");
+            DisplayName.SetDefault("Crusher");
         }
 
         public override void SetDefaults()
         {
-            npc.width = 50;
-            npc.height = 50;
+            npc.width = 74;
+            npc.height = 10;
             npc.damage = 12;
             npc.defense = 1000;
             npc.lifeMax = 1000;
@@ -49,8 +49,10 @@ namespace LinuxMod.Content.NPCs.Cutscene
         public const int TimeUpTop = 50;
         public const float SPEEDOFFALL = 0.007f;
         public const int CrushBox = 16;
+        public const int ChainLength = 86;
 
         public int HEIGHTOFFALL;
+        public int ChainsNeeded;
         public float DeltaY;
         public Vector2 BottomPosition => new Vector2(BasePosition.X, BasePosition.Y + HeightDescended);
         public override void AI()
@@ -63,6 +65,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
             {
                 HEIGHTOFFALL = LUtils.TileCheckVertical(npc.position + new Vector2(0, 32)) * 16 - (int)npc.position.Y;
                 BasePosition = npc.position - new Vector2(0, HEIGHTOFFALL);
+                ChainsNeeded = (HEIGHTOFFALL - 102) / 86 + 1;
             }
 
             npc.height = CrushBox;
@@ -129,7 +132,15 @@ namespace LinuxMod.Content.NPCs.Cutscene
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {
-            spriteBatch.Draw(Main.magicPixel, new Vector2(BasePosition.X, BasePosition.Y + HeightDescended).ForDraw() + new Vector2(0, HEIGHTOFFALL - HeightDescended), new Rectangle(0, HEIGHTOFFALL - (int)HeightDescended, npc.width, (int)HeightDescended), Color.Red);
+            Texture2D tex = Asset.GetTexture("NPCs/Cutscene/Crusher");
+            Texture2D texChain = Asset.GetTexture("NPCs/Cutscene/CrusherChain");
+            //spriteBatch.Draw(Main.magicPixel, new Vector2(BasePosition.X, BasePosition.Y).ForDraw() + new Vector2(0, HEIGHTOFFALL), new Rectangle(0, HEIGHTOFFALL - (int)HeightDescended, npc.width, (int)HeightDescended), Color.Red);
+            spriteBatch.Draw(tex, new Vector2(BasePosition.X, BasePosition.Y).ForDraw() + new Vector2(0, HEIGHTOFFALL), new Rectangle(0, 102 - (int)HeightDescended, npc.width, (int)HeightDescended), lightColor);
+            for (int i = 0; i < ChainsNeeded; i++)
+            {
+                spriteBatch.Draw(texChain, new Vector2(BasePosition.X, BasePosition.Y).ForDraw() + new Vector2(0, HEIGHTOFFALL), new Rectangle(0, 102 + 86 * (i + 1) - (int)HeightDescended, npc.width, (int)HeightDescended - 102 - 86 * i), lightColor);
+            }
+
             return false;
         }
     }

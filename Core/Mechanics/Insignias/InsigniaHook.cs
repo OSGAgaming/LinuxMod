@@ -18,6 +18,7 @@ namespace LinuxMod.Core.Mechanics
             On.Terraria.Main.DrawPlayer += Main_DrawPlayer;
         }
 
+
         private void Main_DrawPlayer(On.Terraria.Main.orig_DrawPlayer orig, Main self, Player drawPlayer, Vector2 Position, float rotation, Vector2 rotationOrigin, float shadow)
         {
             if(!drawPlayer.GetModPlayer<InsigniaPlayer>().Invisible)

@@ -25,6 +25,7 @@ namespace LinuxMod.Core
             GlobalZone = new ParticleZoneHandler();
             verletSystem = new VerletSystem();
             UI = new UIManager();
+            ModelLoader.LoadModels();
             LoadHotkeys();
             GlobalZone.AddZone("Main", 40000);
             ShaderLoading();
