@@ -1,3 +1,4 @@
+using LinuxMod.Core.Assets;
 using LinuxMod.Core.Helper.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,32 +18,62 @@ namespace LinuxMod.Core.Mechanics
             On.Terraria.Main.DrawProjectiles += Main_DrawProjectiles;
         }
 
+        float XRot;
+        float YRot;
+        Vector2 Rot;
         private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
             GraphicsDevice GD = Main.graphics.GraphicsDevice;
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
-/*
-            float aspectRatio = GD.Viewport.Width / GD.Viewport.Height;
-            Vector2 zoom = Main.GameViewMatrix.Zoom;
 
             Vector3 Rotation = Vector3.Zero;
             float Scale = 1f;
-            Vector3 Translation = new Vector3(Main.MouseScreen, 1.5f);
+            Vector3 Translation = new Vector3(new Vector2(Main.MouseScreen.X, -Main.MouseScreen.Y), -100);
 
-            Matrix world = Matrix.CreateRotationX(Rotation.X) 
-                    * Matrix.CreateRotationY(Rotation.Y)
+            int width = GD.Viewport.Width;
+            int height = GD.Viewport.Height;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                XRot += 0.05f;
+            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                XRot -= 0.05f;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+                YRot += 0.05f;
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+                YRot -= 0.05f;
+
+            Rot += (new Vector2(XRot, YRot) - Rot) / 32f;
+            Matrix world = Matrix.CreateRotationX(Rot.X) 
+                    * Matrix.CreateRotationY(Rot.Y)
                     * Matrix.CreateRotationZ(Rotation.Z)
                     * Matrix.CreateScale(Scale) 
-                    * Matrix.CreateWorld(Translation, Vector3.Forward, Vector3.Up); //Move the models position
+                    * Matrix.CreateWorld(Translation, Vector3.UnitZ, Vector3.Up)
+                    * Matrix.CreateTranslation(new Vector3(-width/2, height/2,0)); //Move the models position
 
             // Compute camera matrices.
-            Matrix view = Matrix.CreateRotationZ(MathHelper.Pi) * Matrix.CreateScale(zoom.X, zoom.Y, 1f);
+            Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.UnitY);
 
             //Create the 3D projection for this model
-            Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(179f), aspectRatio, 1f, 2f);
+            Matrix projection = Matrix.CreateOrthographic(width, height, 0f, 1000f);
 
-            ModelLoader.model.Draw(world, view, projection);
-*/
+            Model model = LinuxMod.ModelManager.Planet;
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    Effect effect = LinuxMod.ExampleModelShader;
+                    part.Effect = effect;
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
+                    effect.Parameters["View"].SetValue(view);
+                    effect.Parameters["Projection"].SetValue(projection);
+
+                }
+                mesh.Draw();
+            }
+                  //      model.Draw(world, view, projection);
+
             Main.spriteBatch.End();
             orig(self);
         }

@@ -18,6 +18,7 @@ namespace LinuxMod.Core
         public static UIManager UI;
         public static InsigniaHost InsigniaSystem;
         private GameTime lastGameTime;
+        public static ModelLoader ModelManager;
         public override void Load()
         {
             InsigniaSystem = new InsigniaHost();
@@ -25,7 +26,8 @@ namespace LinuxMod.Core
             GlobalZone = new ParticleZoneHandler();
             verletSystem = new VerletSystem();
             UI = new UIManager();
-            ModelLoader.LoadModels();
+            ModelManager = new ModelLoader();
+            ModelManager.LoadModels();
             LoadHotkeys();
             GlobalZone.AddZone("Main", 40000);
             ShaderLoading();
@@ -74,7 +76,7 @@ namespace LinuxMod.Core
         {
             Subworlds = null;
             GlobalZone = null;
-            UI.UnLoad();
+            UI?.UnLoad();
         }
     }
 }

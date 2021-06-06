@@ -19,31 +19,38 @@ namespace LinuxMod.Core.Mechanics
 {
     public class ModelLoader
     {
-        public static Model model;
-        public static ContentManager contentManager;//if path is never accessed then use vanilla shader content manager instead
+        public Model Cube;
+        public Model Planet;
 
-        public static MethodInfo create_ContentReader;
-        //public ConstructorInfo[] contentReaderCtor;
+        public ContentManager contentManager;
 
-        public static MethodInfo readAsset;
-        public static MethodInfo readAssetExact;
+        public MethodInfo create_ContentReader;
 
-        public static void Load()
+        public MethodInfo readAsset;
+
+        public void Load()
+        {
+            InitializeContentReader();
+
+            LoadModel(out Cube, "Cube");
+            LoadModel(out Planet, "Planet");
+        }
+
+        public void InitializeContentReader()
         {
             contentManager = new ContentManager(Main.ShaderContentManager.ServiceProvider);
             create_ContentReader = typeof(ContentReader).GetMethod("Create", BindingFlags.NonPublic | BindingFlags.Static);
 
             readAsset = typeof(ContentReader).GetMethod("ReadAsset", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(typeof(object));
-            readAssetExact = typeof(ContentReader).GetMethod("ReadObject", new Type[] { }).MakeGenericMethod(typeof(object));
-
-
-        byte[] file = ModContent.GetFileBytes("LinuxMod/Assets/Models/Cube.urmom");
-            //model type is 'Model' material type is 'BasicEffect'
-            model = LoadAsset<Model>(new MemoryStream(file));
-            //model.SetTexture(ModContent.GetTexture("Realms/Models/Sans Tex"));
         }
 
-        public static T LoadAsset<T>(Stream stream)
+        public void LoadModel(out Model model, string Path)
+        {
+            byte[] file = ModContent.GetFileBytes($"LinuxMod/Assets/Models/{Path}.urmom");
+            model = LoadAsset<Model>(new MemoryStream(file));
+        }
+
+        public T LoadAsset<T>(Stream stream)
         {
             using (ContentReader contentReader = (ContentReader)create_ContentReader.Invoke(null, new object[] { contentManager, stream, "UntexturedSphere", null }))
             {
@@ -51,10 +58,9 @@ namespace LinuxMod.Core.Mechanics
                 return (T)thi;
             }
         }
-        public static void LoadModels()
+        public void LoadModels()
         {
-            Load();
-
+            Load();  
         }
     }
 }
