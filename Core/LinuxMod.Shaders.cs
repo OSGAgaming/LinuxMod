@@ -16,7 +16,7 @@ namespace LinuxMod.Core
         public static Effect PrimitiveShaders;
         public static Effect WaterWallReflection;
         public static Effect ExampleModelShader;
-
+        public static Effect ModelTargetEffect;
         static void QuickLoadScreenShader(string Path)
         {
             string EffectPath = "Effects/ScreenShaders/" + Path;
@@ -31,6 +31,7 @@ namespace LinuxMod.Core
         {
             PrimitiveShaders = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/PrimitiveShader");
             ExampleModelShader = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/ModelShaders/ExampleModelShader");
+            ModelTargetEffect = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/ColourLimit"); 
 
             string[] Shaders = Directory.GetFiles($@"{Main.SavePath}\Mod Sources\LinuxMod\Effects\ScreenShaders");
             for (int i = 0; i < Shaders.Length; i++)

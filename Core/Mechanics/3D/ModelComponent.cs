@@ -16,20 +16,22 @@ using Microsoft.Xna.Framework.Graphics;
 namespace LinuxMod.Core.Mechanics
 {
     public class ModelComponent : IComponent
-    { 
-        public Model currentModel { get; set; }
+    {
+        public Model currentModel;
         public GraphicsDevice GraphicsDevice { get; set; }
         public Effect Effect { get; set; }
-        public Vector3 position { get; set; }
-        public Vector3 rotation { get; set; }
+        public Vector3 Position { get; set; }
+        public Vector3 Rotation { get; set; }
         public float Scale { get; set; }
 
+        public Action<Effect> ShaderParameters;
 
         public ModelComponent(Model currentModelInput)
         {
-            currentModel = currentModelInput;
+            Model model = currentModelInput;
+            currentModel = model;
             GraphicsDevice = Main.graphics.GraphicsDevice;
-            Mechanic.GetMechanic<ModelHost>().modelComponents.Add(this);
+            Scale = 1f;
             Effect = null;
         }
 
@@ -39,52 +41,62 @@ namespace LinuxMod.Core.Mechanics
         {
             Mechanic.GetMechanic<ModelHost>().modelComponents.Remove(this);
         }
+
         public void Draw(SpriteBatch spriteBatch)
         {
-            int width = GraphicsDevice.Viewport.Width;
-            int height = GraphicsDevice.Viewport.Height;
-
-            Matrix world = 
-                      Matrix.CreateRotationX(rotation.X)
-                    * Matrix.CreateRotationY(rotation.Y)
-                    * Matrix.CreateRotationZ(rotation.Z)
-                    * Matrix.CreateScale(Scale)
-                    * Matrix.CreateWorld(position, Vector3.UnitZ, Vector3.Up)
-                    * Matrix.CreateTranslation(new Vector3(-width / 2, height / 2, 0)); //Move the models position
-
-            // Compute camera matrices.
-            Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.UnitY);
-
-            //Create the 3D projection for this model
-            Matrix projection = Matrix.CreateOrthographic(width, height, 0f, 1000f);
-
-            Model model = LinuxMod.ModelManager.Planet;
-
-            foreach (ModelMesh mesh in model.Meshes)
+            ModelHost.SubscribeCall((sb) =>
             {
-                if (Effect != null)
-                {
-                    foreach (ModelMeshPart part in mesh.MeshParts)
-                    {
-                        Effect effect = LinuxMod.ExampleModelShader;
-                        part.Effect = effect;
-                        effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
-                        effect.Parameters["View"].SetValue(view);
-                        effect.Parameters["Projection"].SetValue(projection);
+                int width = GraphicsDevice.Viewport.Width;
+                int height = GraphicsDevice.Viewport.Height;
 
-                    }
-                }
-                else
+                Matrix world =
+                          Matrix.CreateRotationX(Rotation.X)
+                        * Matrix.CreateRotationY(Rotation.Y)
+                        * Matrix.CreateRotationZ(Rotation.Z)
+                        * Matrix.CreateScale(Scale/2)
+                        * Matrix.CreateWorld(new Vector3(Position.X / 2, -Position.Y / 2, Position.Z), Vector3.UnitZ, Vector3.Up)
+                        * Matrix.CreateTranslation(new Vector3(-width / 2, height / 2, 0)); //Move the models position
+
+                // Compute camera matrices.
+                Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.UnitY);
+
+                //Create the 3D projection for this model
+                Matrix projection = Matrix.CreateOrthographic(width, height, 0f, 1000f);
+
+                Model model = currentModel;
+
+                foreach (ModelMesh mesh in model.Meshes)
                 {
-                    foreach (BasicEffect effect in mesh.Effects)
+                    if (Effect != null)
                     {
-                        effect.World = mesh.ParentBone.Transform * world;
-                        effect.View = view;
-                        effect.Projection = projection;
+                        foreach (ModelMeshPart part in mesh.MeshParts)
+                        {
+                            part.Effect = Effect;
+                            Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
+                            Effect.Parameters["View"].SetValue(view);
+                            Effect.Parameters["Projection"].SetValue(projection);
+                            ShaderParameters?.Invoke(Effect);
+                        }
                     }
+                    else
+                    {
+                        foreach (Effect effects in mesh.Effects)
+                        {
+                            if (effects is BasicEffect effect)
+                            {
+                                effect.World = mesh.ParentBone.Transform * world;
+                                effect.View = view;
+                                effect.Projection = projection;
+                                effect.EnableDefaultLighting();
+                                effect.SpecularPower = 100;
+                                effect.AmbientLightColor = Microsoft.Xna.Framework.Color.DeepSkyBlue.ToVector3();
+                                effect.SpecularColor = Microsoft.Xna.Framework.Color.Black.ToVector3();
+                            }
+                        }
+                    }
+                    mesh.Draw();
                 }
-                mesh.Draw();
-            }
+            });  
         }
     }
 }

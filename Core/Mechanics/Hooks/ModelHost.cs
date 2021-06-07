@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
@@ -11,17 +11,51 @@ namespace LinuxMod.Core.Mechanics
     public class ModelHost : Mechanic
     {
         internal List<ModelComponent> modelComponents = new List<ModelComponent>();
+
+        internal static event Action<SpriteBatch> DrawCalls;
+
+        public RenderTarget2D ModelTarget { get; set; }
+
+        public override void OnLoad()
+        {
+            ModelTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth/2, Main.screenHeight/2);
+        }
+
         public override void AddHooks()
         {
-            On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            Main.OnPreDraw += Main_OnPreDraw;
+            On.Terraria.Main.DrawProjectiles += Main_DrawProjectiles;
         }
-        private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
+
+        public static void SubscribeCall(Action<SpriteBatch> del) => DrawCalls += del;
+
+        private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
-            foreach(ModelComponent mc in modelComponents)
-            {
-                mc.Draw(Main.spriteBatch);
-            }
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+            LinuxMod.ModelTargetEffect.CurrentTechnique.Passes[0].Apply();
+            if (ModelTarget != null) Main.spriteBatch.Draw(ModelTarget, new Rectangle(0,0, Main.screenWidth, Main.screenHeight), Color.White);
+
+            Main.spriteBatch.End();
             orig(self);
+        }
+        private void Main_OnPreDraw(GameTime obj)
+        {
+            RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
+            Matrix matrix = Main.GameViewMatrix.ZoomMatrix;
+
+            GraphicsDevice GD = Main.graphics.GraphicsDevice;
+
+            GD.SetRenderTarget(ModelTarget);
+            GD.Clear(Color.Transparent);
+
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+            DrawCalls?.Invoke(Main.spriteBatch);
+            DrawCalls = null;
+
+            Main.spriteBatch.End();
+            GD.SetRenderTargets(oldtargets1);
         }
     }
 }

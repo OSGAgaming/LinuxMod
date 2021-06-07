@@ -21,6 +21,7 @@ namespace LinuxMod.Core.Mechanics
     {
         public Model Cube;
         public Model Planet;
+        public Model Clouds;
 
         public ContentManager contentManager;
 
@@ -34,6 +35,7 @@ namespace LinuxMod.Core.Mechanics
 
             LoadModel(out Cube, "Cube");
             LoadModel(out Planet, "Planet");
+            LoadModel(out Clouds, "Planet");
         }
 
         public void InitializeContentReader()

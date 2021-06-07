@@ -21,58 +21,65 @@ namespace LinuxMod.Core.Mechanics
         float XRot;
         float YRot;
         Vector2 Rot;
+
+        float ScaleVel;
+        float ScaleVel2;
+
+        bool Enlarging = false;
+        int delay;
+
+        ModelComponent modelComponent = new ModelComponent(LinuxMod.ModelManager.Planet);
+        ModelComponent clouds = new ModelComponent(LinuxMod.ModelManager.Clouds);
         private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
-            GraphicsDevice GD = Main.graphics.GraphicsDevice;
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Vector3 Rotation = Vector3.Zero;
-            float Scale = 1f;
-            Vector3 Translation = new Vector3(new Vector2(Main.MouseScreen.X, -Main.MouseScreen.Y), -100);
-
-            int width = GD.Viewport.Width;
-            int height = GD.Viewport.Height;
+            if (delay > 0) delay--;
 
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
                 XRot += 0.05f;
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
                 XRot -= 0.05f;
-
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
                 YRot += 0.05f;
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
                 YRot -= 0.05f;
 
-            Rot += (new Vector2(XRot, YRot) - Rot) / 32f;
-            Matrix world = Matrix.CreateRotationX(Rot.X) 
-                    * Matrix.CreateRotationY(Rot.Y)
-                    * Matrix.CreateRotationZ(Rotation.Z)
-                    * Matrix.CreateScale(Scale) 
-                    * Matrix.CreateWorld(Translation, Vector3.UnitZ, Vector3.Up)
-                    * Matrix.CreateTranslation(new Vector3(-width/2, height/2,0)); //Move the models position
-
-            // Compute camera matrices.
-            Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.UnitY);
-
-            //Create the 3D projection for this model
-            Matrix projection = Matrix.CreateOrthographic(width, height, 0f, 1000f);
-
-            Model model = LinuxMod.ModelManager.Planet;
-
-            foreach (ModelMesh mesh in model.Meshes)
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && delay == 0)
             {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    Effect effect = LinuxMod.ExampleModelShader;
-                    part.Effect = effect;
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
-                    effect.Parameters["View"].SetValue(view);
-                    effect.Parameters["Projection"].SetValue(projection);
-
-                }
-                mesh.Draw();
+                Enlarging = !Enlarging;
+                delay = 60;
             }
-                  //      model.Draw(world, view, projection);
+
+            Rot += (new Vector2(XRot, YRot) - Rot) / 32f;
+
+            modelComponent.Position = new Vector3(Main.LocalPlayer.Center + new Vector2(60, 0).ForDraw(), -100);
+            modelComponent.Rotation = new Vector3(Rot, 0);
+
+            clouds.Position = new Vector3(Main.LocalPlayer.Center + new Vector2(60, 0).ForDraw(), -100);
+            clouds.Rotation = new Vector3(Rot, 0);
+
+            if (Enlarging) ScaleVel += (0.3f - modelComponent.Scale) / 30f - ScaleVel / 7f;
+            else ScaleVel += (0f - modelComponent.Scale) / 80f - ScaleVel / 7f;
+
+            if (Enlarging) ScaleVel2 += (0.4f - clouds.Scale) / 30f - ScaleVel2 / 7f;
+            else ScaleVel2 += (0f - clouds.Scale) / 80f - ScaleVel2 / 7f;
+
+            modelComponent.Scale += ScaleVel;
+            clouds.Scale += ScaleVel2;
+
+            modelComponent.Effect = null;
+            clouds.Effect = LinuxMod.ExampleModelShader;
+            clouds.ShaderParameters = (effect) =>
+            {
+                effect.Parameters["Progress"].SetValue(Main.GameUpdateCount);
+                effect.Parameters["noiseTexture"].SetValue(Asset.GetTexture("Noise/noise"));
+            };
+
+            modelComponent.Draw(Main.spriteBatch);
+            clouds.Draw(Main.spriteBatch);
+
+     
 
             Main.spriteBatch.End();
             orig(self);
