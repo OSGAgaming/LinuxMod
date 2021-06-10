@@ -14,7 +14,7 @@ namespace LinuxMod.Core.Mechanics.Verlet
         public int[] StickPoints;
         public float Length;
 
-        public Stick(int[] points, int Length, Texture2D texture)
+        public Stick(int[] points, float Length, Texture2D texture)
         {
             StickPoints = points;
             tex = texture;

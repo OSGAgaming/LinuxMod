@@ -61,7 +61,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	else
 		disp = 1;
 	float4 cloudColour = float4(1,1,1,1);
-	cloudColour *= disp * 0.998f;
+	cloudColour *= disp * 1;
 	return cloudColour + add;
 }
 

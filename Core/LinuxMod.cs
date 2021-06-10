@@ -33,6 +33,7 @@ namespace LinuxMod.Core
             ShaderLoading();
             UI.LoadUI();
             AutoloadMechanics.Load();
+            ModuleHostLoader.Load();
             InsigniaSystem.Load();
         }
         public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)

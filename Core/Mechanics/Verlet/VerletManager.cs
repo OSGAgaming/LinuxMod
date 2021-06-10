@@ -19,9 +19,11 @@ namespace LinuxMod.Core.Mechanics.Verlet
         public List<Stick> Sticks = new List<Stick>();
         public List<VPoint> Points = new List<VPoint>();
 
-        public int CreateVerletPoint(Vector2 pos, bool isStatic = false)
+        public int CreateVerletPoint(Vector2 pos, bool isStatic = false, bool hasGravity = true)
         {
-            Points.Add(new VPoint(pos, pos, isStatic));
+            VPoint vp = new VPoint(pos, pos, isStatic);
+            vp.hasGravity = hasGravity;
+            Points.Add(vp);
 
             return Points.Count - 1;
         }
@@ -39,7 +41,12 @@ namespace LinuxMod.Core.Mechanics.Verlet
             Sticks.Clear();
         }
 
-        public void BindPoints(int a, int b, int Length = 10, Texture2D tex = null) => Sticks.Add(new Stick(new int[] {a, b}, Length, tex));
+        public void BindPoints(int a, int b, float Length = -1, Texture2D tex = null)
+        {
+            if(Length <= -1) Length = (Points[a].point - Points[b].point).Length();
+
+            Sticks.Add(new Stick(new int[] { a, b }, Length, tex));
+        }
 
         public void BindPoints(VPoint[] points, int Length = 10, Texture2D tex = null)
         {
@@ -132,8 +139,7 @@ namespace LinuxMod.Core.Mechanics.Verlet
                     Points[i].oldPoint.Y = Points[i].point.Y;
                     Points[i].point.X += Points[i].vel.X;
                     Points[i].point.Y += Points[i].vel.Y;
-                    if(Points[i].hasGravity) Points[i].point.Y += _gravity;
-                    Points[i].hasGravity = true;
+                    if(Points[i].hasGravity) Points[i].point.Y += _gravity/10f;
                 }
             }
         }

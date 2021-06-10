@@ -324,13 +324,6 @@ namespace LinuxMod.Core
             }
         }
 
-        /* public static class VanillasDoing
-        {
-            public static void DrawNPCVanilla()
-            {
-            }
-        } */
-
         public static class Debug
         {
             public static void LogChat(string obj, [CallerFilePath] string callerName = "", [CallerLineNumber] int lineNumber = -1)
