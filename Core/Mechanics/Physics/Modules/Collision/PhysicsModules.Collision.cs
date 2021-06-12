@@ -1,6 +1,7 @@
 ﻿using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -11,38 +12,54 @@ using Terraria.ModLoader.IO;
 namespace LinuxMod.Core.Mechanics
 {
     [Needs(typeof(PolygonModule))]
-    public class PhysicsCollision : Module
+    public class PhysicsCollisionModule : Module
     {
         public Polygon Polygon;
         public CollisionInfo collisionInfo;
+        private int index = -1;
         public override void Update()
         {
             Polygon = new Polygon(Object.GetModule<PolygonModule>().Polygon.points, Object.Center);
 
-            IList<PhysicsCollision> CObjects = GetHost<PhysicsCollision>().Objects;
+            IList<PhysicsCollisionModule> CObjects = GetHost<PhysicsCollisionModule>().Objects;
+            VerletModule Verlet = Object.GetModule<VerletModule>();
             collisionInfo.d = Vector2.Zero;
 
-            foreach (PhysicsCollision Module in CObjects)
+            foreach (PhysicsCollisionModule Module in CObjects)
             {
                 PhysicsObject Entity = Module.Object;
 
                 if (!Entity.Equals(Object))
                 {
                     CollisionInfo Info = LinuxCollision.SAT(Polygon, Module.Polygon);
-                    //Object.Center -= Info.d;
+
                     collisionInfo.d += Info.d;
 
-                    if(Info.d != Vector2.Zero)
+                    if (Info.d != Vector2.Zero)
                     {
-                        Object.Velocity -= Info.d / 80f;
-                        Module.Object.Velocity += Info.d / 80f;
+                        int indexOfClosest = -1;
+                        float lowestLength = float.MaxValue;
+                        for (int a = 0; a < Verlet.indexes.Count; a++)
+                        {
+                            float length = Vector2.Dot(LinuxMod.verletSystem.GetPoint(Verlet.indexes[a]).point - Module.Polygon.Center, Info.Axis);
+                            if (Math.Abs(length) < lowestLength)
+                            {
+                                indexOfClosest = Verlet.indexes[a];
+                                lowestLength = Math.Abs(length);
+                            }
+                        }
+
+                        index = indexOfClosest;
+                        Vector2 resolve = -Info.Depth * Info.Axis * 0.5f;
+                        LinuxMod.verletSystem.GetPoint(indexOfClosest).point += resolve;
+                        Object.Velocity = Vector2.Zero;
                     }
                 }
             }
         }
-        public PhysicsCollision()
+        public PhysicsCollisionModule()
         {
-            GetHost<PhysicsCollision>().AddObject(this);
+            GetHost<PhysicsCollisionModule>().AddObject(this);
         }
     }
 }

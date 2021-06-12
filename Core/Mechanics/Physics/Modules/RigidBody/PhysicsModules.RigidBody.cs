@@ -9,7 +9,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class PhysicsRigidBody : Module
+    public class RigidBodyModule : Module
     {
         public float Gravity { get; set; }
 
@@ -18,7 +18,7 @@ namespace LinuxMod.Core.Mechanics
             Object.Velocity.Y += Gravity;
         }
 
-        public PhysicsRigidBody(float gravity)
+        public RigidBodyModule(float gravity)
         {
             Gravity = gravity;
         }

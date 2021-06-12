@@ -1,6 +1,8 @@
 using LinuxMod.Core.Mechanics.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
@@ -26,6 +28,8 @@ namespace LinuxMod.Core.Mechanics
 
         private void Main_OnPreDraw(GameTime obj)
         {
+            
+
             if(LinuxInput.JustClicked)
             {
                 PhysicsObject Object = new PhysicsObject();
@@ -33,10 +37,11 @@ namespace LinuxMod.Core.Mechanics
                 int X = (int)Main.MouseWorld.X;
                 int Y = (int)Main.MouseWorld.Y;
 
-                Object.LoadModule(new PolygonModule(new Rectangle(X,Y, 100, 100)));
-                Object.LoadModule(new PhysicsCollision());
+                Object.LoadModule(new PolygonModule(new Rectangle(X,Y, 20, 20)));
+                Object.LoadModule(new TileCollisionModule());
+                Object.LoadModule(new PhysicsCollisionModule());
                 Object.LoadModule(new VerletModule());
-                Object.LoadModule(new PhysicsRigidBody(0.001f));
+                Object.LoadModule(new RigidBodyModule(0.004f));
 
                 Object.Center = Main.MouseWorld;
             }
@@ -45,6 +50,7 @@ namespace LinuxMod.Core.Mechanics
                 GetMechanic<PhysicsObjectHook>().Objects.Objects.Clear();
                 LinuxMod.verletSystem.Sticks.Clear();
                 LinuxMod.verletSystem.Points.Clear();
+
             }
 
             RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();

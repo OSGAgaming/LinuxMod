@@ -15,16 +15,19 @@ namespace LinuxMod.Core.Mechanics
         public Polygon Polygon;
         public override void Draw(SpriteBatch sb)
         {
-            new Polygon(Polygon.points, Object.Center).Draw();
+            Polygon = new Polygon(Polygon.points, Object.Center);
+            Polygon.Draw();
         }
         public PolygonModule(Polygon polygon)
         {
             Polygon = polygon;
+            GetHost<PolygonModule>().AddObject(this);
         }
 
         public PolygonModule(Rectangle rectangle)
         {
             Polygon = Polygon.RectToPoly(rectangle);
+            GetHost<PolygonModule>().AddObject(this);
         }
     }
 }

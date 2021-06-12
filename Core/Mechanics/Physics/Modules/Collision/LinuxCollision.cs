@@ -20,11 +20,15 @@ namespace LinuxMod.Core.Mechanics
     {
         public Bound AABB;
         public Vector2 d;
+        public Vector2 Axis;
+        public float Depth;
         public static CollisionInfo Default => new CollisionInfo(Vector2.Zero, Bound.None);
-        public CollisionInfo(Vector2 d, Bound AABB)
+        public CollisionInfo(Vector2 d, Bound AABB = Bound.None, Vector2 Axis = default, float Depth = 0)
         {
             this.AABB = AABB;
             this.d = d;
+            this.Axis = Axis;
+            this.Depth = Depth;
         }
     }
     public struct Circle
@@ -204,10 +208,21 @@ namespace LinuxMod.Core.Mechanics
             return new CollisionInfo(v, b);
         }
 
+        public static float IntervalDistance(float MinA, float MaxA, float MinB, float MaxB)
+        {
+            if (MinA < MinB)
+                return MinB - MaxA;
+            else
+                return MinA - MaxB;
+        }
+
         public static CollisionInfo SAT(Polygon shape1, Polygon shape2)
         {
             Polygon[] shapes = new Polygon[] { shape1, shape2 };
             float overlap = float.PositiveInfinity;
+            float MinDistance = float.PositiveInfinity;
+            Vector2 Axis = Vector2.Zero;
+
             for (int a = 0; a < 2; a++)
             {
                 for (int i = 0; i < shapes[a].numberOfPoints; i++)
@@ -232,13 +247,26 @@ namespace LinuxMod.Core.Mechanics
                         bMin = Math.Min(projection, bMin);
                     }
                     overlap = Math.Min(Math.Min(bMax, aMax) - Math.Max(bMin, aMin), overlap);
-                    if (!(bMax >= aMin && aMax >= bMin))
+                    float Distance = IntervalDistance(aMin, aMax, bMin, bMax);
+
+                    if (Distance > 0)
                         return new CollisionInfo(Vector2.Zero, Bound.None);
+                    else if (Math.Abs(Distance) < MinDistance && a == 1)
+                    {
+                        MinDistance = Math.Abs(Distance);
+                        Axis = axisNormal;
+                    }
                 }
             }
+            
+            int Sign = Math.Sign(Vector2.Dot(Axis, shape1.Center - shape2.Center));
+
+            if (Sign == 1)
+                Axis *= -1; 
+
             Vector2 disp = shape2.Center - shape1.Center;
             float s = disp.Length();
-            return new CollisionInfo(new Vector2(overlap * disp.X / s, overlap * disp.Y / s), Bound.Top);
+            return new CollisionInfo(new Vector2(overlap * disp.X / s, overlap * disp.Y / s), Bound.Top, Axis, MinDistance);
         }
 
         public static Vector2 TestForCollisionsDiag(Polygon shape1, Polygon shape2)

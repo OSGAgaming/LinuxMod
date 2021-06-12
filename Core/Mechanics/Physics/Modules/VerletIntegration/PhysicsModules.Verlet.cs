@@ -23,13 +23,18 @@ namespace LinuxMod.Core.Mechanics
             Vector2 ConcentricPoint = Vector2.Zero;
 
             VerletSystem system = LinuxMod.verletSystem;
+
             PolygonModule c = Object.GetModule<PolygonModule>();
-            PhysicsCollision p = Object.GetModule<PhysicsCollision>();
+            //PhysicsCollision p = Object.GetModule<PhysicsCollision>();
+            //TileCollision t = Object.GetModule<TileCollision>();
 
             for (int i = 0; i < c.Polygon.points.Length; i++)
             {
-                system.GetPoint(indexes[i]).point -= p.collisionInfo.d;
-                system.GetPoint(indexes[i]).oldPoint -= p.collisionInfo.d;
+                //system.GetPoint(indexes[i]).point -= p.collisionInfo.d;
+                //system.GetPoint(indexes[i]).oldPoint -= p.collisionInfo.d;
+
+                //system.GetPoint(indexes[i]).point -= t.collisionInfo.d;
+                //system.GetPoint(indexes[i]).oldPoint -= t.collisionInfo.d;
 
                 system.GetPoint(indexes[i]).point += Object.Velocity;
                 system.GetPoint(indexes[i]).oldPoint += Object.Velocity;
@@ -55,7 +60,7 @@ namespace LinuxMod.Core.Mechanics
 
             for (int i = 0; i < c.Polygon.points.Length; i++)
             {
-                int a = system.CreateVerletPoint(c.Polygon.varpoints[i], false, false);
+                int a = system.CreateVerletPoint(c.Polygon.varpoints[i], false, true);
                 system.GetPoint(a).oldPoint = system.GetPoint(a).oldPoint + new Vector2(Main.rand.NextFloat(-4, 4), 0);
                 indexes.Add(a);
 
