@@ -30,7 +30,7 @@ namespace LinuxMod.Core.Mechanics
         {
             
 
-            if(LinuxInput.JustClicked)
+            /*if(LinuxInput.JustClicked)
             {
                 PhysicsObject Object = new PhysicsObject();
 
@@ -52,6 +52,7 @@ namespace LinuxMod.Core.Mechanics
                 LinuxMod.verletSystem.Points.Clear();
 
             }
+            */
 
             RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
 

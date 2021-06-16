@@ -66,6 +66,7 @@ namespace LinuxMod.Core.Mechanics
                     Width = 0;
                 }
             }
+            /*
             if (Main.LocalPlayer.controlUseItem && CanDraw)
             {
                 LUtils.Particles.SetSpawningModules(new SpawnRandomly(1f));
@@ -84,12 +85,13 @@ namespace LinuxMod.Core.Mechanics
                     CurrentNodeCache.Add(new INode(Main.MouseScreen - CurrentMousePos, CurrentNodeCache.Count));
                 
             }
+            
             else if (JustLiftedMouse && CurrentNodeCache.Count > InsigniaHost.ACCURACY)
             {
                 Insignia ins = new Insignia();
                 ins.SetAndNormalizeNodes(CurrentNodeCache);
                 LinuxMod.InsigniaSystem.CompareInsignias(ins);
-            }
+            }*/
 
             ScreenMapPass.Instance.GetMap("InsigniaMap").DrawToBatchedTarget((SpriteBatch sb) =>
             {

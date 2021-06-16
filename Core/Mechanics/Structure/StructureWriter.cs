@@ -2,8 +2,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.ObjectData;
 
 namespace LinuxMod.Core.Mechanics
 {
@@ -27,44 +29,28 @@ namespace LinuxMod.Core.Mechanics
             {
                 for (int j = 0; j < wh.Y; j++)
                 {
-                    WriteTileSpace(p, i, j);
+                    writer.Write(i);
+                    writer.Write(j);
+
+                    SaveSingleTiles SingleTiles = new SaveSingleTiles();
+                    SingleTiles.Write(writer, p.X + i, p.Y + j);
                 }
             }
-        }
 
-        public void WriteTileSpace(Point p, int x, int y)
-        {
-            Tile tile = Framing.GetTileSafely(p.X + x, p.Y + y);
-            BinaryWriter writer = new BinaryWriter(stream);
-
-            writer.Write(tile.active());
-            writer.Write(x);
-            writer.Write(y);
-
-            if (tile.active())
+            for (int i = 0; i < wh.X; i++)
             {
-                writer.Write((int)tile.type);
+                for (int j = 0; j < wh.Y; j++)
+                {
+                    writer.Write(i);
+                    writer.Write(j);
 
-                writer.Write(tile.slope());
-                writer.Write(tile.color());
+                    SaveTODTiles TOD = new SaveTODTiles();
+                    TOD.Write(writer, p.X + i, p.Y + j);
 
-                writer.Write((int)tile.frameX);
-                writer.Write((int)tile.frameY);
-
-                writer.Write(tile.actuator());
+                    SaveLiquid Liquid = new SaveLiquid();
+                    Liquid.Write(writer, p.X + i, p.Y + j);
+                }
             }
-
-            writer.Write((int)tile.wall);
-
-            if (tile.wall > 0)
-            {
-                writer.Write(tile.wallColor());
-                writer.Write(tile.wallFrameX());
-                writer.Write(tile.wallFrameY());
-            }
-
-            writer.Write(tile.liquid);
-            if(tile.liquid > 0) writer.Write(tile.liquidType());
         }
     }
 }

@@ -31,6 +31,11 @@ namespace LinuxMod.Core
 
                 Vector2 resolve = Vector2.Zero;
                 Vector2 walkSpace = Vector2.Zero;
+
+                CollisionInfo InfoInf = CollisionInfo.Default;
+                Vector2 TotalComponent = Vector2.Zero;
+                int TotalCollisions = 0;
+
                 foreach (PolygonModule pm in m)
                 {
                     Vector2 p = Main.LocalPlayer.position;
@@ -39,7 +44,12 @@ namespace LinuxMod.Core
                     Polygon poly = Polygon.RectToPoly(new Rectangle((int)p.X, (int)p.Y, Main.LocalPlayer.width, Main.LocalPlayer.height));
 
                     CollisionInfo Info = LinuxCollision.SAT(poly, pm.Polygon);
-                    CollisionInfo InfoInf = LinuxCollision.SAT(polyInf, pm.Polygon);
+                    InfoInf = LinuxCollision.SAT(polyInf, pm.Polygon);
+                    if (InfoInf.d != Vector2.Zero)
+                    {
+                        TotalComponent += InfoInf.Axis;
+                        TotalCollisions++;
+                    }
 
                     resolve += Info.d;
                     walkSpace += InfoInf.d;
@@ -47,8 +57,23 @@ namespace LinuxMod.Core
 
                 if (walkSpace != Vector2.Zero)
                 {
+                    if (TotalCollisions != 0)
+                    {
+                        TotalComponent /= TotalCollisions;
+                        resolve *= new Vector2(Math.Abs(TotalComponent.X), Math.Abs(TotalComponent.Y));
+
+                        if (Main.LocalPlayer.controlLeft || Main.LocalPlayer.controlRight) TotalComponent.Y = 1;
+                        else TotalComponent.Y = Math.Abs(TotalComponent.Y);
+
+                        if (Main.LocalPlayer.controlJump) TotalComponent.X = 1;
+                        else TotalComponent.X = Math.Abs(TotalComponent.X);
+
+                        Vector2 ParralelComponent = new Vector2(TotalComponent.Y, TotalComponent.X);
+                        Main.LocalPlayer.velocity = Main.LocalPlayer.velocity * ParralelComponent;
+                        Main.NewText(ParralelComponent);
+                    }
+
                     Main.LocalPlayer.Center -= resolve;
-                    Main.LocalPlayer.velocity.Y = 0;
                     Main.LocalPlayer.gravity = 0;
                 }
             }
