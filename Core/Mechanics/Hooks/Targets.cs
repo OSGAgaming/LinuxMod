@@ -28,8 +28,6 @@ namespace LinuxMod.Core.Mechanics
 
         private void Main_OnPreDraw(GameTime obj)
         {
-            
-
             /*if(LinuxInput.JustClicked)
             {
                 PhysicsObject Object = new PhysicsObject();

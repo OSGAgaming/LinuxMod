@@ -53,6 +53,7 @@ namespace LinuxMod.Core.Mechanics
 
             if (tile.active() && TOD != null)
             {
+                Main.NewText(tile.blockType());
                 Point16 Origin = TOD.Origin;
 
                 writer.Write((int)Origin.X);

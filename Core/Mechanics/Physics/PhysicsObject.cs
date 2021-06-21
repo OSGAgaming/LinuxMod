@@ -85,14 +85,15 @@ namespace LinuxMod.Core.Mechanics
 
         public void Update()
         {
-           
-
             OldCenter = Center;
+
             foreach (Module module in Modules)
             {
                 module.Update();
             }
             Center += Velocity;
+
+            DeltaCenter = Center - OldCenter;
         }
     }
 }
