@@ -29,15 +29,15 @@ namespace LinuxMod.Core.Mechanics
         private float Viscocity => 0f;
         private float dT => 1;
         public int Lifetime => 1200;
-
         private float EaseOutFactor => 0f;
-        public int TimeAlive;
+
 
         private readonly int iter = 4;
 
         public int SimulationSize { get; set; } = 100;
         private int CellSize { get; set; } = 16;
         private Vector2 GlobalSpace { get; set; }
+        public int TimeAlive { get; set; }
 
         private int N => SimulationSize;
 
