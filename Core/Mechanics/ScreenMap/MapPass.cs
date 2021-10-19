@@ -28,38 +28,44 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         protected ScreenShaderData MapEffect => LUtils.GetScreenShader(MapEffectName);
 
         internal virtual void OnApplyShader() { }
-        public virtual void Load()
-        {
-            MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
-        }
+        public virtual void Load() => MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
+        
 
         public void ApplyShader()
         {
             if (ManualTarget != null) MapTarget = ManualTarget;
 
-            MapEffect?.Shader.Parameters["Noise"]?.SetValue(Asset.GetTexture("Noise/noise"));
-            MapEffect.Shader.Parameters["Map"].SetValue(MapTarget);
-            MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Targets.Instance.ScaledTileTarget);
-            MapEffect.Shader.Parameters["WallTarget"]?.SetValue(Main.instance.wallTarget);
+            if (MapEffectName != "")
+            {
+                MapEffect?.Shader.Parameters["Noise"]?.SetValue(Asset.GetTexture("Noise/noise"));
+                MapEffect.Shader.Parameters["Map"]?.SetValue(MapTarget);
+                MapEffect.Shader.Parameters["TileTarget"]?.SetValue(Targets.Instance.ScaledTileTarget);
+                MapEffect.Shader.Parameters["WallTarget"]?.SetValue(Main.instance.wallTarget);
 
-            MapEffect.UseIntensity(Main.GameUpdateCount);
+                //change to something better
+                MapEffect.UseIntensity(Main.GameUpdateCount);
+            }
 
             OnApplyShader();
 
-            LUtils.ActivateScreenShader(MapEffectName);
+            if (MapEffectName != "")
+            {
+                LUtils.ActivateScreenShader(MapEffectName);
+            }
+
         }
 
         public void DrawToBatchedTarget(MapRender method) => BatchedCalls += method;
 
         public void DrawToPrimitiveTarget(MapRender method) => PrimitiveCalls += method;
 
-        public void RenderBatched(SpriteBatch spriteBatch, GraphicsDevice GD)
+        public void RenderBatched(SpriteBatch spriteBatch)
         {
             BatchedCalls?.Invoke(spriteBatch);
             BatchedCalls = null;
         }
 
-        public void RenderPrimitive(SpriteBatch spriteBatch, GraphicsDevice GD)
+        public void RenderPrimitive(SpriteBatch spriteBatch)
         {
             PrimitiveCalls?.Invoke(spriteBatch);
             PrimitiveCalls = null;

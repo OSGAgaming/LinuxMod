@@ -33,9 +33,10 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
                         GD.Clear(Color.Transparent);
 
                         sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, matrix);
-                        Pass.RenderBatched(sb, GD);
+                        Pass.RenderBatched(sb);
                         sb.End();
-                        Pass.RenderPrimitive(sb, GD);
+
+                        Pass.RenderPrimitive(sb);
                     }
                 }
 
@@ -45,34 +46,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
             Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
         }
 
-        public void OrderedRenderPass(SpriteBatch sb, GraphicsDevice GD, bool Batched = true)
-        {
-            RenderTargetBinding[] oldtargets1 = Main.graphics.GraphicsDevice.GetRenderTargets();
-
-            int i = 0;
-           
-            foreach (KeyValuePair<string, MapPass> Map in MapPasses)
-            {
-                
-                var Pass = Map.Value;
-
-                if (Pass.Priority == i)
-                {
-                    if (Batched) Pass.RenderBatched(sb, GD);
-                    else Pass.RenderPrimitive(sb, GD);
-                }
-
-                i++;
-            }
-
-
-            Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets1);
-
-        }
-
-        public List<RenderTarget2D> Buffers = new List<RenderTarget2D>();
-
-        public RenderTarget2D OrderedShaderPass()
+        public void OrderedShaderPass()
         {
             int i = 0;
 
@@ -89,8 +63,6 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
                 i++;
             }
-
-            return Buffers[Buffers.Count - 1];
         }
         public void DrawToMap(string Map, MapRender MR) => MapPasses[Map].DrawToBatchedTarget(MR);
 
@@ -98,9 +70,21 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
         {
             MP.Parent = this;
             MapPasses.Add(MapName, MP);
-            Buffers.Add(new RenderTarget2D(Main.graphics.GraphicsDevice,2560,1440));
         }
 
         public MapPass Get(string MapName) => MapPasses[MapName];
+
+        public MapPass Get<T>() where T : MapPass
+        {
+            //TODO: Support for multiple Passes with different ID's
+
+            foreach(MapPass pass in MapPasses.Values)
+            {
+                if (pass is T) return (T)pass;
+            }
+
+            throw new System.Exception("Pass does not exist");
+        }
+
     }
 }

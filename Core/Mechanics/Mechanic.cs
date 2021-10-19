@@ -5,6 +5,7 @@ using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using LinuxMod.Core;
 
 namespace LinuxMod.Core.Mechanics
 {

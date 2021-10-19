@@ -39,7 +39,6 @@ namespace LinuxMod.Core.Mechanics.Primitives
         protected int _counter;
         protected int _noOfPoints;
         protected List<Vector2> _points = new List<Vector2>();
-        protected bool _destroyed = false;
 
         protected GraphicsDevice _device;
         protected Effect _effect;
