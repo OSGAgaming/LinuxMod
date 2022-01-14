@@ -43,7 +43,7 @@ namespace LinuxMod.Core.Mechanics
             ScreenMapPass.Instance.GetMap("TileReflectableMap").DrawToBatchedTarget((spriteBatch) =>
             {
                 Texture2D tex = Main.projectileTexture[self.type];
-                if(tex != null) spriteBatch.Draw(tex, self.position.ForDraw() + new Vector2(30, -30), tex.Bounds, Color.White, self.rotation, Vector2.Zero, self.scale, SpriteEffects.None, 0f);
+                if(tex != null && self.active) spriteBatch.Draw(tex, self.position.ForDraw() + new Vector2(30, -30), tex.Bounds, Color.White, self.rotation, Vector2.Zero, self.scale, SpriteEffects.None, 0f);
             });
 
             orig(self, i);

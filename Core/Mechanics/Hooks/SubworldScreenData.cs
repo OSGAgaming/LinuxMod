@@ -12,7 +12,7 @@ namespace LinuxMod.Core.Mechanics
     {
         public override void AddHooks()
         {
-            On.Terraria.Main.Draw += Main_Draw;
+            //On.Terraria.Main.Draw += Main_Draw;
         }
         private void Main_Draw(On.Terraria.Main.orig_Draw orig, Main self, GameTime gameTime)
         {

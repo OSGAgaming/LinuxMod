@@ -5,6 +5,7 @@ using LinuxMod.Core.Mechanics.Interfaces;
 using LinuxMod.Core.Mechanics.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,9 +16,10 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class BowInsignia : InsigniaAbility
+    public class SatanInsignia : InsigniaAbility
     {
-        public override string InsigniaName => "Bow";
+        public override string InsigniaName => "Satan";
+
     }
 }
 

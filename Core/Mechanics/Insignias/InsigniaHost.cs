@@ -40,6 +40,7 @@ namespace LinuxMod.Core.Mechanics
             foreach(InsigniaAbility IA in Abilities)
             {
                 float Accuracy = insignia.CompareInsignia(IA.Insignia);
+                Main.NewText(IA.InsigniaName + ": " + ((1 - Accuracy) * 100) + "%");
                 if(Accuracy < Lowest)
                 {
                     ins = IA;

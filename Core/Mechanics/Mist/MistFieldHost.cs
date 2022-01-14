@@ -14,14 +14,14 @@ namespace LinuxMod.Core.Mechanics
     public class MistFieldHost : IComponent
     {
         public HashSet<MistField> MistFields = new HashSet<MistField>();
-        public void GenerateMistField(int SimSize, int CellSize, Vector2 GlobalSpace) => MistFields.Add(new MistField(SimSize, CellSize, GlobalSpace - new Vector2(SimSize/2) * CellSize));
+        public void GenerateMistField(int SimSize, int CellSize, Vector2 GlobalSpace) => MistFields.Add(new MistField(SimSize, CellSize, GlobalSpace - new Vector2(SimSize / 2) * CellSize));
 
         public void Update()
         {
-            foreach(MistField mf in MistFields.ToList())
+            foreach (MistField mf in MistFields.ToList())
             {
                 mf.Update();
-                if(mf.TimeAlive > mf.Lifetime)
+                if (mf.TimeAlive > mf.Lifetime)
                 {
                     MistFields.Remove(mf);
                     mf.Dispose();
