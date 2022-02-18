@@ -139,7 +139,7 @@ namespace LinuxMod.Core
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             Vector2 width = Main.MouseWorld - Position;
-            Rectangle CopyArea = LUtils.Rect(Position.ForDraw().RoundTo(16), Width.RoundTo(16));
+            Rectangle CopyArea = LinuxTechTips.Rect(Position.ForDraw().RoundTo(16), Width.RoundTo(16));
             if (State == StructureState.Create)
             {
                 if (Main.LocalPlayer.controlUseItem)
@@ -150,11 +150,11 @@ namespace LinuxMod.Core
                         isSaving = false;
                     }
                     Width = width;
-                    LUtils.DrawRectangle(CopyArea, Color.Red, 2f);
+                    LinuxTechTips.DrawRectangle(CopyArea, Color.Red, 2f);
                 }
                 else
                 {
-                    LUtils.DrawRectangle(CopyArea, Color.Red * (float)Math.Sin(Main.GameUpdateCount / 5f), 2f);
+                    LinuxTechTips.DrawRectangle(CopyArea, Color.Red * (float)Math.Sin(Main.GameUpdateCount / 5f), 2f);
                 }
             }
 

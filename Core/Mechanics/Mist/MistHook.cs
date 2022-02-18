@@ -36,7 +36,7 @@ namespace LinuxMod.Core.Mechanics
 
             if (LinuxInput.JustClicked && MFH.MistFields.Count < MaxMistFields)
             {
-                MFH?.GenerateMistField(100, 1, Main.MouseWorld);
+                //MFH?.GenerateMistField(100, 1, Main.MouseWorld);
             }
 
         }

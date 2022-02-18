@@ -37,7 +37,7 @@ namespace LinuxMod.Core.Subworlds
 
             WorldGeneration();
 
-            LinuxMod.Subworlds.IsSaving = false;
+            LinuxMod.GetLoadable<SubworldInstanceManager>().IsSaving = false;
         }
 
         internal virtual void WorldGeneration() { }

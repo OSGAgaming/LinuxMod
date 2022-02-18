@@ -4,7 +4,7 @@ using Terraria.ID;
 
 namespace LinuxMod.Core
 {
-    public static partial class LUtils
+    public static partial class LinuxTechTips
     {
         public static bool AnyPlayerAlive
         {

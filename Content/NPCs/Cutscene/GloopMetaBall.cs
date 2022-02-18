@@ -33,7 +33,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
 
         public void Draw(SpriteBatch sb)
         {
-            LUtils.DrawCircle(position.ForDraw(), dimensions, color);
+            LinuxTechTips.DrawCircle(position.ForDraw(), dimensions, color);
         }
 
         public void Update()

@@ -34,14 +34,14 @@ namespace LinuxMod.Core
 
             Main.screenPosition += new Vector2(Main.rand.NextFloat(ScreenShake), Main.rand.NextFloat(ScreenShake));
             Main.screenPosition += Offset;
-            Main.GameZoomTarget = Zoom;
+            //Main.GameZoomTarget = Zoom;
 
             Offset -= Offset / 16f;
         }
         public override void OnEnterWorld(Player player)
         {
             if (!Main.LocalPlayer.GetModPlayer<SubworldPlayer>().InSubworld)
-                SubworldManager.EnterSubworld<CutsceneSubworld>();
+                SubworldManager.EnterSubworld<SeamapSubworld>();
         }
     }
 }

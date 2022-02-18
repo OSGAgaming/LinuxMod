@@ -41,7 +41,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             ScreenMapPass.Instance.GetMap("SewerWater").DrawToBatchedTarget((SpriteBatch sb) =>
             {
                 Vector2 v = projectile.position + new Vector2(10, 16 + 15);
-                int Y = LUtils.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
+                int Y = LinuxTechTips.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
                 float Diff = Y * 16 - v.Y;
                 sb.Draw(Main.magicPixel, v.ForDraw(), new Rectangle(0, 0, 20, (int)Diff - 10), Color.LightBlue);
             });
@@ -49,16 +49,16 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             ScreenMapPass.Instance.GetMap("SewerWater").DrawToBatchedTarget((SpriteBatch sb) =>
             {
                 Vector2 v = projectile.position + new Vector2(10, 16);
-                int Y = LUtils.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
+                int Y = LinuxTechTips.TileCheckVertical((int)v.X / 16, (int)v.Y / 16, 1, 20);
                 float Diff = Y * 16 - v.Y;
                 sb.Draw(Asset.GetTexture("Masks/Waterfall"), v.ForDraw(), new Rectangle(0, 0, 20, 16), Color.LightBlue);
             });
 
             Vector2 b = projectile.position + new Vector2(16, 26);
 
-            LUtils.Particles.SetSpawningModules(new SpawnRandomly(0.13f));
+            LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(0.13f));
 
-            LUtils.Particles.SpawnParticles(
+            LinuxTechTips.Particles.SpawnParticles(
             b,
             Vector2.UnitX.RotatedBy(Main.rand.NextFloat(6.24f))*0.2f, 2,
             Color.LightBlue * 0.5f,
@@ -67,7 +67,7 @@ namespace LinuxMod.Content.Projectiles.Cutscene
             new SetLighting(Color.White.ToVector3(), 0.1f),
             new AddVelocity(new Vector2(0, 0.05f)));
 
-            LUtils.Particles.SpawnParticles(
+            LinuxTechTips.Particles.SpawnParticles(
             b,
             new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), Main.rand.NextFloat(-0.5f, -0.1f)), 7,
             Color.White * 0.1f,

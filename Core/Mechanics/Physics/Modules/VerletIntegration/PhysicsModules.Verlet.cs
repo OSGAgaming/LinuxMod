@@ -22,7 +22,7 @@ namespace LinuxMod.Core.Mechanics
         {
             Vector2 ConcentricPoint = Vector2.Zero;
 
-            VerletSystem system = LinuxMod.verletSystem;
+            VerletSystem system = LinuxMod.GetLoadable<VerletSystem>();
 
             PolygonModule c = Object.GetModule<PolygonModule>();
             //PhysicsCollision p = Object.GetModule<PhysicsCollision>();
@@ -56,7 +56,7 @@ namespace LinuxMod.Core.Mechanics
         {
             PolygonModule c = Object.GetModule<PolygonModule>();
             Points = c.Polygon.points;
-            VerletSystem system = LinuxMod.verletSystem;
+            VerletSystem system = LinuxMod.GetLoadable<VerletSystem>();
 
             for (int i = 0; i < c.Polygon.points.Length; i++)
             {
@@ -77,7 +77,7 @@ namespace LinuxMod.Core.Mechanics
 
         public override void Draw(SpriteBatch sb)
         {
-            VerletSystem system = LinuxMod.verletSystem;
+            VerletSystem system = LinuxMod.GetLoadable<VerletSystem>();
             PolygonModule c = Object.GetModule<PolygonModule>();
 
             for (int i = 0; i < c.Polygon.points.Length; i++)
@@ -88,10 +88,10 @@ namespace LinuxMod.Core.Mechanics
                 {
                     Vector2 v2 = system.GetPoint(indexes[i - 1]).point.ForDraw();
 
-                    LUtils.DrawLine(v2, v1, Color.Red, 2);
+                    LinuxTechTips.DrawLine(v2, v1, Color.Red, 2);
 
                     if (i == c.Polygon.points.Length - 1)
-                        LUtils.DrawLine(system.GetPoint(indexes[0]).point.ForDraw(), v1, Color.Red, 2);
+                        LinuxTechTips.DrawLine(system.GetPoint(indexes[0]).point.ForDraw(), v1, Color.Red, 2);
                 }
             }
 

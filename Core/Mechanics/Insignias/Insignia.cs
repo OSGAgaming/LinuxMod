@@ -89,7 +89,7 @@ namespace LinuxMod.Core.Mechanics
                 if (i < Nodes.Count - 1)
                 {
                     Vector2 p = position.ForDraw();
-                    LUtils.DrawLine(p + Nodes[i].Position * scale, p + Nodes[i + 1].Position * scale, Color.Lerp(Color.Red, Color.Green, 1 - PerformanceIndicator));
+                    LinuxTechTips.DrawLine(p + Nodes[i].Position * scale, p + Nodes[i + 1].Position * scale, Color.Lerp(Color.Red, Color.Green, 1 - PerformanceIndicator));
                 }
             }
 

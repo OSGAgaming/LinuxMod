@@ -20,7 +20,7 @@ using Terraria.Graphics.Shaders;
 
 namespace LinuxMod.Core
 {
-    public static partial class LUtils
+    public static partial class LinuxTechTips
     {
         public static void ActivateScreenShader(string ShaderName, Vector2 vec = default)
         {

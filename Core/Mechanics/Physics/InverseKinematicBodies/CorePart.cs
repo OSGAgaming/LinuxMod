@@ -76,9 +76,9 @@ namespace LinuxMod.Core.Mechanics
                 Parts.Value.Draw(spriteBatch);
             }
 
-            LUtils.DrawCircle(Center.ForDraw(), new Vector2(10), Color.White);
+            LinuxTechTips.DrawCircle(Center.ForDraw(), new Vector2(10), Color.White);
 
-            LUtils.DrawLine(Center.ForDraw(), (Center - new Vector2(0,100).RotatedBy(UpperBodyRotation)).ForDraw(), Color.Blue);
+            LinuxTechTips.DrawLine(Center.ForDraw(), (Center - new Vector2(0,100).RotatedBy(UpperBodyRotation)).ForDraw(), Color.Blue);
 
             UpperBodyObstructionState = Collision.CanHitLine(Center, 1, 1, Center - new Vector2(0, 100), 1, 1);
 

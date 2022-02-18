@@ -1,3 +1,4 @@
+using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,7 +11,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class InsigniaHost
+    public class InsigniaHost : ILoadable
     {
         public List<InsigniaAbility> Abilities = new List<InsigniaAbility>();
 
@@ -69,7 +70,7 @@ namespace LinuxMod.Core.Mechanics
 
         public void Load()
         {
-            Type[] Mechanics = LUtils.GetInheritedClasses(typeof(InsigniaAbility));
+            Type[] Mechanics = LinuxTechTips.GetInheritedClasses(typeof(InsigniaAbility));
             foreach (Type type in Mechanics)
             {
                 InsigniaAbility m = (InsigniaAbility)Activator.CreateInstance(type);
@@ -78,6 +79,9 @@ namespace LinuxMod.Core.Mechanics
             }
         }
 
-        
+        public void Unload()
+        {
+            Abilities.Clear();
+        }
     }
 }

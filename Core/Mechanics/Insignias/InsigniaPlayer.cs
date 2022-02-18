@@ -80,7 +80,7 @@ namespace LinuxMod.Core
         }
         public override void PreUpdate()
         {
-            LinuxMod.InsigniaSystem.Update();
+            LinuxMod.GetLoadable<InsigniaHost>().Update();
         }
     }
 }

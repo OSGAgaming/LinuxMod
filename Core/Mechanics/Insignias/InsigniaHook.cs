@@ -28,9 +28,9 @@ namespace LinuxMod.Core.Mechanics
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
             Host.Update();
-            LinuxMod.InsigniaSystem.Draw(Main.spriteBatch);
+            LinuxMod.GetLoadable<InsigniaHost>().Draw(Main.spriteBatch);
 
-            List<InsigniaAbility> Abilities = LinuxMod.InsigniaSystem.Abilities;
+            List<InsigniaAbility> Abilities = LinuxMod.GetLoadable<InsigniaHost>().Abilities;
 
             for(int i = 0; i<Abilities.Count; i++)
             {

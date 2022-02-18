@@ -52,9 +52,9 @@ namespace LinuxMod.Core.Mechanics
 
                             Vector2 splashPoint = new Vector2(p.position.X + 25, frame.Y + 10);
 
-                            LUtils.Particles.SetSpawningModules(new SpawnRandomly(0.13f));
+                            LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(0.13f));
                             for (int a = 0; a < 5; a++)
-                                LUtils.Particles.SpawnParticles(
+                                LinuxTechTips.Particles.SpawnParticles(
                                 splashPoint, 
                                 new Vector2(Main.rand.NextFloat(-0.8f, 0.8f), Main.rand.NextFloat(-0.5f, -0.1f)), 10,
                                 Color.White * 0.2f, 

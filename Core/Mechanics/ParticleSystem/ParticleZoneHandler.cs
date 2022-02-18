@@ -1,4 +1,5 @@
 using EEMod.Extensions;
+using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -7,7 +8,7 @@ using Terraria;
 
 namespace LinuxMod.Core
 {
-    public class ParticleZoneHandler
+    public class ParticleZoneHandler : ILoadable
     {
         private readonly Dictionary<string, ParticleZone> particleZones = new Dictionary<string, ParticleZone>();
 
@@ -41,6 +42,15 @@ namespace LinuxMod.Core
                 PZ.Draw(spriteBatch);
             }
         }
-    }
 
+        public void Load()
+        {
+            AddZone("Main", 40000);
+        }
+
+        public void Unload()
+        {
+     
+        }
+    }
 }

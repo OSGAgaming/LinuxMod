@@ -47,12 +47,12 @@ namespace LinuxMod.Content.NPCs.Cutscene
         private const float TIME_BETWEEM_WINDUPS = 700;
         private const int CHAIN_COUNT = 10;
 
-        VPoint ControlPoint => Core.LinuxMod.verletSystem.GetPoint(LastIndex);
+        VPoint ControlPoint => Core.LinuxMod.GetLoadable<VerletSystem>().GetPoint(LastIndex);
         public override void AI()
         {
             if (npc.ai[0] == 0)
             {
-                LastIndex = Core.LinuxMod.verletSystem.BindPoints(npc.position, CHAIN_COUNT, TOTAL_LENGTH/CHAIN_COUNT);
+                LastIndex = Core.LinuxMod.GetLoadable<VerletSystem>().BindPoints(npc.position, CHAIN_COUNT, TOTAL_LENGTH/CHAIN_COUNT);
                 ControlPoint.point = npc.Center;
             }
             else if(npc.ai[0] < TIME_OF_WINDUP)
@@ -65,7 +65,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
                 npc.Center = ControlPoint.point;
                 if (npc.ai[0] % TIME_BETWEEM_WINDUPS < TIME_OF_WINDUP)
                 {
-                    Core.LinuxMod.verletSystem.GetPoint(LastIndex - CHAIN_COUNT + 1).point.Y -= TOTAL_LENGTH/ TIME_OF_WINDUP;
+                    Core.LinuxMod.GetLoadable<VerletSystem>().GetPoint(LastIndex - CHAIN_COUNT + 1).point.Y -= TOTAL_LENGTH/ TIME_OF_WINDUP;
                     if (Vector2.DistanceSquared(Main.LocalPlayer.Center, npc.Center) < 200 * 200)
                     {
                         textAlpha += (1 - textAlpha) / 4f;
@@ -93,7 +93,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
                     textAlpha += (0 - textAlpha) / 16f;
                     ControlPoint.point = BasePoint;
                     npc.Center = ControlPoint.point;
-                    Core.LinuxMod.verletSystem.GetPoint(LastIndex - CHAIN_COUNT + 1).point = BasePoint;
+                    Core.LinuxMod.GetLoadable<VerletSystem>().GetPoint(LastIndex - CHAIN_COUNT + 1).point = BasePoint;
                 }
                 
             }
@@ -108,7 +108,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {
             Vector2 v = npc.Center + new Vector2(0, 20);
-            LUtils.UITextToCenter("Bazinga", lightColor * textAlpha, v.ForDraw(), 1);
+            LinuxTechTips.UITextToCenter("Bazinga", lightColor * textAlpha, v.ForDraw(), 1);
 
             Point p = npc.position.ForDraw().ToPoint();
             spriteBatch.Draw(Main.magicPixel, new Rectangle(p.X, p.Y, 50, 50), lightColor);

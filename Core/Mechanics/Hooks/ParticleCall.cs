@@ -20,8 +20,8 @@ namespace LinuxMod.Core.Mechanics
 
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            LinuxMod.GlobalZone.Update();
-            LinuxMod.GlobalZone.Draw(Main.spriteBatch);
+            LinuxMod.GetLoadable<ParticleZoneHandler>().Update();
+            LinuxMod.GetLoadable<ParticleZoneHandler>().Draw(Main.spriteBatch);
 
             Main.spriteBatch.End();
         }

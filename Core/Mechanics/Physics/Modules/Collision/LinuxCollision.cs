@@ -66,7 +66,7 @@ namespace LinuxMod.Core.Mechanics
             {
                 if (points.Length == 4)
                 {
-                    return LUtils.Rect(
+                    return LinuxTechTips.Rect(
                         varpoints[0].ToPoint(),
                         new Point((int)(varpoints[1].X - varpoints[0].X),
                         (int)(varpoints[2].Y - varpoints[0].Y)));
@@ -88,8 +88,8 @@ namespace LinuxMod.Core.Mechanics
         {
             for (int i = 0; i < points.Length; i++)
             {
-                LUtils.DrawLine(varpoints[i].ForDraw(), varpoints[(i + 1) % numberOfPoints].ForDraw(), Color.Green, 1);
-                LUtils.DrawLine(varpoints[i].ForDraw(), Center.ForDraw(), Color.Green, 1);
+                LinuxTechTips.DrawLine(varpoints[i].ForDraw(), varpoints[(i + 1) % numberOfPoints].ForDraw(), Color.Green, 1);
+                LinuxTechTips.DrawLine(varpoints[i].ForDraw(), Center.ForDraw(), Color.Green, 1);
             }
         }
         public static Polygon operator +(Polygon x, Polygon y)

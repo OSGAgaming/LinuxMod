@@ -1,0 +1,61 @@
+using LinuxMod.Core.Mechanics.Interfaces;
+using LinuxMod.Core.Mechanics.Primitives;
+using LinuxMod.Core.Subworlds.LinuxSubworlds;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using Terraria;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+
+namespace LinuxMod.Core.Mechanics
+{
+    public class DepthSetCalls : Mechanic
+    {
+        public static DepthSetCalls Instance;
+        public LintitySet CurrentLintitySet;
+
+        public override void AddHooks()
+        {
+            Instance = this;
+            On.Terraria.Main.DrawWoF += Main_DrawWoF;
+            Main.OnPreDraw += Main_OnPreDraw;
+        }
+
+        private void Main_OnPreDraw(GameTime obj)
+        {
+            RenderTargetBinding[] oldtargets = Main.graphics.GraphicsDevice.GetRenderTargets();
+
+            if (Main.gameMenu)
+                return;
+
+            if (CurrentLintitySet != null)
+                DepthBuffer.DrawLayersToTarget(CurrentLintitySet, Main.spriteBatch);
+
+            //LinuxMod.GetLoadable<SeamapWater>().DrawWaterMeshes(Main.spriteBatch);
+            LinuxMod.GetLoadable<SeamapWater>().DrawOcclusionMap(Main.spriteBatch);
+            LinuxMod.GetLoadable<SeamapWater>().RenderWaterOcclusion(Main.spriteBatch);
+            LinuxMod.GetLoadable<SeamapWater>().DrawAboveWater(Main.spriteBatch);
+            LinuxMod.GetLoadable<SeamapWater>().DrawBelowWater(Main.spriteBatch);
+
+            DepthBuffer.ClearCalls();
+            LinuxMod.GetLoadable<SeamapWater>().ClearCalls();
+
+            Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets);
+
+        }
+
+        private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
+        {
+            CurrentLintitySet?.Update();
+
+            DepthBuffer.DrawLayers(Main.spriteBatch);
+            LinuxMod.GetLoadable<SeamapWater>().DrawTargets(Main.spriteBatch);
+
+            orig(self);
+        }
+    }
+}

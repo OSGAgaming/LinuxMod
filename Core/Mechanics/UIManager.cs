@@ -13,7 +13,7 @@ using Terraria.UI;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class UIManager : IUpdateableGT
+    public class UIManager : IUpdateableGT, ILoadable
     {
         private readonly Dictionary<string, UserInterface> UIInterfaces = new Dictionary<string, UserInterface>();
         internal readonly Dictionary<string, UIState> UIStates = new Dictionary<string, UIState>();
@@ -125,6 +125,8 @@ namespace LinuxMod.Core.Mechanics
             {
                 UIStates.Values.ToArray()[i].OnActivate();
             }
+
+            LoadUI();
         }
 
         public void UnLoad()
@@ -173,6 +175,11 @@ namespace LinuxMod.Core.Mechanics
                     }
                 }
             }
+        }
+
+        public void Unload()
+        {
+            throw new NotImplementedException();
         }
     }
 }

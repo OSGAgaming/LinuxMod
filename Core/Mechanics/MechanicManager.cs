@@ -16,7 +16,7 @@ namespace LinuxMod.Core.Mechanics
         public static List<Mechanic> MechanicsCache = new List<Mechanic>();
         public static void Load()
         {
-            Type[] Mechanics = LUtils.GetInheritedClasses(typeof(Mechanic));
+            Type[] Mechanics = LinuxTechTips.GetInheritedClasses(typeof(Mechanic));
             foreach (Type type in Mechanics)
             {
                 Mechanic m = (Mechanic)Activator.CreateInstance(type);

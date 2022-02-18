@@ -56,7 +56,7 @@ namespace LinuxMod.Core.Mechanics
         {
             for (int i = 0; i < 1; i++)
             {
-                float Y = LUtils.TileCheckVertical(new Vector2(Center.X + 16 * i, Center.Y - 140), 1, 20) * 16;
+                float Y = LinuxTechTips.TileCheckVertical(new Vector2(Center.X + 16 * i, Center.Y - 140), 1, 20) * 16;
                 float X = Center.X + 16 * i;
 
                 if(Y < Parent.Center.Y - 40 && Y != 0)
@@ -79,18 +79,18 @@ namespace LinuxMod.Core.Mechanics
 
         public override void Draw(SpriteBatch spritebatch)
         {
-            LUtils.DrawCircle(Center.ForDraw(), new Vector2(5), Color.White);
-            LUtils.DrawCircle(Joint.ForDraw(), new Vector2(5), Color.White);
-            LUtils.DrawCircle(Ledge.ForDraw(), new Vector2(10), Color.Orange);
+            LinuxTechTips.DrawCircle(Center.ForDraw(), new Vector2(5), Color.White);
+            LinuxTechTips.DrawCircle(Joint.ForDraw(), new Vector2(5), Color.White);
+            LinuxTechTips.DrawCircle(Ledge.ForDraw(), new Vector2(10), Color.Orange);
 
-            LUtils.DrawLine(Joint.ForDraw(), Parent.Center.ForDraw() + new Vector2(0, -60).RotatedBy(Parent.UpperBodyRotation), Color.Purple);
-            LUtils.DrawLine(Joint.ForDraw(), Center.ForDraw(), Color.Purple);
+            LinuxTechTips.DrawLine(Joint.ForDraw(), Parent.Center.ForDraw() + new Vector2(0, -60).RotatedBy(Parent.UpperBodyRotation), Color.Purple);
+            LinuxTechTips.DrawLine(Joint.ForDraw(), Center.ForDraw(), Color.Purple);
         }
         public override void Update()
         {
             if(!Parent.UpperBodyObstructionState && SupportListener && !(Parent.Get(OtherArm) as Arm).IsSupporting)
             {
-                int Y = LUtils.TileCheckVertical(Parent.Center + new Vector2(Parent.DeltaCenter.X * 2,0), -1, 50);
+                int Y = LinuxTechTips.TileCheckVertical(Parent.Center + new Vector2(Parent.DeltaCenter.X * 2,0), -1, 50);
                 IsSupporting = true;
                 SupportPoint = new Vector2(Parent.Center.X + Parent.DeltaCenter.X * 2, Y * 16);
             }

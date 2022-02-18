@@ -30,9 +30,9 @@ namespace LinuxMod.Core.Mechanics
             Player pa = Main.LocalPlayer;
             Vector2 pos = pa.position.ForDraw();
 
-            LUtils.DrawRectangle(new Rectangle((int)pos.X, (int)pos.Y, pa.width, pa.height), Color.White, 2);
+            LinuxTechTips.DrawRectangle(new Rectangle((int)pos.X, (int)pos.Y, pa.width, pa.height), Color.White, 2);
 
-            LUtils.UITextToCenter(InsigniaHost.DebugTry, Color.White, Main.LocalPlayer.Center.ForDraw() - new Vector2(0, -50), 1);
+            LinuxTechTips.UITextToCenter(InsigniaHost.DebugTry, Color.White, Main.LocalPlayer.Center.ForDraw() - new Vector2(0, -50), 1);
             if (JustPressedMouse && CanDraw)
             {
                 CurrentMousePos = Main.MouseScreen;
@@ -47,11 +47,11 @@ namespace LinuxMod.Core.Mechanics
                 {
                     Width += 0.1f + down;
                     down -= 0.02f;
-                    LUtils.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
+                    LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
 
                     for (int i = 0; i < CurrentNodeCache.Count - 1; i++)
                     {
-                        LUtils.Particles.SpawnParticles(
+                        LinuxTechTips.Particles.SpawnParticles(
                 CurrentMousePos + CurrentNodeCache[i].Position + Main.screenPosition,
                 Vector2.One.RotatedBy(Main.rand.NextFloat(-3f, 3f)) * 3, 3,
                 Color.Yellow,
@@ -90,7 +90,7 @@ namespace LinuxMod.Core.Mechanics
             {
                 Insignia ins = new Insignia();
                 ins.SetAndNormalizeNodes(CurrentNodeCache);
-                LinuxMod.InsigniaSystem.CompareInsignias(ins);
+                LinuxMod.GetLoadable<InsigniaHost>().CompareInsignias(ins);
             }
 
             ScreenMapPass.Instance.GetMap("InsigniaMap").DrawToBatchedTarget((SpriteBatch sb) =>
@@ -101,7 +101,7 @@ namespace LinuxMod.Core.Mechanics
                     float distance = Vector2.Distance(CurrentNodeCache[i + 1].Position, CurrentNodeCache[i].Position);
                     for (float a = 0; a <= 1; a += 1 / distance)
                     {
-                        LUtils.DrawCircle(p + Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a), new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width, Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
+                        LinuxTechTips.DrawCircle(p + Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a), new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width, Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
                     }
                 }
             });
@@ -114,7 +114,7 @@ namespace LinuxMod.Core.Mechanics
                     float distance = Vector2.Distance(CurrentNodeCache[i + 1].Position, CurrentNodeCache[i].Position);
                     for (float a = 0; a <= 1; a += 1 / distance)
                     {
-                        Texture2D tex = LUtils.RadialMask;
+                        Texture2D tex = LinuxTechTips.RadialMask;
                         sb.Draw(tex, p + Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a), tex.Bounds, Color.Yellow * 0.2f * Math.Min(1, Width), 0f, tex.TextureCenter(), (0.2f + (i / (float)CurrentNodeCache.Count) * 0.1f) * Math.Min(1, Width), SpriteEffects.None, 0f);
                     }
                 }

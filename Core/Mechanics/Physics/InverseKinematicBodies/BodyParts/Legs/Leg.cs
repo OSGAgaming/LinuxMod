@@ -43,19 +43,19 @@ namespace LinuxMod.Core.Mechanics
             int Sign = Math.Sign(Parent.DeltaCenter.X);
             float DiffX = Parent.Center.X - Center.X;
 
-            LUtils.DrawCircle(Center.ForDraw(), new Vector2(20), Color.Lerp(Color.White, Color.Yellow, WalkCycle));
-            LUtils.DrawCircle(Target.ForDraw(), new Vector2(14), Color.Yellow);
-            LUtils.DrawCircle(Joint.ForDraw(), new Vector2(10), Color.Yellow);
+            LinuxTechTips.DrawCircle(Center.ForDraw(), new Vector2(20), Color.Lerp(Color.White, Color.Yellow, WalkCycle));
+            LinuxTechTips.DrawCircle(Target.ForDraw(), new Vector2(14), Color.Yellow);
+            LinuxTechTips.DrawCircle(Joint.ForDraw(), new Vector2(10), Color.Yellow);
 
-            LUtils.DrawLine(Parent.Center.ForDraw(), Joint.ForDraw(), Color.Blue, 1);
-            LUtils.DrawLine(Center.ForDraw(), Joint.ForDraw(), Color.Blue, 1);
+            LinuxTechTips.DrawLine(Parent.Center.ForDraw(), Joint.ForDraw(), Color.Blue, 1);
+            LinuxTechTips.DrawLine(Center.ForDraw(), Joint.ForDraw(), Color.Blue, 1);
 
             if (Math.Abs(DiffX) > StepTolerance / 2 && Math.Sign(DiffX) == Sign)
             {
                 Vector2 HoriSightline = Parent.Center + new Vector2(StepLength * Sign + Parent.DeltaCenter.X * 10, KneeRoom);
                 //LUtils.DrawLine(Parent.Center.ForDraw(), HoriSightline.ForDraw(), Color.Yellow, 1);
 
-                int Vert = LUtils.TileCheckVertical(HoriSightline, 1, LegLength / 16 + 3);
+                int Vert = LinuxTechTips.TileCheckVertical(HoriSightline, 1, LegLength / 16 + 3);
                //LUtils.DrawLine(HoriSightline.ForDraw(), new Vector2(HoriSightline.X, Vert * 16).ForDraw(), Color.White, 1);
             }
         }
@@ -81,9 +81,9 @@ namespace LinuxMod.Core.Mechanics
             int Sign = Math.Sign(Parent.DeltaCenter.X);
 
             float ExtrapolatedXTarget = Parent.Center.X + StepLength * Sign + Parent.DeltaCenter.X * 20;
-            int Vert = LUtils.TileCheckVertical(new Vector2(ExtrapolatedXTarget, Parent.Get(OtherLeg).Center.Y - KneeRoom), 1, LegLength*2 + 3);
+            int Vert = LinuxTechTips.TileCheckVertical(new Vector2(ExtrapolatedXTarget, Parent.Get(OtherLeg).Center.Y - KneeRoom), 1, LegLength*2 + 3);
 
-            int Vert2 = LUtils.TileCheckVertical(Center, 1, LegLength/2);
+            int Vert2 = LinuxTechTips.TileCheckVertical(Center, 1, LegLength/2);
 
             if (Math.Abs(DiffX) > StepTolerance && Math.Sign(DiffX) == Sign)
             {
@@ -120,7 +120,7 @@ namespace LinuxMod.Core.Mechanics
             if (isTakingStep)
             {
                 (Parent.Get(OtherLeg) as Leg).isTakingStep = false;
-                Center = LUtils.TraverseBezier(Target, Outset, (Outset + Target) / 2 - new Vector2(0, WalkCycleHeight), MathHelper.SmoothStep(0,1,WalkCycle));
+                Center = LinuxTechTips.TraverseBezier(Target, Outset, (Outset + Target) / 2 - new Vector2(0, WalkCycleHeight), MathHelper.SmoothStep(0,1,WalkCycle));
 
                 if (WalkCycle < 1) WalkCycle += WalkCycleSpeed;
 
@@ -153,7 +153,7 @@ namespace LinuxMod.Core.Mechanics
             {
                 float LedgeX = (Parent.Get("L_Arm") as Arm).Ledge.X;
 
-                int Vert2 = LUtils.TileCheckVertical(new Vector2(LedgeX, Center.Y - 120), 1, 20);
+                int Vert2 = LinuxTechTips.TileCheckVertical(new Vector2(LedgeX, Center.Y - 120), 1, 20);
                
                 if (CanRise)
                 {

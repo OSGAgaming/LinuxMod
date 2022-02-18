@@ -63,7 +63,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
 
             if (npc.ai[0] == 0)
             {
-                HEIGHTOFFALL = LUtils.TileCheckVertical(npc.position + new Vector2(0, 32)) * 16 - (int)npc.position.Y;
+                HEIGHTOFFALL = LinuxTechTips.TileCheckVertical(npc.position + new Vector2(0, 32)) * 16 - (int)npc.position.Y;
                 BasePosition = npc.position - new Vector2(0, HEIGHTOFFALL);
                 ChainsNeeded = (HEIGHTOFFALL - 102) / 86 + 1;
             }
@@ -91,9 +91,9 @@ namespace LinuxMod.Content.NPCs.Cutscene
                 else if (npc.ai[2] == TimeInGround - 1)
                 {
                     Main.LocalPlayer.GetModPlayer<LinuxPlayer>().ScreenShake = 20;
-                    LUtils.Particles.SetSpawningModules(new SpawnRandomly(1f));
+                    LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(1f));
                     for(int i = 0; i<80; i++)
-                    LUtils.Particles.SpawnParticles(
+                    LinuxTechTips.Particles.SpawnParticles(
                       npc.position + new Vector2(Main.rand.Next(npc.width), -SPEEDOFFALL * fallSpeedCache * fallSpeedCache),
                       Vector2.One.RotatedBy(Main.rand.NextFloat(-3f, 3f)) * 0.1f + new Vector2(0, Main.rand.NextFloat(0f, -0.5f)), 8,
                       Color.Lerp(Color.White, Color.Gray, Main.rand.NextFloat(0f, 1f)) * Main.rand.NextFloat(0f, 0.2f),

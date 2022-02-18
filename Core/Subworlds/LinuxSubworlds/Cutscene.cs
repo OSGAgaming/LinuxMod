@@ -23,21 +23,21 @@ namespace LinuxMod.Core.Subworlds.LinuxSubworlds
 
         internal override void WorldGeneration()
         {
-            LUtils.FillRegion(500, 500, new Vector2(0,0), TileID.BlueDungeonBrick);
-            LUtils.ClearRegion(172,8,new Vector2(10,200));
+            LinuxTechTips.FillRegion(500, 500, new Vector2(0,0), TileID.BlueDungeonBrick);
+            LinuxTechTips.ClearRegion(172,8,new Vector2(10,200));
             for (int i = 2; i < 10; i++)
             {
                 if(WorldGen.InWorld(20 * i, 203))
                 WorldGen.PlaceTile(20 * i, 203, TileID.Torches);
             }
-            LUtils.FillWall(500, 500, new Vector2(0, 0), WallID.BlueDungeon);
+            LinuxTechTips.FillWall(500, 500, new Vector2(0, 0), WallID.BlueDungeon);
             //Utils.MakeCircleFromCenter();
         }
         internal override void PlayerUpdate(Player player)
         {
             if (Main.GameUpdateCount == 3)
             {
-                LinuxMod.verletSystem.BindPoints(new VPoint[]
+                LinuxMod.GetLoadable<VerletSystem>().BindPoints(new VPoint[]
                 { new VPoint(Main.LocalPlayer.Center, true),
                   new VPoint(Main.LocalPlayer.Center + new Vector2(10, 10), false),
                   new VPoint(Main.LocalPlayer.Center + new Vector2(0, 20), false)

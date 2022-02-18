@@ -169,7 +169,7 @@ namespace LinuxMod.Core.Subworlds
                 WorldFile.CacheSaveTime();
 
                 Main.menuMode = 10;
-                LinuxMod.Subworlds.IsSaving = true;
+                LinuxMod.GetLoadable<SubworldInstanceManager>().IsSaving = true;
             }
             else
             {

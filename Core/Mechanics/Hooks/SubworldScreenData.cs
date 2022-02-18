@@ -17,9 +17,9 @@ namespace LinuxMod.Core.Mechanics
         private void Main_Draw(On.Terraria.Main.orig_Draw orig, Main self, GameTime gameTime)
         {
             orig(self, gameTime);
-            if (LinuxMod.Subworlds != null)
+            if (LinuxMod.GetLoadable<SubworldInstanceManager>() != null)
             {
-                if (LinuxMod.Subworlds.IsSaving && Main.gameMenu)
+                if (LinuxMod.GetLoadable<SubworldInstanceManager>().IsSaving && Main.gameMenu)
                 {
                     Main.numClouds = 0;
                 }

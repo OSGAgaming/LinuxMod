@@ -29,7 +29,7 @@ namespace LinuxMod.Core.Mechanics
         private float DiffusionRate => 0;
         private float Viscocity => 0;
         private float dT => .02f;
-        public int Lifetime => 300;
+        public int Lifetime => 1000;
         private float EaseOutFactor => 0.1f;
 
         private readonly int iter = 2;
@@ -77,12 +77,12 @@ namespace LinuxMod.Core.Mechanics
             Color[] cV = new Color[DensityTarget.Width * DensityTarget.Height];
             Color[] cV2 = new Color[DensityTarget.Width * DensityTarget.Height];
 
-            for (int i = -10; i < 10; i++)
+            for (int i = 0; i < DensityTarget.Width; i++)
             {
-                for (int j = -10; j < 10; j++)
+                for (int j = 0; j < DensityTarget.Height; j++)
                 {
-                    //c[c.Length / 2 + i + j * DensityTarget.Width + DensityTarget.Width / 2] = new Color(0, 1f, 0f);
-                    cV[c.Length / 2 + i + j * DensityTarget.Width + DensityTarget.Width / 2] = new Color(0, 0, 0.5f);
+                    c[i + j * DensityTarget.Width] = new Color(0, 0f, 0.5f);
+                    cV[i + j * DensityTarget.Width] = new Color(0, 0, 0.5f);
                 }
             }
 
@@ -99,7 +99,7 @@ namespace LinuxMod.Core.Mechanics
                                            Main.graphics.GraphicsDevice.PresentationParameters.BackBufferFormat,
                                            DepthFormat.Depth24, 0, RenderTargetUsage.PreserveContents);
 
-            //DensityTarget.SetData(c);
+            DensityTarget.SetData(c);
             //PreviousDensityTarget.SetData(c);
 
             VectorTargetX = new RenderTarget2D(
@@ -133,6 +133,26 @@ namespace LinuxMod.Core.Mechanics
 
             this.CellSize = CellSize;
             this.GlobalSpace = new Vector2((int)(GlobalSpace.X / CellSize) * CellSize, (int)(GlobalSpace.Y / CellSize) * CellSize);
+
+            Matrix m = Matrix.CreateOrthographicOffCenter(0, N, N, 0, 0, -1);
+            m.M41 += -0.5f * m.M11;
+            m.M42 += -0.5f * m.M22;
+
+            LinuxMod.NavierStokesEffect.Parameters["MATRIX"].SetValue(m);
+            LinuxMod.NavierStokesEffect.Parameters["dT"].SetValue(1 / (float)(N / 2));
+            LinuxMod.NavierStokesEffect.Parameters["N"].SetValue(N / 2);
+
+            LinuxMod.NavierStokesEffect.Parameters["relativeScreenPos"].SetValue((GlobalSpace - Main.screenPosition) / new Vector2(Main.screenWidth, Main.screenHeight));
+            LinuxMod.NavierStokesEffect.Parameters["MistDims"].SetValue(N);
+            LinuxMod.NavierStokesEffect.Parameters["boundaries"].SetValue(Targets.Instance.ScaledTileTarget);
+            LinuxMod.NavierStokesEffect.Parameters["ScreenDims"].SetValue(Targets.Instance.ScaledTileTarget.Bounds.Size());
+        }
+
+        public Color ConvertToColor(float input)
+        {
+            float sign = (Math.Sign(input) + 1) / 2f;
+
+            return new Color((1 - sign) * Math.Abs(input), sign * Math.Abs(input), 0);
         }
 
         public void Update()
@@ -147,7 +167,7 @@ namespace LinuxMod.Core.Mechanics
                 int cx = (int)(0.5f * N);
                 int cy = (int)(0.5f * N);
 
-                float angle = TimeAlive * 0.05f;
+                float angle = TimeAlive * 0.01f;
                 Vector2 v = angle.ToRotationVector2();
                 v *= 1f;
 
@@ -157,19 +177,22 @@ namespace LinuxMod.Core.Mechanics
                 float absX = Math.Abs(v.X);
                 float absY = Math.Abs(v.Y);
 
+                //Main.NewText("X: " + new Vector2((1 - signX) * absX, signX * absX));
+                //Main.NewText("Y: " + new Vector2((1 - signY) * absY, signY * absY));
+
                 AdSource(DensityTarget, AddVecSourceBuffer, (sb) =>
                 {
-                    sb.Draw(Main.magicPixel, new Rectangle(N / 2, N / 2, 4, 4), new Color(0f, 1f, 0));
+                    sb.Draw(Main.magicPixel, new Rectangle(N / 2 + 20, N / 2 - 20, 4, 4), new Color(0f, 1f, 0));
                 });
 
                 AdSource(VectorTargetX, AddVecSourceBuffer, (sb) =>
                 {
-                    sb.Draw(Main.magicPixel, new Rectangle(N / 2, N / 2, 8, 8), new Color((1 - signX) * absX, signX * absX, 0));
+                    sb.Draw(Main.magicPixel, new Rectangle(N / 2 + 20, N / 2 - 20, 8, 8), ConvertToColor(v.X));
                 });
 
                 AdSource(VectorTargetY, AddVecSourceBuffer, (sb) =>
                 {
-                    sb.Draw(Main.magicPixel, new Rectangle(N / 2, N / 2, 8, 8), new Color((1 - signY) * absY, signY * absY, 0));
+                    sb.Draw(Main.magicPixel, new Rectangle(N / 2 + 20, N / 2 - 20, 8, 8), ConvertToColor(v.Y));
                 });
 
                 ResolveVelocity();
@@ -213,13 +236,17 @@ namespace LinuxMod.Core.Mechanics
                 LinuxMod.NavierStokesEffect.Parameters["velocityYField"].SetValue(v);
 
                 LinuxMod.NavierStokesEffect.Techniques[0].Passes[2].Apply();
-                Main.spriteBatch.Draw(div, div.Bounds, Color.White);
+                sb.Draw(div, div.Bounds, Color.White);
             });
 
             DrawToTargetWithBuffer(p, (sb) =>
             {
-                Main.spriteBatch.Draw(Main.magicPixel, p.Bounds, new Color(0, 0, 0.5f));
+                Rectangle rect = new Rectangle(2, 2, p.Bounds.X - 4, p.Bounds.Y - 4);
+                sb.Draw(Main.magicPixel, rect, new Color(0, 0, 0.5f));
             });
+
+            ConfigureOcclusion(0, div);
+            ConfigureOcclusion(0, p);
 
             for (int i = 0; i < 3; i++)
             {
@@ -228,8 +255,10 @@ namespace LinuxMod.Core.Mechanics
                     LinuxMod.NavierStokesEffect.Parameters["divMap"].SetValue(div);
 
                     LinuxMod.NavierStokesEffect.Techniques[0].Passes[3].Apply();
-                    Main.spriteBatch.Draw(p, p.Bounds, Color.White);
+                    sb.Draw(p, p.Bounds, Color.White);
                 });
+
+                ConfigureOcclusion(0, p);
             }
 
             DrawToTargetWithBuffer(u, (sb) =>
@@ -237,7 +266,7 @@ namespace LinuxMod.Core.Mechanics
                 LinuxMod.NavierStokesEffect.Parameters["pMap"].SetValue(p);
 
                 LinuxMod.NavierStokesEffect.Techniques[0].Passes[4].Apply();
-                Main.spriteBatch.Draw(u, u.Bounds, Color.White);
+                sb.Draw(u, u.Bounds, Color.White);
             });
 
             DrawToTargetWithBuffer(v, (sb) =>
@@ -245,9 +274,11 @@ namespace LinuxMod.Core.Mechanics
                 LinuxMod.NavierStokesEffect.Parameters["pMap"].SetValue(p);
 
                 LinuxMod.NavierStokesEffect.Techniques[0].Passes[5].Apply();
-                Main.spriteBatch.Draw(v, v.Bounds, Color.White);
+                sb.Draw(v, v.Bounds, Color.White);
             });
 
+            ConfigureOcclusion(1, u);
+            ConfigureOcclusion(2, v);
             /*
             */
             Main.graphics.GraphicsDevice.SetRenderTargets(oldBindings);
@@ -257,15 +288,6 @@ namespace LinuxMod.Core.Mechanics
         {
             //Diffuse
             RenderTargetBinding[] oldBindings = Main.graphics.GraphicsDevice.GetRenderTargets();
-
-            Matrix m = Matrix.CreateOrthographicOffCenter(0, N, N, 0, 0, -1);
-            m.M41 += -0.5f * m.M11;
-            m.M42 += -0.5f * m.M22;
-
-            LinuxMod.NavierStokesEffect.Parameters["MATRIX"].SetValue(m);
-
-            LinuxMod.NavierStokesEffect.Parameters["dT"].SetValue(1/50f);
-            LinuxMod.NavierStokesEffect.Parameters["N"].SetValue(50);
 
             Iterate(0, ref PreviousDensityTarget, DensityTarget, DiffusionRate);
             //Iterate(0, ref PreviousDensityTarget, DensityTarget, DiffusionRate);
@@ -309,6 +331,8 @@ namespace LinuxMod.Core.Mechanics
 
             CopyContents(active, BufferTarget);
 
+            ConfigureOcclusion(type, active);
+
             Main.graphics.GraphicsDevice.SetRenderTargets(oldBindings);
         }
 
@@ -344,15 +368,15 @@ namespace LinuxMod.Core.Mechanics
 
         public void AdVec(int type, ref RenderTarget2D active, RenderTarget2D buffer, RenderTarget2D u, RenderTarget2D v)
         {
-            RenderTargetBinding[] oldBindings = Main.graphics.GraphicsDevice.GetRenderTargets();
-
-            Main.graphics.GraphicsDevice.SetRenderTarget(BufferTarget);
-            Main.graphics.GraphicsDevice.Clear(Color.Transparent);
-
             LinuxMod.NavierStokesEffect.Parameters["bufferTarget"].SetValue(buffer);
             LinuxMod.NavierStokesEffect.Parameters["velocityXField"].SetValue(u);
             LinuxMod.NavierStokesEffect.Parameters["velocityYField"].SetValue(v);
             LinuxMod.NavierStokesEffect.Parameters["resolution"].SetValue(new Vector2(1 / (float)active.Bounds.X, 1 / (float)active.Bounds.Y));
+
+            RenderTargetBinding[] oldBindings = Main.graphics.GraphicsDevice.GetRenderTargets();
+
+            Main.graphics.GraphicsDevice.SetRenderTarget(BufferTarget);
+            Main.graphics.GraphicsDevice.Clear(Color.Transparent);
 
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.LinearClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
@@ -363,19 +387,67 @@ namespace LinuxMod.Core.Mechanics
 
             CopyContents(active, BufferTarget);
 
+            ConfigureOcclusion(type, active);
+
             Main.graphics.GraphicsDevice.SetRenderTargets(oldBindings);
+        }
+
+        public void ConfigureOcclusion(int type, RenderTarget2D buffer)
+        {
+
+            LinuxMod.NavierStokesEffect.Parameters["occlusionType"].SetValue(type);
+
+            void Pass(int pass)
+            {
+                Main.graphics.GraphicsDevice.SetRenderTarget(BufferTarget);
+                Main.graphics.GraphicsDevice.Clear(Color.Transparent);
+
+                Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+                LinuxMod.NavierStokesEffect.Techniques[0].Passes[pass].Apply();
+                Main.spriteBatch.Draw(buffer, buffer.Bounds, Color.White);
+
+                Main.spriteBatch.End();
+
+                CopyContents(buffer, BufferTarget);
+            }
+
+            RenderTargetBinding[] oldBindings = Main.graphics.GraphicsDevice.GetRenderTargets();
+
+            Pass(8);
+            Pass(9);
+            Pass(10);
+            Pass(11);
+            Pass(12);
+            Pass(13);
+
+            Main.graphics.GraphicsDevice.SetRenderTargets(oldBindings);
+
         }
 
         public void Draw(SpriteBatch sb)
         {
-            Main.spriteBatch.Draw(VectorTargetX, GlobalSpace.ForDraw(), Color.White);
-            LUtils.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X), (int)(GlobalSpace.Y - Main.screenPosition.Y), CellSize * N, CellSize * N), Color.Red, 1);
+            /*
+            sb.Draw(VectorTargetX, GlobalSpace.ForDraw(), Color.White);
+            LinuxTechTips.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X), (int)(GlobalSpace.Y - Main.screenPosition.Y), CellSize * N, CellSize * N), Color.Red, 1);
 
-            Main.spriteBatch.Draw(VectorTargetY, GlobalSpace.ForDraw() + new Vector2(CellSize * N, 0), Color.White);
-            LUtils.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X + CellSize * N), (int)(GlobalSpace.Y - Main.screenPosition.Y), CellSize * N, CellSize * N), Color.Red, 1);
+            sb.Draw(VectorTargetY, GlobalSpace.ForDraw() + new Vector2(CellSize * N, 0), Color.White);
+            LinuxTechTips.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X + CellSize * N), (int)(GlobalSpace.Y - Main.screenPosition.Y), CellSize * N, CellSize * N), Color.Red, 1);
 
-            Main.spriteBatch.Draw(PreviousDensityTarget, GlobalSpace.ForDraw() + new Vector2(CellSize * N / 2, CellSize * N), Color.White);
-            LUtils.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X + CellSize * N / 2), (int)(GlobalSpace.Y - Main.screenPosition.Y + CellSize * N), CellSize * N, CellSize * N), Color.Red, 1);
+            sb.Draw(PreviousDensityTarget, GlobalSpace.ForDraw() + new Vector2(CellSize * N / 2, CellSize * N), Color.White);
+            LinuxTechTips.DrawRectangle(new Rectangle((int)(GlobalSpace.X - Main.screenPosition.X + CellSize * N / 2), (int)(GlobalSpace.Y - Main.screenPosition.Y + CellSize * N), CellSize * N, CellSize * N), Color.Red, 1);
+            */
+
+            sb.Draw(Targets.Instance.ScaledTileTarget, Vector2.Zero, Color.White);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, null, SamplerState.LinearClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
+
+            LinuxMod.NavierStokesEffect.Techniques[0].Passes[7].Apply();
+            sb.Draw(DensityTarget, GlobalSpace.ForDraw(), Color.White);
+
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public void Dispose()
@@ -399,6 +471,7 @@ namespace LinuxMod.Core.Mechanics
                 DensityTable[i] = MathHelper.Clamp(DensityTable[i] - easeout, 0, 255);
             }
         }
+
 
         public void ConfigureOcclusion(int type, ref float[] array)
         {
@@ -449,7 +522,7 @@ namespace LinuxMod.Core.Mechanics
                         array[XY(i, j)] = 0;
                         continue;
                     }
-
+                    /*
                     if (u && r && !d && !l) array[XY(i, j)] = 0.5f * (array[XY(i - 1, j)] + array[XY(i, j + 1)]);
                     if (!u && !r && d && l) array[XY(i, j)] = 0.5f * (array[XY(i + 1, j)] + array[XY(i, j - 1)]);
                     if (u && !r && !d && l) array[XY(i, j)] = 0.5f * (array[XY(i + 1, j)] + array[XY(i, j + 1)]);
@@ -464,9 +537,26 @@ namespace LinuxMod.Core.Mechanics
                     if (!d && u && r && l) array[XY(i, j)] = type == 2 ? -array[XY(i, j + 1)] : array[XY(i, j + 1)];
                     if (!l && r && d && u) array[XY(i, j)] = type == 1 ? -array[XY(i - 1, j)] : array[XY(i - 1, j)];
                     if (!r && u && d && l) array[XY(i, j)] = type == 1 ? -array[XY(i + 1, j)] : array[XY(i + 1, j)];
+                    */
                 }
             }
         }
+
+        //Curently the tile boundaries on the GPU are buggy and I don't know why.
+
+        //E X P E C T E D     A C T U A L
+
+        //X X X X X X X X     X X X X X X X X 
+        //X X 4 4 4 4 X X     X X 4 4 4 4 X X 
+        //X 3 0 0 0 0 2 X     X 3 0 0 0 0 2 X
+        //X 3 0 0 0 0 2 X     X 3 0 0 0 0 2 X
+        //X 3 0 0 0 0 2 X     X 3 0 0 0 0 2 X
+        //X X 1 1 1 1 X X     X X 1 1 1 1 X X
+        //X X X X X X X X     X X X X X X X X
+
+        //This is most likely due to the boundaries of the texture overlapping because of the modulus
+
+        //TODO: Fix this is in 1.4
 
         public void Iterate(int type, ref float[] a, float[] _a, float diff)
         {

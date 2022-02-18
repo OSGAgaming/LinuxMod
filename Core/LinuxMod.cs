@@ -1,5 +1,7 @@
 using LinuxMod.Core.Mechanics;
+using LinuxMod.Core.Mechanics.Interfaces;
 using LinuxMod.Core.Mechanics.Verlet;
+using LinuxMod.Core.Subworlds;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,32 +12,45 @@ using Terraria.UI;
 
 namespace LinuxMod.Core
 {
-	public partial class LinuxMod : Mod
-	{
-        public static SubworldInstanceManager Subworlds;
-        public static ParticleZoneHandler GlobalZone;
-        public static VerletSystem verletSystem;
-        public static UIManager UI;
-        public static InsigniaHost InsigniaSystem;
+    public partial class LinuxMod : Mod
+    {
         private GameTime lastGameTime;
-        public static ModelLoader ModelManager;
+
+        public static List<ILoadable> Loadables;
+
         public override void Load()
         {
-            InsigniaSystem = new InsigniaHost();
-            Subworlds = new SubworldInstanceManager();
-            GlobalZone = new ParticleZoneHandler();
-            verletSystem = new VerletSystem();
-            UI = new UIManager();
-            ModelManager = new ModelLoader();
-            ModelManager.LoadModels();
-            LoadHotkeys();
-            GlobalZone.AddZone("Main", 40000);
-            ShaderLoading();
-            UI.LoadUI();
-            AutoloadMechanics.Load();
-            ModuleHostLoader.Load();
-            InsigniaSystem.Load();
+            if (!Main.dedServ)
+            {
+                Loadables = new List<ILoadable>();
+
+                Type[] loadables = LinuxTechTips.GetInheritedClasses(typeof(ILoadable));
+                foreach (Type type in loadables)
+                {
+                    ILoadable loadable = Activator.CreateInstance(type) as ILoadable;
+                    loadable.Load();
+
+                    Loadables.Add(loadable);
+                }
+
+                LoadHotkeys();
+                ShaderLoading();
+
+                ModelLoader.Load();
+                AutoloadMechanics.Load();
+                ModuleHostLoader.Load();
+                LocalRenderer.PrepareRenderer();
+            }
         }
+
+        public static T GetLoadable<T>()
+        {
+            foreach (ILoadable loadable in Loadables)
+                if (loadable is T) return (T)loadable;
+
+            throw new NullReferenceException("Loadable could not be found");
+        }
+
         public override void ModifySunLightColor(ref Color tileColor, ref Color backgroundColor)
         {
             ScreenMapPass.Instance.Maps.OrderedShaderPass();
@@ -50,7 +65,7 @@ namespace LinuxMod.Core
                 {
                     if (lastGameTime != null)
                     {
-                        UI.Draw(lastGameTime);
+                        GetLoadable<UIManager>().Draw(lastGameTime);
                     }
 
                     return true;
@@ -61,7 +76,7 @@ namespace LinuxMod.Core
 
         public override void UpdateUI(GameTime gameTime)
         {
-            UI.Update(gameTime);
+            GetLoadable<UIManager>().Update(gameTime);
             UIControls();
             lastGameTime = gameTime;
         }
@@ -69,15 +84,21 @@ namespace LinuxMod.Core
         {
             if (InsigniaActivator.JustPressed)
             {
-                UI.ToggleState<InsigniaUI>();
-                UI.ToggleState<StructureUI>();
+                GetLoadable<UIManager>().ToggleState<InsigniaUI>();
+                GetLoadable<UIManager>().ToggleState<StructureUI>();
             }
         }
         public override void Unload()
         {
-            Subworlds = null;
-            GlobalZone = null;
-            UI?.UnLoad();
+            ModelLoader.Unload();
+            LocalRenderer.Unload();
+
+            for (int i = 0; i < Loadables.Count; i++)
+                Loadables[i] = null;
+
+            Loadables.Clear();
+
+            Loadables = null;
         }
     }
 }

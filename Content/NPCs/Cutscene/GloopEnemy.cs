@@ -88,7 +88,7 @@ namespace LinuxMod.Content.NPCs.Cutscene
 
                 AdditiveCalls.Instance.AddCall((SpriteBatch sba) =>
                 {
-                    Texture2D tex = LUtils.RadialMask;
+                    Texture2D tex = LinuxTechTips.RadialMask;
                     sb.Draw(tex, ball.position.ForDraw(), tex.Bounds, Color.LimeGreen * 0.2f * Math.Min(1, Width), 0f, tex.TextureCenter(), Math.Min(1, Width) * 0.52f, SpriteEffects.None, 0f);
                 });
             }

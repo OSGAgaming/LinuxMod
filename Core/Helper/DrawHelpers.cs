@@ -11,7 +11,7 @@ using ReLogic.Graphics;
 
 namespace LinuxMod.Core
 {
-    public static partial class LUtils
+    public static partial class LinuxTechTips
     {
         public static Vector2 DeltaScreen => Main.screenPosition - Main.screenLastPosition;
         public static void Draw(Texture2D tex, Vector2 position, Color colour, float scale, Rectangle frame = default)

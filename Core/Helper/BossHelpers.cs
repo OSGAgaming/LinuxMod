@@ -10,7 +10,7 @@ namespace LinuxMod.Core
     // public delegate void ExtraAction();
 
     // todo: note to self, migrate stuff to utils
-    public static partial class LUtils
+    public static partial class LinuxTechTips
     {
         #region Spawn helpers
 

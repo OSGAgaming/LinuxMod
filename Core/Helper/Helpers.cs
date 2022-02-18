@@ -18,7 +18,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core
 {
-    public static partial class LUtils
+    public static partial class LinuxTechTips
     {
         // public static InteritosGlobalNPC Interitos(this NPC npc) => npc.GetGlobalNPC<InteritosGlobalNPC>();
         // public static InteritosGlobalProjectile Interitos(this Projectile proj) => proj.GetGlobalProjectile<InteritosGlobalProjectile>();
@@ -110,7 +110,7 @@ namespace LinuxMod.Core
                 }
             }
         }
-        public static ParticleZone Particles => LinuxMod.GlobalZone.Get("Main");
+        public static ParticleZone Particles => LinuxMod.GetLoadable<ParticleZoneHandler>().Get("Main");
         public static void DrawParticlesAlongBezier(Vector2 endPoints, Vector2 startingPos, Vector2 c1, float chainsPerUse, Color color, float spawnChance = 1f, params IParticleModule[] modules)
         {
             for (float i = 0; i <= 1; i += chainsPerUse)

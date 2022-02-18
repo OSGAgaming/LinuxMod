@@ -14,31 +14,71 @@ using SkinnedModel;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class ModelLoader
+    public class ModelPathAttribute : Attribute
     {
-        public Model Cube;
-        public Model Planet;
-        public Model Clouds;
+        public string target;
+        public ModelPathAttribute(string type)
+        {
+            target = type;
+        }
+    }
 
-        public ContentManager contentManager;
+    public static class ModelLoader
+    {
+        public static Model Cube;
+        public static Model Planet;
+        [ModelPath("Planet")]
+        public static Model Clouds;
+        public static Model Skybox;
+        public static Model SeamapSkybox;
 
-        public MethodInfo create_ContentReader;
+        public static ContentManager contentManager;
+        public static MethodInfo create_ContentReader;
+        public static MethodInfo readAsset;
 
-        public MethodInfo readAsset;
-
-        public void Load()
+        public static void Load()
         {
             InitializeContentReader();
 
-            LoadModel(out Cube, "Cube");
-            LoadModel(out Planet, "Planet");
-            LoadModel(out Clouds, "Planet");
+            FieldInfo[] Models = typeof(ModelLoader).GetFields();
+            for(int i = 0; i < Models.Length; i++)
+            {
+                FieldInfo fi = Models[i];
+
+                if (fi.FieldType == typeof(Model))
+                {
+                    ModelPathAttribute mpa;
+                    if (fi.TryGetCustomAttribute(out mpa))
+                    {
+                        fi.SetValue(null, LoadModel(out _, mpa.target));
+                        continue;
+                    }
+                    fi.SetValue(null, LoadModel(out _, fi.Name));
+                }
+            }
         }
 
-        public void InitializeContentReader()
+        public static void Unload()
+        {
+            contentManager = null;
+            create_ContentReader = null;
+            readAsset = null;
+
+            FieldInfo[] Models = typeof(ModelLoader).GetFields();
+            foreach (FieldInfo fi in Models)
+            {
+                if (fi.FieldType == typeof(Model))
+                {
+                    fi.SetValue(null, null);
+                }
+            }
+        }
+
+        public static void InitializeContentReader()
         {
             contentManager = new ContentManager(Main.ShaderContentManager.ServiceProvider);
             create_ContentReader = typeof(ContentReader).GetMethod("Create", BindingFlags.NonPublic | BindingFlags.Static);
@@ -46,23 +86,21 @@ namespace LinuxMod.Core.Mechanics
             readAsset = typeof(ContentReader).GetMethod("ReadAsset", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(typeof(object));
         }
 
-        public void LoadModel(out Model model, string Path)
+        public static Model LoadModel(out Model model, string Path)
         {
             byte[] file = ModContent.GetFileBytes($"LinuxMod/Assets/Models/{Path}.urmom");
             model = LoadAsset<Model>(new MemoryStream(file));
+
+            return model;
         }
 
-        public T LoadAsset<T>(Stream stream)
+        public static T LoadAsset<T>(Stream stream)
         {
             using (ContentReader contentReader = (ContentReader)create_ContentReader.Invoke(null, new object[] { contentManager, stream, "UntexturedSphere", null }))
             {
                 var thi = readAsset.Invoke(contentReader, null);
                 return (T)thi;
             }
-        }
-        public void LoadModels()
-        {
-            Load();  
         }
     }
 }

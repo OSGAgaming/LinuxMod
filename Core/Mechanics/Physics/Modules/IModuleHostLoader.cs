@@ -7,7 +7,7 @@ namespace LinuxMod.Core.Mechanics
     {
         public static void Load()
         {
-            Type[] Mechanics = LUtils.GetInheritedClasses(typeof(Module));
+            Type[] Mechanics = LinuxTechTips.GetInheritedClasses(typeof(Module));
             Type classType = typeof(ModuleHost<>);
 
             foreach (Type type in Mechanics)

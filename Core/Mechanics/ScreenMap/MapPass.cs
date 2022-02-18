@@ -25,7 +25,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
         protected abstract string MapEffectName { get; }
 
-        protected ScreenShaderData MapEffect => LUtils.GetScreenShader(MapEffectName);
+        protected ScreenShaderData MapEffect => LinuxTechTips.GetScreenShader(MapEffectName);
 
         internal virtual void OnApplyShader() { }
         public virtual void Load() => MapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
@@ -50,7 +50,7 @@ namespace LinuxMod.Core.Mechanics.ScreenMap
 
             if (MapEffectName != "")
             {
-                LUtils.ActivateScreenShader(MapEffectName);
+                LinuxTechTips.ActivateScreenShader(MapEffectName);
             }
 
         }

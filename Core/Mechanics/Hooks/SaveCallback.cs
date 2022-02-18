@@ -16,13 +16,13 @@ namespace LinuxMod.Core.Mechanics
         }
         private void WorldGen_SaveAndQuitCallBack(On.Terraria.WorldGen.orig_SaveAndQuitCallBack orig, object threadContext)
         {
-            if (LinuxMod.Subworlds != null)
+            if (LinuxMod.GetLoadable<SubworldInstanceManager>() != null)
             {
-                LinuxMod.Subworlds.IsSaving = true;
+                LinuxMod.GetLoadable<SubworldInstanceManager>().IsSaving = true;
 
                 orig(threadContext);
 
-                LinuxMod.Subworlds.IsSaving = false;
+                LinuxMod.GetLoadable<SubworldInstanceManager>().IsSaving = false;
             }
         }
     }

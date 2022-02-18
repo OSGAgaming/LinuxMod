@@ -1,3 +1,4 @@
+using LinuxMod.Core.Mechanics.Verlet;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Drawing;
@@ -15,8 +16,8 @@ namespace LinuxMod.Core.Mechanics
         }
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
-            LinuxMod.verletSystem.Update();
-            LinuxMod.verletSystem.Draw(Main.spriteBatch);
+            LinuxMod.GetLoadable<VerletSystem>().Update();
+            LinuxMod.GetLoadable<VerletSystem>().Draw(Main.spriteBatch);
 
             orig(self);
         }

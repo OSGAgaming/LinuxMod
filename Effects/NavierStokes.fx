@@ -1,9 +1,14 @@
 sampler uImage0 : register(s0);
+uint occlusionType : register(c0);
 
 float visc;
 float dT;
 int N;
 float2 resolution;
+
+float2 relativeScreenPos;
+float MistDims;
+float2 ScreenDims;
 
 texture velocityXField;
 sampler velXsampler = sampler_state
@@ -39,6 +44,12 @@ texture adDensity;
 sampler ADS = sampler_state
 {
     Texture = (adDensity);
+};
+
+texture boundaries;
+sampler boundariesSample = sampler_state
+{
+    Texture = (boundaries);
 };
 
 float4x4 MATRIX;
@@ -105,7 +116,7 @@ float4 convertToColorPrecision(float c)
 
 
 float constrict(float x)
-{    
+{
     return x;
 }
 
@@ -154,8 +165,8 @@ float4 advect(VertexShaderOutput input) : COLOR0
     float X = roundedCoords.x - (visc * velX) * h;
     float Y = roundedCoords.y - (visc * velY) * h;
     
-    X = clamp(X, h, 1 - h);
-    Y = clamp(Y, h, 1 - h);
+    X = clamp(X, 0, 1 - h);
+    Y = clamp(Y, 0, 1 - h);
     
     XGrid = round(X, h);
     XGrid1 = XGrid + h;
@@ -182,9 +193,13 @@ float4 projectdiv(VertexShaderOutput input) : COLOR0
 {
      //use poisson equations to make sure vector field magnitudes are being conserved
     float h = 1 / (float) N;
-    float2 smallValue = float2(h, h) / 3.0f;
+    float2 smallValue = float2(h, h) / 2.0f;
 
-    float2 roundedCoords = round(input.TextureCoordinates, h) + smallValue;
+    float2 roundedCoordsTrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordsTrue + smallValue;
+
+    if (roundedCoordsTrue.x == 0 || roundedCoordsTrue.y == 0 || roundedCoordsTrue.x > 1 - h || roundedCoordsTrue.y > 1 - h)
+        return tex2D(uImage0, roundedCoords);
 
     float velX1 = convertToTruePrecision(tex2D(velXsampler, roundedCoords + float2(h, 0)));
     float velX2 = convertToTruePrecision(tex2D(velXsampler, roundedCoords + float2(-h, 0)));
@@ -203,8 +218,12 @@ float4 projectp(VertexShaderOutput input) : COLOR0
     float h = 1 / (float) N;
     float2 smallValue = float2(h, h) / 2.0f;
 
-    float2 roundedCoords = round(input.TextureCoordinates, h) + smallValue;
-   
+    float2 roundedCoordsTrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordsTrue + smallValue;
+
+    if (roundedCoordsTrue.x == 0 || roundedCoordsTrue.y == 0 || roundedCoordsTrue.x > 1 - h || roundedCoordsTrue.y > 1 - h)
+        return tex2D(uImage0, roundedCoords);
+    
     float up = convertToTruePrecision(tex2D(uImage0, roundedCoords + float2(0, -h)));
     float down = convertToTruePrecision(tex2D(uImage0, roundedCoords + float2(0, h)));
     float left = convertToTruePrecision(tex2D(uImage0, roundedCoords + float2(-h, 0)));
@@ -223,8 +242,12 @@ float4 projectuv(VertexShaderOutput input, uniform bool dir) : COLOR0
     
     float2 smallValue = float2(h, h) / 2.0f;
     
-    float2 roundedCoords = round(input.TextureCoordinates, h) + smallValue;
+    float2 roundedCoordsTrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordsTrue + smallValue;
 
+    if (roundedCoordsTrue.x == 0 || roundedCoordsTrue.y == 0 || roundedCoordsTrue.x > 1 - h || roundedCoordsTrue.y > 1 - h)
+        return tex2D(uImage0, roundedCoords);
+    
     float colour = convertToTruePrecision(tex2D(uImage0, roundedCoords));
     
     float velX1 = convertToTruePrecision(tex2D(pSample, roundedCoords + float2(h, 0)));
@@ -244,6 +267,213 @@ float4 addsource(VertexShaderOutput input) : COLOR0
     return add + tex2D(uImage0, input.TextureCoordinates);
 }
 
+float4 maptogas(VertexShaderOutput input) : COLOR0
+{
+    float4 map = tex2D(uImage0, input.TextureCoordinates);
+    float c = convertToTruePrecision(map);
+    
+    return float4(c, c, c, c);
+}
+
+float4 configureOcclusion(VertexShaderOutput input, int type) : COLOR0
+{
+
+    /*
+    for (int i = 1; i < N - 1; i++)
+    {
+        array[XY(0, i)] = type == 1 ? -array[XY(1, i)] : array[XY(1, i)];
+        array[XY(N - 1, i)] = type == 1 ? -array[XY(N - 2, i)] : array[XY(N - 2, i)];
+        array[XY(i, 0)] = type == 2 ? -array[XY(i, 1)] : array[XY(i, 1)];
+        array[XY(i, N - 1)] = type == 2 ? -array[XY(i, N - 2)] : array[XY(i, N - 2)];
+    }
+
+    array[XY(0, 0)] = 0.5f * (array[XY(1, 0)] + array[XY(0, 1)]);
+    array[XY(0, N - 1)] = 0.5f * (array[XY(1, N - 1)] + array[XY(0, N - 2)]);
+    array[XY(N - 1, 0)] = 0.5f * (array[XY(N - 2, 0)] + array[XY(N - 1, 1)]);
+    array[XY(N - 1, N - 1)] = 0.5f * (array[XY(N - 2, N - 1)] + array[XY(N - 1, N - 2)]);
+    */    
+    
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    //TODO: figure out some edge function to stop branching
+    
+    float2 roundedCoords = round(input.TextureCoordinates, h);
+    float2 ac = input.TextureCoordinates;
+    
+    return 0.5f * (tex2D(uImage0, float2(h, 0)) + tex2D(uImage0, float2(0, h)));
+    return 0.5f * (tex2D(uImage0, float2(h, 1 - h)) + tex2D(uImage0, float2(0, 1 - 2 * h)));
+    return 0.5f * (tex2D(uImage0, float2(1 - 2 * h, 0)) + tex2D(uImage0, float2(1 - h, h)));
+    return 0.5f * (tex2D(uImage0, float2(1 - 2 * h, 1 - h)) + tex2D(uImage0, float2(1 - h, h - 2 * h)));
+    return type == 1 ? -tex2D(uImage0, float2(h, ac.y)) : tex2D(uImage0, float2(1, ac.y));
+    return type == 1 ? -tex2D(uImage0, float2(1 - 2 * h, ac.y)) : tex2D(uImage0, float2(1 - 2 * h, ac.y));
+    return type == 2 ? -tex2D(uImage0, float2(ac.x, h)) : tex2D(uImage0, float2(ac.x, h));
+    return type == 2 ? -tex2D(uImage0, float2(ac.x, 1 - 2 * h)) : tex2D(uImage0, float2(ac.x, 1 - 2 * h));
+
+    return tex2D(uImage0, input.TextureCoordinates);
+}
+
+float4 configureOcclusionL(VertexShaderOutput input) : COLOR0
+{
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+    
+    float condition = 1 - sign(floor(roundedCoordstrue.x / h));
+
+    float4 negative = convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(h + h / 2, roundedCoords.y))));
+    
+    int buffer = occlusionType;
+    int typecondition = sign(abs(buffer - 1));
+    
+    float4 occlusion = condition * ((1 - typecondition) * negative + typecondition * tex2D(uImage0, float2(h + h / 2, roundedCoords.y)));
+    float4 regular = (1 - condition) * tex2D(uImage0, input.TextureCoordinates);
+    
+    return regular + occlusion;
+}
+
+
+float4 configureOcclusionR(VertexShaderOutput input) : COLOR0
+{
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+    
+    float condition = 1 - sign(floor((1 - h - roundedCoordstrue.x) / h));
+    float4 negative = convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(1 - 2 * h + h / 2, roundedCoords.y))));
+
+    int buffer = occlusionType;
+    int typecondition = sign(abs(buffer - 1));
+    
+    float4 occlusion = condition * ((1 - typecondition) * negative + typecondition * tex2D(uImage0, float2(1 - 2 * h + h / 2, roundedCoords.y)));
+    float4 regular = (1 - condition) * tex2D(uImage0, input.TextureCoordinates);
+    
+    return (regular + occlusion);
+}
+
+float4 configureOcclusionU(VertexShaderOutput input) : COLOR0
+{
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+   
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+
+    float condition = 1 - sign(floor(roundedCoordstrue.y / h));
+    float4 negative = convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(roundedCoords.x, h + h / 2))));
+
+    int buffer = occlusionType;
+    int typecondition = sign(abs(buffer - 2));
+    
+    float4 occlusion = condition * ((1 - typecondition) * negative + typecondition * tex2D(uImage0, float2(roundedCoords.x, h + h / 2)));
+    float4 regular = (1 - condition) * tex2D(uImage0, input.TextureCoordinates);
+    
+    return (regular + occlusion);
+}
+
+float4 configureOcclusionD(VertexShaderOutput input) : COLOR0
+{
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+
+    float condition = 1 - sign(floor((1 - h - roundedCoordstrue.y) / h));
+    float4 negative = convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(roundedCoords.x, 1 - 2 * h + h / 2))));
+    
+    int buffer = occlusionType;
+    int typecondition = sign(abs(buffer - 2));
+    
+    float4 occlusion = condition * ((1 - typecondition) * negative + typecondition * tex2D(uImage0, float2(roundedCoords.x, 1 - 2 * h + h / 2)));
+    float4 regular = (1 - condition) * tex2D(uImage0, input.TextureCoordinates);
+    
+    return regular + occlusion;
+}
+
+float4 configureCorners(VertexShaderOutput input) : COLOR0
+{
+    
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+
+    if (roundedCoordstrue.x == 0 && roundedCoordstrue.y == 0)
+        return 0.5f * (tex2D(uImage0, float2(h, 0) + smallValue) + tex2D(uImage0, float2(0, h) + smallValue));
+    if (roundedCoordstrue.x == 0 && roundedCoordstrue.y >= 1 - h)
+        return 0.5f * (tex2D(uImage0, float2(h, 1 - h) + smallValue) + tex2D(uImage0, float2(0, 1 - 2 * h) + smallValue));
+    if (roundedCoordstrue.x >= 1 - h && roundedCoordstrue.y == 0)
+        return 0.5f * (tex2D(uImage0, float2(1 - 2 * h, 0) + smallValue) + tex2D(uImage0, float2(1 - h, h) + smallValue));
+    if (roundedCoordstrue.x >= 1 - h && roundedCoordstrue.y >= 1 - h)
+        return 0.5f * (tex2D(uImage0, float2(1 - 2 * h, 1 - h) + smallValue) + tex2D(uImage0, float2(1 - h, 1 - 2 * h) + smallValue));
+    
+    return tex2D(uImage0, input.TextureCoordinates);
+}
+
+float4 configureMiscBoundaries(VertexShaderOutput input) : COLOR0
+{
+    /*
+    float h = 1 / (float) N;
+    float2 smallValue = float2(h, h) / 2.0f;
+
+    float2 roundedCoordstrue = round(input.TextureCoordinates, h);
+    float2 roundedCoords = roundedCoordstrue + smallValue;
+    
+    float i = roundedCoords.x;
+    float j = roundedCoords.y;
+        
+    float2 dimRelative = float2(MistDims / ScreenDims.x, MistDims / ScreenDims.y);
+    
+    float2 boundaryRelative = relativeScreenPos + dot(roundedCoordstrue, dimRelative);
+    
+    int type = occlusionType;
+
+    bool u = tex2D(boundariesSample, boundaryRelative + float2(0, -h)) != 0;
+    bool d = tex2D(boundariesSample, boundaryRelative + float2(0, h)) != 0;
+    bool l = tex2D(boundariesSample, boundaryRelative + float2(-h, 0)) != 0;
+    bool r = tex2D(boundariesSample, boundaryRelative + float2(h, 0)) != 0;
+    
+    if(u)
+        return float4(1, 0, 0, 1);
+    
+    if (u && r && !d && !l)
+        return 0.5f * (tex2D(uImage0, float2(i - h, j)) + tex2D(uImage0, float2(i, j + h)));
+    if (!u && !r && d && l)
+        return 0.5f * (tex2D(uImage0, float2(i + h, j)) + tex2D(uImage0, float2(i, j - h)));
+    if (u && !r && !d && l)
+        return 0.5f * (tex2D(uImage0, float2(i + h, j)) + tex2D(uImage0, float2(i, j + h)));
+    if (!u && r && d && !l)
+        return 0.5f * (tex2D(uImage0, float2(i - h, j)) + tex2D(uImage0, float2(i, j - h)));
+
+    if (u && !r && !d && !l)
+        return type == 2 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i, j + h)))) : tex2D(uImage0, float2(i, j + h));
+    if (d && !u && !r && !l)
+        return type == 2 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i, j - h)))) : tex2D(uImage0, float2(i, j - h));
+    if (l && !r && !d && !u)
+        return type == 1 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i + h, j)))) : tex2D(uImage0, float2(i + h, j));
+    if (r && !u && !d && !l)
+        return type == 1 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i - h, j)))) : tex2D(uImage0, float2(i - h, j));
+
+    if (!u && r && d && l)
+        return type == 2 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i, j - h)))) : tex2D(uImage0, float2(i, j - h));
+    if (!d && u && r && l)
+        return type == 2 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i, j + h)))) : tex2D(uImage0, float2(i, j + h));
+    if (!l && r && d && u)
+        return type == 1 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i - h, j)))) : tex2D(uImage0, float2(i - h, j));
+    if (!r && u && d && l)
+        return type == 1 ? convertToColorPrecision(-convertToTruePrecision(tex2D(uImage0, float2(i + h, j)))) : tex2D(uImage0, float2(i + h, j));
+    */
+    return tex2D(uImage0, input.TextureCoordinates);
+}
+
+
+
 technique Technique1
 {
     pass diffuse
@@ -257,7 +487,12 @@ technique Technique1
         VertexShader = compile vs_3_0 MainVS();
         PixelShader = compile ps_3_0 advect();
     }
-
+       //Nomis is dumb and duymb
+       //Nomis devourer of children, the mighty frog
+       //Hello
+       //Im mister frog
+       //This is my show
+       //I eat the bug
     pass projectdiv
     {
         VertexShader = compile vs_3_0 MainVS();
@@ -286,5 +521,48 @@ technique Technique1
     {
         VertexShader = compile vs_3_0 MainVS();
         PixelShader = compile ps_3_0 addsource();
+    }
+
+    pass projectmap
+    {
+        PixelShader = compile ps_2_0 maptogas();
+    }
+
+    //OCCLUSION
+
+    pass configureOcclusionL
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureOcclusionL();
+    }
+
+    pass configureOcclusionR
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureOcclusionR();
+    }
+
+    pass configureOcclusionU
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureOcclusionU();
+    }
+
+    pass configureOcclusionD
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureOcclusionD();
+    }
+
+    pass configureCorners
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureCorners();
+    }
+
+    pass configureMiscBoundaries
+    {
+        VertexShader = compile vs_3_0 MainVS();
+        PixelShader = compile ps_3_0 configureMiscBoundaries();
     }
 }

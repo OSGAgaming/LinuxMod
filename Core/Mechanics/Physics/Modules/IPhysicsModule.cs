@@ -7,11 +7,11 @@ using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using IUpdateable = LinuxMod.Core.Mechanics.Interfaces.IUpdateable;
+using IUpdate = LinuxMod.Core.Mechanics.Interfaces.IUpdate;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public interface IPhysicsModule : IUpdateable
+    public interface IPhysicsModule : IUpdate
     {
         PhysicsObject Object { get; set; }
     }

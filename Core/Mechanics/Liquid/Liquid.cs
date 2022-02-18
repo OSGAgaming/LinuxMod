@@ -123,11 +123,11 @@ namespace LinuxMod.Core.Mechanics
             vel[(int)(MathHelper.Clamp(perc, 0, 1) * accuracy)] += speed;
 
 
-            LUtils.Particles.SetSpawningModules(new SpawnRandomly(1f));
+            LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(1f));
             if (speed.Y > 2 && splash)
             {
                 for (int a = 0; a < 20; a++)
-                    LUtils.Particles.SpawnParticles(
+                    LinuxTechTips.Particles.SpawnParticles(
                     frame.Location.ToVector2() + new Vector2(perc * frame.Width, speed.Y * 2),
                     new Vector2(Main.rand.NextFloat(-3,3), Main.rand.NextFloat(-speed.Y - 1f, -speed.Y + 1f)), 6,
                     Color.White * 0.2f,

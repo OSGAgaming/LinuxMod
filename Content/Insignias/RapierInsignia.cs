@@ -55,7 +55,7 @@ namespace LinuxMod.Core.Mechanics
         {
             for (int i = 0; i < DirectionPath.Count - 1; i++)
             {
-                LUtils.DrawLine(DirectionPath[i], DirectionPath[i + 1], Color.Red, 3);
+                LinuxTechTips.DrawLine(DirectionPath[i], DirectionPath[i + 1], Color.Red, 3);
             }
         }
         public void UpdateCache()
@@ -169,7 +169,7 @@ namespace LinuxMod.Core.Mechanics
 
                 Velocity += (Follow - Position) / (Last ? 30f : 50f) - Velocity / 10f;
 
-                LUtils.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
+                LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
                 float y = CurrentNodeCache.Last().Position.Y;
 
                 if (rotationOffset > 0.8f)
@@ -178,7 +178,7 @@ namespace LinuxMod.Core.Mechanics
                     {
                         Vector2 v = (CurrentNodeCache[i].Position - new Vector2(0, y * 1.5f)).RotatedBy(rotation);
 
-                        LUtils.Particles.SpawnParticles(
+                        LinuxTechTips.Particles.SpawnParticles(
                         Position + v + Main.screenPosition,
                         Vector2.One.RotatedBy(Main.rand.NextFloat(-3f, 3f)) * 0.1f, 3,
                         Color.Lerp(Color.Yellow, Color.Red, Main.rand.NextFloat(1)),
@@ -277,7 +277,7 @@ namespace LinuxMod.Core.Mechanics
                         for (float a = 0; a <= 1; a += 1 / distance)
                         {
                             Vector2 v = (Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a) - new Vector2(0, Y * 1.5f)).RotatedBy(rotation);
-                            LUtils.DrawCircle(p + v, new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width, Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
+                            LinuxTechTips.DrawCircle(p + v, new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width, Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
                         }
                     }
                     bool Last = SlashCount >= MaxSlashLength;
@@ -295,7 +295,7 @@ namespace LinuxMod.Core.Mechanics
                             for (float a = 0; a <= 1; a += 1f / distance)
                             {
                                 Vector2 v = (Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a) - new Vector2(0, Y * 1.5f)).RotatedBy(rotation);
-                                LUtils.DrawCircle(p + v, new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width * (width * width * width), Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
+                                LinuxTechTips.DrawCircle(p + v, new Vector2((i / (float)CurrentNodeCache.Count) * 10 + 8f) * Width * (width * width * width), Color.Lerp(Color.Black, Color.White, i / (float)CurrentNodeCache.Count));
                             }
                         }
 
@@ -313,14 +313,14 @@ namespace LinuxMod.Core.Mechanics
         }
         public void DrawParticleEffects()
         {
-            LUtils.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
+            LinuxTechTips.Particles.SetSpawningModules(new SpawnRandomly(0.1f));
             float Y = CurrentNodeCache.Last().Position.Y;
 
             for (int i = 0; i < CurrentNodeCache.Count - 1; i++)
             {
                 Vector2 v = (CurrentNodeCache[i].Position - new Vector2(0, Y * 1.5f)).RotatedBy(rotation);
 
-                LUtils.Particles.SpawnParticles(
+                LinuxTechTips.Particles.SpawnParticles(
                 Position + v + Main.screenPosition,
                 Vector2.One.RotatedBy(Main.rand.NextFloat(-3f, 3f)) * 0.1f, 3,
                 Color.Lerp(Color.Yellow, Color.Red, Main.rand.NextFloat(1)),
@@ -342,7 +342,7 @@ namespace LinuxMod.Core.Mechanics
                     float distance = Vector2.Distance(CurrentNodeCache[i + 1].Position, CurrentNodeCache[i].Position);
                     for (float a = 0; a <= 1; a += 1 / distance)
                     {
-                        Texture2D tex = LUtils.RadialMask;
+                        Texture2D tex = LinuxTechTips.RadialMask;
                         Vector2 v = (Vector2.Lerp(CurrentNodeCache[i].Position, CurrentNodeCache[i + 1].Position, a) - new Vector2(0, Y * 1.5f)).RotatedBy(rotation);
                         float velCap = MathHelper.Clamp(Velocity.Length(), 0, 4);
                         sb.Draw(tex, p + v, tex.Bounds, Color.Yellow * 0.1f * Math.Min(1, Width),

@@ -22,9 +22,12 @@ namespace LinuxMod.Core.Mechanics
 
         float Acceleration = 0.2f;
         Vector2 Velocity;
+        bool IsZooming = false;
         protected override void OnActive(Player player)
         {
-            player.GetModPlayer<LinuxPlayer>().ReciprocateZoom(2,66f);
+            IsZooming = true;
+
+            player.GetModPlayer<LinuxPlayer>().ReciprocateZoom(2, 66f);
             Acceleration = 0.2f;
             player.GetModPlayer<InsigniaPlayer>().Invisible = true;
 
@@ -41,7 +44,11 @@ namespace LinuxMod.Core.Mechanics
 
         protected override void UpdatePassive(Player player)
         {
-            player.GetModPlayer<LinuxPlayer>().ReciprocateZoom(1, 66f);
+            if (Math.Abs(1 - player.GetModPlayer<LinuxPlayer>().Zoom) < 0.01f)
+                IsZooming = false;
+
+            if (IsZooming)
+                player.GetModPlayer<LinuxPlayer>().ReciprocateZoom(1, 66f);
         }
         protected override void OnActivate(Player player)
         {

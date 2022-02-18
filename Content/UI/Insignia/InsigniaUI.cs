@@ -108,14 +108,14 @@ namespace LinuxMod.Core
                 int size = 10;
 
                 Vector2 point = GetDimensions().Position() + PNodes[i].Position;
-                LUtils.UITextToCenter(PNodes[i].Progression.ToString(), Color.Red, point - new Vector2(0, 20), 1);
+                LinuxTechTips.UITextToCenter(PNodes[i].Progression.ToString(), Color.Red, point - new Vector2(0, 20), 1);
                 spriteBatch.Draw(Main.magicPixel, new Rectangle((int)point.X - size / 2, (int)point.Y - size / 2, size, size), Color.Red);
 
                 if (i > 0)
                 {
                     Vector2 point2 = GetDimensions().Position() + PNodes[i - 1].Position;
 
-                    LUtils.DrawLine(point, point2, Color.Red);
+                    LinuxTechTips.DrawLine(point, point2, Color.Red);
                 }
             }
         }

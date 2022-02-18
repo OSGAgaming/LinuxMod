@@ -1,5 +1,6 @@
 ﻿using EEMod.Extensions;
 using LinuxMod.Core.Helper.Extensions;
+using LinuxMod.Core.Mechanics.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -9,7 +10,7 @@ using Terraria.ModLoader;
 
 namespace LinuxMod.Core.Mechanics.Verlet
 {
-    public class VerletSystem
+    public class VerletSystem : ILoadable
     {
         private int RENDERDISTANCE => 2000;
 
@@ -151,9 +152,19 @@ namespace LinuxMod.Core.Mechanics.Verlet
                 Vector2 p1 = Points[Sticks[i].StickPoints[0]].point;
                 Vector2 p2 = Points[Sticks[i].StickPoints[1]].point;
                 Vector2 mid = p1 * 0.5f + p2 * 0.5f;
-                Color color = LUtils.GetColor(mid.ToTileCoordinates());
-                LUtils.DrawLine(p1.ForDraw(), p2.ForDraw(), color);
+                Color color = LinuxTechTips.GetColor(mid.ToTileCoordinates());
+                LinuxTechTips.DrawLine(p1.ForDraw(), p2.ForDraw(), color);
             }
+        }
+
+        public void Load()
+        {
+
+        }
+
+        public void Unload()
+        {
+
         }
     }
 }

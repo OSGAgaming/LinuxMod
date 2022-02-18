@@ -1,4 +1,5 @@
 ﻿using LinuxMod.Core.Mechanics.Interfaces;
+using LinuxMod.Core.Mechanics.Verlet;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -41,7 +42,7 @@ namespace LinuxMod.Core.Mechanics
                         float lowestLength = float.MaxValue;
                         for (int a = 0; a < Verlet.indexes.Count; a++)
                         {
-                            float length = Vector2.Dot(LinuxMod.verletSystem.GetPoint(Verlet.indexes[a]).point - Module.Polygon.Center, Info.Axis);
+                            float length = Vector2.Dot(LinuxMod.GetLoadable<VerletSystem>().GetPoint(Verlet.indexes[a]).point - Module.Polygon.Center, Info.Axis);
                             if (Math.Abs(length) < lowestLength)
                             {
                                 indexOfClosest = Verlet.indexes[a];
@@ -51,7 +52,7 @@ namespace LinuxMod.Core.Mechanics
 
                         index = indexOfClosest;
                         Vector2 resolve = -Info.Depth * Info.Axis * 0.5f;
-                        LinuxMod.verletSystem.GetPoint(indexOfClosest).point += resolve;
+                        LinuxMod.GetLoadable<VerletSystem>().GetPoint(indexOfClosest).point += resolve;
                         Object.Velocity = Vector2.Zero;
                     }
                 }

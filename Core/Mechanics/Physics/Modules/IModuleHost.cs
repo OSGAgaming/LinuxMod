@@ -7,7 +7,7 @@ using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using IUpdateable = LinuxMod.Core.Mechanics.Interfaces.IUpdateable;
+using IUpdateable = LinuxMod.Core.Mechanics.Interfaces.IUpdate;
 
 namespace LinuxMod.Core.Mechanics
 {

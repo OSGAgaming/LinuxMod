@@ -8,7 +8,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics.Interfaces
 {
-    public interface IComponent : IDrawable, IUpdateable
+    public interface IComponent : IDraw, IUpdate
     {
 
     }

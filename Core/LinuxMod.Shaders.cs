@@ -18,6 +18,9 @@ namespace LinuxMod.Core
         public static Effect ExampleModelShader;
         public static Effect ModelTargetEffect;
         public static Effect NavierStokesEffect;
+        public static Effect WaterOcclusionEffect;
+        public static Effect ReflectRefractEffect;
+        public static Effect DUDVMap;
 
         static void QuickLoadScreenShader(string Path)
         {
@@ -35,6 +38,9 @@ namespace LinuxMod.Core
             ExampleModelShader = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/ModelShaders/ExampleModelShader");
             ModelTargetEffect = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/ColourLimit");
             NavierStokesEffect = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/NavierStokes");
+            WaterOcclusionEffect = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/WaterOcclusion");
+            ReflectRefractEffect = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/WaterReflection");
+            DUDVMap = ModContent.GetInstance<LinuxMod>().GetEffect("Effects/dUdVMap");
 
             string[] Shaders = Directory.GetFiles($@"{Main.SavePath}\Mod Sources\LinuxMod\Effects\ScreenShaders");
             for (int i = 0; i < Shaders.Length; i++)

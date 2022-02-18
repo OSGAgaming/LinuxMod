@@ -69,8 +69,8 @@ namespace LinuxMod.Core.Mechanics
             if (Main.LocalPlayer.controlUp)
             {
                 GetMechanic<PhysicsObjectHook>().Objects.Objects.Clear();
-                LinuxMod.verletSystem.Sticks.Clear();
-                LinuxMod.verletSystem.Points.Clear();
+                LinuxMod.GetLoadable<VerletSystem>().Sticks.Clear();
+                LinuxMod.GetLoadable<VerletSystem>().Points.Clear();
 
             }
             */
