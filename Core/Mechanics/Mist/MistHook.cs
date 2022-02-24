@@ -24,6 +24,13 @@ namespace LinuxMod.Core.Mechanics
             MFH = new MistFieldHost();
         }
 
+        public override void Unload()
+        {
+            On.Terraria.Main.DrawWoF -= Main_DrawWoF;
+            Main.OnPreDraw -= Main_OnPreDraw;
+
+            MFH = null;
+        }
         private void Main_OnPreDraw(GameTime obj)
         {
             MFH?.Update();

@@ -138,14 +138,14 @@ namespace LinuxMod.Core.Mechanics
             m.M41 += -0.5f * m.M11;
             m.M42 += -0.5f * m.M22;
 
-            LinuxMod.NavierStokesEffect.Parameters["MATRIX"].SetValue(m);
-            LinuxMod.NavierStokesEffect.Parameters["dT"].SetValue(1 / (float)(N / 2));
-            LinuxMod.NavierStokesEffect.Parameters["N"].SetValue(N / 2);
+            LinuxMod.NavierStokes.Parameters["MATRIX"].SetValue(m);
+            LinuxMod.NavierStokes.Parameters["dT"].SetValue(1 / (float)(N / 2));
+            LinuxMod.NavierStokes.Parameters["N"].SetValue(N / 2);
 
-            LinuxMod.NavierStokesEffect.Parameters["relativeScreenPos"].SetValue((GlobalSpace - Main.screenPosition) / new Vector2(Main.screenWidth, Main.screenHeight));
-            LinuxMod.NavierStokesEffect.Parameters["MistDims"].SetValue(N);
-            LinuxMod.NavierStokesEffect.Parameters["boundaries"].SetValue(Targets.Instance.ScaledTileTarget);
-            LinuxMod.NavierStokesEffect.Parameters["ScreenDims"].SetValue(Targets.Instance.ScaledTileTarget.Bounds.Size());
+            LinuxMod.NavierStokes.Parameters["relativeScreenPos"].SetValue((GlobalSpace - Main.screenPosition) / new Vector2(Main.screenWidth, Main.screenHeight));
+            LinuxMod.NavierStokes.Parameters["MistDims"].SetValue(N);
+            LinuxMod.NavierStokes.Parameters["boundaries"].SetValue(Targets.Instance.ScaledTileTarget);
+            LinuxMod.NavierStokes.Parameters["ScreenDims"].SetValue(Targets.Instance.ScaledTileTarget.Bounds.Size());
         }
 
         public Color ConvertToColor(float input)
@@ -232,10 +232,10 @@ namespace LinuxMod.Core.Mechanics
 
             DrawToTargetWithBuffer(div, (sb) =>
             {
-                LinuxMod.NavierStokesEffect.Parameters["velocityXField"].SetValue(u);
-                LinuxMod.NavierStokesEffect.Parameters["velocityYField"].SetValue(v);
+                LinuxMod.NavierStokes.Parameters["velocityXField"].SetValue(u);
+                LinuxMod.NavierStokes.Parameters["velocityYField"].SetValue(v);
 
-                LinuxMod.NavierStokesEffect.Techniques[0].Passes[2].Apply();
+                LinuxMod.NavierStokes.Techniques[0].Passes[2].Apply();
                 sb.Draw(div, div.Bounds, Color.White);
             });
 
@@ -252,9 +252,9 @@ namespace LinuxMod.Core.Mechanics
             {
                 DrawToTargetWithBuffer(p, (sb) =>
                 {
-                    LinuxMod.NavierStokesEffect.Parameters["divMap"].SetValue(div);
+                    LinuxMod.NavierStokes.Parameters["divMap"].SetValue(div);
 
-                    LinuxMod.NavierStokesEffect.Techniques[0].Passes[3].Apply();
+                    LinuxMod.NavierStokes.Techniques[0].Passes[3].Apply();
                     sb.Draw(p, p.Bounds, Color.White);
                 });
 
@@ -263,17 +263,17 @@ namespace LinuxMod.Core.Mechanics
 
             DrawToTargetWithBuffer(u, (sb) =>
             {
-                LinuxMod.NavierStokesEffect.Parameters["pMap"].SetValue(p);
+                LinuxMod.NavierStokes.Parameters["pMap"].SetValue(p);
 
-                LinuxMod.NavierStokesEffect.Techniques[0].Passes[4].Apply();
+                LinuxMod.NavierStokes.Techniques[0].Passes[4].Apply();
                 sb.Draw(u, u.Bounds, Color.White);
             });
 
             DrawToTargetWithBuffer(v, (sb) =>
             {
-                LinuxMod.NavierStokesEffect.Parameters["pMap"].SetValue(p);
+                LinuxMod.NavierStokes.Parameters["pMap"].SetValue(p);
 
-                LinuxMod.NavierStokesEffect.Techniques[0].Passes[5].Apply();
+                LinuxMod.NavierStokes.Techniques[0].Passes[5].Apply();
                 sb.Draw(v, v.Bounds, Color.White);
             });
 
@@ -320,11 +320,11 @@ namespace LinuxMod.Core.Mechanics
 
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            LinuxMod.NavierStokesEffect.Parameters["bufferTarget"].SetValue(buffer);
-            LinuxMod.NavierStokesEffect.Parameters["visc"].SetValue(diff);
-            LinuxMod.NavierStokesEffect.Parameters["resolution"].SetValue(new Vector2(1 / (float)active.Bounds.X, 1 / (float)active.Bounds.Y));
+            LinuxMod.NavierStokes.Parameters["bufferTarget"].SetValue(buffer);
+            LinuxMod.NavierStokes.Parameters["visc"].SetValue(diff);
+            LinuxMod.NavierStokes.Parameters["resolution"].SetValue(new Vector2(1 / (float)active.Bounds.X, 1 / (float)active.Bounds.Y));
 
-            LinuxMod.NavierStokesEffect.Techniques[0].Passes[0].Apply();
+            LinuxMod.NavierStokes.Techniques[0].Passes[0].Apply();
             Main.spriteBatch.Draw(active, active.Bounds, Color.White);
 
             Main.spriteBatch.End();
@@ -352,11 +352,11 @@ namespace LinuxMod.Core.Mechanics
             Main.graphics.GraphicsDevice.SetRenderTarget(BufferTarget);
             Main.graphics.GraphicsDevice.Clear(Color.Transparent);
 
-            LinuxMod.NavierStokesEffect.Parameters["adDensity"].SetValue(Add);
+            LinuxMod.NavierStokes.Parameters["adDensity"].SetValue(Add);
 
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            LinuxMod.NavierStokesEffect.Techniques[0].Passes[6].Apply();
+            LinuxMod.NavierStokes.Techniques[0].Passes[6].Apply();
             Main.spriteBatch.Draw(Source, Source.Bounds, Color.White);
 
             Main.spriteBatch.End();
@@ -368,10 +368,10 @@ namespace LinuxMod.Core.Mechanics
 
         public void AdVec(int type, ref RenderTarget2D active, RenderTarget2D buffer, RenderTarget2D u, RenderTarget2D v)
         {
-            LinuxMod.NavierStokesEffect.Parameters["bufferTarget"].SetValue(buffer);
-            LinuxMod.NavierStokesEffect.Parameters["velocityXField"].SetValue(u);
-            LinuxMod.NavierStokesEffect.Parameters["velocityYField"].SetValue(v);
-            LinuxMod.NavierStokesEffect.Parameters["resolution"].SetValue(new Vector2(1 / (float)active.Bounds.X, 1 / (float)active.Bounds.Y));
+            LinuxMod.NavierStokes.Parameters["bufferTarget"].SetValue(buffer);
+            LinuxMod.NavierStokes.Parameters["velocityXField"].SetValue(u);
+            LinuxMod.NavierStokes.Parameters["velocityYField"].SetValue(v);
+            LinuxMod.NavierStokes.Parameters["resolution"].SetValue(new Vector2(1 / (float)active.Bounds.X, 1 / (float)active.Bounds.Y));
 
             RenderTargetBinding[] oldBindings = Main.graphics.GraphicsDevice.GetRenderTargets();
 
@@ -380,7 +380,7 @@ namespace LinuxMod.Core.Mechanics
 
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.LinearClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            LinuxMod.NavierStokesEffect.Techniques[0].Passes[1].Apply();
+            LinuxMod.NavierStokes.Techniques[0].Passes[1].Apply();
             Main.spriteBatch.Draw(active, active.Bounds, Color.White);
 
             Main.spriteBatch.End();
@@ -395,7 +395,7 @@ namespace LinuxMod.Core.Mechanics
         public void ConfigureOcclusion(int type, RenderTarget2D buffer)
         {
 
-            LinuxMod.NavierStokesEffect.Parameters["occlusionType"].SetValue(type);
+            LinuxMod.NavierStokes.Parameters["occlusionType"].SetValue(type);
 
             void Pass(int pass)
             {
@@ -404,7 +404,7 @@ namespace LinuxMod.Core.Mechanics
 
                 Main.spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-                LinuxMod.NavierStokesEffect.Techniques[0].Passes[pass].Apply();
+                LinuxMod.NavierStokes.Techniques[0].Passes[pass].Apply();
                 Main.spriteBatch.Draw(buffer, buffer.Bounds, Color.White);
 
                 Main.spriteBatch.End();
@@ -443,7 +443,7 @@ namespace LinuxMod.Core.Mechanics
             sb.End();
             sb.Begin(SpriteSortMode.Immediate, null, SamplerState.LinearClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
 
-            LinuxMod.NavierStokesEffect.Techniques[0].Passes[7].Apply();
+            LinuxMod.NavierStokes.Techniques[0].Passes[7].Apply();
             sb.Draw(DensityTarget, GlobalSpace.ForDraw(), Color.White);
 
             sb.End();

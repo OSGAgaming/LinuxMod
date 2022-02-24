@@ -8,7 +8,7 @@ using Terraria;
 
 namespace LinuxMod.Core
 {
-    public class ParticleZoneHandler : ILoadable
+    public class ParticleZoneHandler : ILoad
     {
         private readonly Dictionary<string, ParticleZone> particleZones = new Dictionary<string, ParticleZone>();
 

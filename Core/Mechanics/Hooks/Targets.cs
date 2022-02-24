@@ -38,6 +38,17 @@ namespace LinuxMod.Core.Mechanics
             Instance = this;
         }
 
+        public override void Unload()
+        {
+            Main.OnPreDraw -= Main_OnPreDraw;
+            On.Terraria.Projectile.Update -= Projectile_Update;
+
+            playerDrawData.Dispose();
+            ScaledTileTarget.Dispose();
+
+            Instance = null;
+        }
+
         private void Projectile_Update(On.Terraria.Projectile.orig_Update orig, Projectile self, int i)
         {
             ScreenMapPass.Instance.GetMap("TileReflectableMap").DrawToBatchedTarget((spriteBatch) =>

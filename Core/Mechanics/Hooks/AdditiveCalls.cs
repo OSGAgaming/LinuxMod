@@ -25,6 +25,11 @@ namespace LinuxMod.Core.Mechanics
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
         }
 
+        public override void Unload()
+        {
+            Instance = null;
+            On.Terraria.Main.DrawWoF -= Main_DrawWoF;
+        }
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;

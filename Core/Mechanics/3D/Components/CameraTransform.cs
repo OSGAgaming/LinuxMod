@@ -34,7 +34,7 @@ namespace LinuxMod.Core.Mechanics
 
         public FrustrumType ProjectionType;
 
-        public CameraTransform(Vector3 direction, float fieldOfView = MathHelper.PiOver2, FrustrumType frustrum = FrustrumType.FOV, float nearPlane = .1f, float farPlane = 5000f, float scale = 1)
+        public CameraTransform(Vector3 direction, float fieldOfView = MathHelper.PiOver2, FrustrumType frustrum = FrustrumType.FOV, float nearPlane = .1f, float farPlane = 50000f, float scale = 1)
         {
             Direction = direction;
             FieldOfView = fieldOfView;

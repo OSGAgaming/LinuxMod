@@ -25,8 +25,10 @@ namespace LinuxMod.Core.Mechanics
 
         public static CameraTransform UICamera { get; set; }
 
-        public static void PrepareRenderer()
+        public static void Load()
         {
+            DepthBuffer.Load();
+
             InitializeCameras();
             RegisterLayers();
         }
@@ -42,7 +44,12 @@ namespace LinuxMod.Core.Mechanics
             DepthBuffer.RegisterLayer(new DepthLayer(2, new CameraTransform(Vector3.UnitZ)), "Logger");
         }
 
-        public static void Unload() => DepthBuffer.Unload();
+        public static void Unload()
+        {
+            DepthBuffer.Unload();
+            DefaultCamera = null;
+            UICamera = null;
+        }
         
 
         public static void DrawSceneToTarget(LintitySet scene, SpriteBatch sb)

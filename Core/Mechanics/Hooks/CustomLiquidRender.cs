@@ -13,6 +13,11 @@ namespace LinuxMod.Core.Mechanics
         public static LiquidRender Instance;
         public LiquidHost liquidHost = new LiquidHost();
 
+        public override void OnLoad()
+        {
+            liquidHost = new LiquidHost();
+        }
+
         public override void AddHooks()
         {
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
@@ -20,6 +25,13 @@ namespace LinuxMod.Core.Mechanics
             Instance = this;
         }
 
+        public override void Unload()
+        {
+            Instance = null;
+
+            On.Terraria.Main.DrawWoF -= Main_DrawWoF;
+            On.Terraria.Main.UpdateDisplaySettings -= Main_UpdateDisplaySettings1;
+        }
         private void Main_UpdateDisplaySettings1(On.Terraria.Main.orig_UpdateDisplaySettings orig, Main self)
         {
 

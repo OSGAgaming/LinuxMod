@@ -50,7 +50,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
         public static int OffsetVector4() { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
     }
 
-    public class SeamapWater : ILayeredDraw, ILoadable
+    public class WaterMeshContainer3D : ILayeredDraw, ILoad
     {
         public RenderTarget2D OcclusionMap;
         public RenderTarget2D ReverseOcclusionMap;
@@ -64,11 +64,11 @@ namespace LinuxMod.Core.Mechanics.Primitives
         public RenderTarget2D WaterTarget;
         public RenderTarget2D WaterOcclusion;
 
-        public List<SeamapWaterMesh> Meshes;
+        public List<WaterMesh3D> Meshes;
         public Action<SpriteBatch, int> ReflectionCalls;
         public Action<SpriteBatch, int> SkyboxCall;
 
-        public string Layer { get; set; } = "Seamap";
+        public string Layer { get; set; } = "Water";
 
         public void AppendReflectionCall(Action<SpriteBatch, int> call) => ReflectionCalls += call;
 
@@ -76,12 +76,20 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
         public void Draw(SpriteBatch sb)
         {
+            LinuxTechTips.DrawRectangle(new Rectangle(0, 100, 100, 100), Color.Red, 1);
+            LinuxTechTips.DrawRectangle(new Rectangle(0, 200, 100, 100), Color.Red, 1);
+            LinuxTechTips.DrawRectangle(new Rectangle(0, 300, 100, 100), Color.Red, 1);
 
+            sb.Draw(AboveWater, new Rectangle(0, 100, 100, 100), Color.White);
+            sb.Draw(BelowWater, new Rectangle(0, 200, 100, 100), Color.White);
+            sb.Draw(ReverseOcclusionMap, new Rectangle(0, 300, 100, 100), Color.White);
+
+            DrawWater(sb);
         }
 
         public void DrawInverseWaterMeshes(SpriteBatch sb)
         {
-            foreach (SeamapWaterMesh Mesh in Meshes)
+            foreach (WaterMesh3D Mesh in Meshes)
             {
                 Mesh.DrawWaterInverse(sb);
             }
@@ -89,7 +97,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
         public void DrawWaterMeshes(SpriteBatch sb, Color color)
         {
-            foreach (SeamapWaterMesh Mesh in Meshes)
+            foreach (WaterMesh3D Mesh in Meshes)
             {
                 Mesh.DrawWater(sb, color);
             }
@@ -97,18 +105,25 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
         public void DrawWaterMeshesEffect(SpriteBatch sb, Effect effect)
         {
-            foreach (SeamapWaterMesh Mesh in Meshes)
+            foreach (WaterMesh3D Mesh in Meshes)
             {
                 Mesh.param = (e) =>
                 {
                     DepthLayer currentlayer = DepthBuffer.GetLayer(Mesh.Layer);
 
-                    e.Parameters["WorldViewProjection"].SetValue(
-                        currentlayer.Camera.ViewMatrix *
-                        currentlayer.Camera.ProjectionMatrix *
-                        currentlayer.Camera.WorldMatrix);
-
-                    e.Parameters["dUdVMap"].SetValue(Asset.GetTexture(Asset.NoiseDirectory + "noise2"));
+                    e.Parameters["WorldViewProjection"].SetValue(currentlayer.Camera.ViewMatrix * currentlayer.Camera.ProjectionMatrix);
+                    e.Parameters["dUdVMap"].SetValue(Asset.GetTexture(Asset.NoiseDirectory + "dUdVTexture"));
+                    e.Parameters["progress"].SetValue(Main.GameUpdateCount / 1000f);
+                    e.Parameters["coordDensity"].SetValue(new Vector2(3f, 3f));
+                    e.Parameters["Target"].SetValue(currentlayer.Camera.Transform.Position);
+                    e.Parameters["NormalMap"].SetValue(Asset.GetTexture(Asset.NoiseDirectory + "WaterNormalMap"));
+                    e.Parameters["World"].SetValue(Matrix.Identity);
+                    e.Parameters["SpecularPower"].SetValue(2f);
+                    e.Parameters["LightDirection"].SetValue(new Vector3(0f, 1f, 0.5f));
+                    e.Parameters["distortionCoefficient"].SetValue(0.01f);
+                    e.Parameters["tint"].SetValue(new Vector4(0, 0.3f, 0.5f, 1.0f));
+                    e.Parameters["lerptint"].SetValue(0.2f);
+                    e.Parameters["reflectivity"].SetValue(0.6f);
                 };
                 Mesh.DrawEffectWater(sb, effect);
             }
@@ -136,12 +151,13 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             DrawWaterMeshes(sb, Color.Black);
 
-            DepthBuffer.GetLayer(Layer).DrawAllCalls(sb);
+            DepthBuffer.GetLayer("Seamap").DrawAllCalls(sb);
 
             sb.End();
 
             Main.graphics.GraphicsDevice.SetRenderTarget(EntityMap);
-            Main.graphics.GraphicsDevice.Clear(Color.Transparent);
+            Main.graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.Stencil,
+                 Color.Transparent, 0, 0);
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
@@ -155,16 +171,22 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            DepthBuffer.GetLayer(Layer).DrawAllCalls(sb);
+            DepthBuffer.GetLayer("Seamap").DrawAllCalls(sb);
 
             sb.End();
+
+            DrawAboveWater(sb);
+            DrawBelowWater(sb);
 
             Main.graphics.GraphicsDevice.SetRenderTarget(WaterTarget);
             Main.graphics.GraphicsDevice.Clear(Color.Transparent);
 
             sb.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            DrawWaterMeshesEffect(sb, LinuxMod.DUDVMap);
+            LinuxMod.dUdVMap.Parameters["reflectionMap"].SetValue(AboveWater);
+            LinuxMod.dUdVMap.Parameters["refractionMap"].SetValue(BelowWater);
+
+            DrawWaterMeshesEffect(sb, LinuxTechTips.GetScreenShader("dUdVMap").Shader);
 
             sb.End();
         }
@@ -182,10 +204,11 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            LinuxMod.WaterOcclusionEffect.Parameters["occlusionTexture"].SetValue(ReverseOcclusionMap);
-            LinuxMod.WaterOcclusionEffect.Parameters["inverse"].SetValue(0);
-            LinuxMod.WaterOcclusionEffect.CurrentTechnique.Passes[0].Apply();
+            LinuxMod.WaterOcclusion.Parameters["occlusionTexture"].SetValue(ReverseOcclusionMap);
+            LinuxMod.WaterOcclusion.Parameters["inverse"].SetValue(0);
+            LinuxMod.WaterOcclusion.CurrentTechnique.Passes[0].Apply();
 
+            //LinuxTechTips.GetScreenShader("PixelationShader").Shader.CurrentTechnique.Passes[0].Apply();
             sb.Draw(ReverseEntityMap, OcclusionMap.Bounds, OcclusionMap.Bounds, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
 
             sb.End();
@@ -203,11 +226,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             sb.End();
 
-            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
-
-            LinuxMod.WaterOcclusionEffect.Parameters["occlusionTexture"].SetValue(OcclusionMap);
-            LinuxMod.WaterOcclusionEffect.Parameters["inverse"].SetValue(1);
-            LinuxMod.WaterOcclusionEffect.CurrentTechnique.Passes[0].Apply();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
             sb.Draw(EntityMap, OcclusionMap.Bounds, OcclusionMap.Bounds, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
 
@@ -228,9 +247,9 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            LinuxMod.WaterOcclusionEffect.Parameters["occlusionTexture"].SetValue(ReverseOcclusionMap);
-            LinuxMod.WaterOcclusionEffect.Parameters["inverse"].SetValue(1);
-            LinuxMod.WaterOcclusionEffect.CurrentTechnique.Passes[0].Apply();
+            LinuxMod.WaterOcclusion.Parameters["occlusionTexture"].SetValue(ReverseOcclusionMap);
+            LinuxMod.WaterOcclusion.Parameters["inverse"].SetValue(1);
+            LinuxMod.WaterOcclusion.CurrentTechnique.Passes[0].Apply();
 
             sb.Draw(ReverseEntityMap, OcclusionMap.Bounds, OcclusionMap.Bounds, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
 
@@ -242,15 +261,8 @@ namespace LinuxMod.Core.Mechanics.Primitives
             sb.End();
             sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
-            LinuxMod.ReflectRefractEffect.Parameters["reflectionMap"].SetValue(AboveWater);
-            LinuxMod.ReflectRefractEffect.Parameters["refractionMap"].SetValue(BelowWater);
-            LinuxMod.ReflectRefractEffect.Parameters["oclMap"].SetValue(WaterOcclusion);
-            LinuxMod.ReflectRefractEffect.Parameters["colorMod"].SetValue(new Vector4(1.3f, 1.3f, 0.6f, 1f));
-            LinuxMod.ReflectRefractEffect.Parameters["reflectionCoefficient"].SetValue(0.4f);
-            LinuxMod.ReflectRefractEffect.Parameters["refractionCoefficient"].SetValue(1);
-            LinuxMod.ReflectRefractEffect.Parameters["distortionCoefficient"].SetValue(0.1f);
-
-            LinuxMod.ReflectRefractEffect.CurrentTechnique.Passes[0].Apply();
+            LinuxMod.WaterReflection.Parameters["oclMap"].SetValue(WaterOcclusion);
+            LinuxMod.WaterReflection.CurrentTechnique.Passes[0].Apply();
 
             sb.Draw(WaterTarget, DepthBuffer.GetLayer("Seamap").Destination, DepthBuffer.GetLayer("Seamap").ScissorSource, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f);
 
@@ -265,9 +277,9 @@ namespace LinuxMod.Core.Mechanics.Primitives
             LinuxTechTips.DrawRectangle(new Rectangle(0, 200, 100, 100), Color.Red, 1);
             LinuxTechTips.DrawRectangle(new Rectangle(0, 300, 100, 100), Color.Red, 1);
 
-            sb.Draw(BelowWater, new Rectangle(0, 100, 100, 100), Color.White);
-            sb.Draw(AboveWater, new Rectangle(0, 200, 100, 100), Color.White);
-            sb.Draw(WaterTarget, new Rectangle(0, 300, 100, 100), Color.White);
+            sb.Draw(EntityMap, new Rectangle(0, 100, 100, 100), Color.White);
+            sb.Draw(BelowWater, new Rectangle(0, 200, 100, 100), Color.White);
+            sb.Draw(EntityMap, new Rectangle(0, 300, 100, 100), Color.White);
 
             DrawWater(sb);
         }
@@ -285,7 +297,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
                 LocalRenderer.GraphicsDeviceManager.GraphicsDevice.PresentationParameters.BackBufferFormat,
                 DepthFormat.Depth24);
             BelowWater = new RenderTarget2D(Main.graphics.GraphicsDevice, LocalRenderer.MaxResolution.X, LocalRenderer.MaxResolution.Y, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-            Meshes = new List<SeamapWaterMesh>();
+            Meshes = new List<WaterMesh3D>();
         }
 
         public void Unload()
@@ -294,15 +306,15 @@ namespace LinuxMod.Core.Mechanics.Primitives
         }
     }
 
-    public class SeamapWaterMesh : QuadMesh
+    public class WaterMesh3D : QuadMesh
     {
         public Color InternalColor;
 
-        public SeamapWaterMesh(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Color color = default, string layer = "Default", Texture2D texture = null, Effect effect = null) :
+        public WaterMesh3D(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, WaterMeshContainer3D parent, Color color = default, string layer = "Default", Texture2D texture = null, Effect effect = null) :
             base(v1, v2, v3, v4, Color.Black, layer, texture, effect)
         {
             InternalColor = color;
-            LinuxMod.GetLoadable<SeamapWater>().Meshes.Add(this);
+            parent?.Meshes.Add(this);
         }
 
         public void DrawWaterInverse(SpriteBatch sb)
@@ -372,17 +384,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
 
             for (int i = 0; i < vertices.Length; i++)
                 vertices[i].Color = Color.Blue;
-            //param?.Invoke(effect);
-            LinuxMod.DUDVMap.Parameters["WorldViewProjection"].SetValue(currentlayer.Camera.ViewMatrix * currentlayer.Camera.ProjectionMatrix);
-            LinuxMod.DUDVMap.Parameters["dUdVMap"].SetValue(Asset.GetTexture(Asset.NoiseDirectory + "dUdVTexture"));
-            LinuxMod.DUDVMap.Parameters["progress"].SetValue(Main.GameUpdateCount / 1000f);
-            LinuxMod.DUDVMap.Parameters["coordDensity"].SetValue(new Vector2(3f, 3f));
-            LinuxMod.DUDVMap.Parameters["Target"].SetValue(currentlayer.Camera.Transform.Position);
-            LinuxMod.DUDVMap.Parameters["NormalMap"].SetValue(Asset.GetTexture(Asset.NoiseDirectory + "WaterNormalMap"));
-            LinuxMod.DUDVMap.Parameters["World"].SetValue(Matrix.Identity);
-            LinuxMod.DUDVMap.Parameters["SpecularPower"].SetValue(2);
-
-            LinuxMod.DUDVMap.CurrentTechnique.Passes["Reflect"].Apply();
+            param?.Invoke(effect);
 
             vertexBuffer.SetData(vertices);
             indexBuffer.SetData(indices);
@@ -393,7 +395,11 @@ namespace LinuxMod.Core.Mechanics.Primitives
             sb.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             sb.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            sb.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexPointer, 0, indexPointer / 3);
+            foreach (EffectPass pass in LinuxMod.dUdVMap.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                sb.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertexPointer, 0, indexPointer / 3);
+            }
         }
     }
 }

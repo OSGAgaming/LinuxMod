@@ -16,7 +16,14 @@ namespace LinuxMod.Core.Mechanics
         public Map Maps;
 
         public static ScreenMapPass Instance;
-        public MapPass GetMap(string String) => Maps.Get(String);
+        public MapPass GetMap(string String) => Maps?.Get(String);
+
+        public override void Unload()
+        {
+            Maps = null;
+            Instance = null;
+        }
+
         public override void OnLoad()
         {
             Maps = new Map();

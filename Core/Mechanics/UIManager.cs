@@ -13,7 +13,7 @@ using Terraria.UI;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class UIManager : IUpdateableGT, ILoadable
+    public class UIManager : IUpdateableGT, ILoad
     {
         private readonly Dictionary<string, UserInterface> UIInterfaces = new Dictionary<string, UserInterface>();
         internal readonly Dictionary<string, UIState> UIStates = new Dictionary<string, UIState>();

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using Terraria;
@@ -20,24 +19,46 @@ namespace LinuxMod.Core.Mechanics
     {
         public Model Model { get; private set; }
 
-        public Effect Effect { get; set; }
+        public Effect Effect { get; private set; }
 
         public string Layer { get; set; }
+
+        public int DiffusePointer { get; set; }
 
         public Transform Transform;
 
         public bool HasTexture;
         public string TexturePath;
         public Action<Effect> ShaderParameters;
+        public Vector3 FogColor;
+        public float YCull = -float.MaxValue;
+        public List<Vector3> Colors;
 
-        public ModelComponent(Model currentModelInput, bool HasTexture = false)
+        public ModelComponent(Model currentModelInput, bool HasTexture = false, Effect effect = null)
         {
             Model model = currentModelInput;
             Model = model;
             this.HasTexture = HasTexture;
 
             Transform.Scale = 1;
-            Effect = null;
+            Effect = effect;
+            Colors = new List<Vector3>();
+
+            if (effect == null)
+                return;
+
+            foreach (ModelMesh mesh in Model.Meshes)
+            {
+                foreach (Effect effects in mesh.Effects)
+                {
+                    if (effects is BasicEffect _effect)
+                    {
+                        Colors.Add(_effect.DiffuseColor);
+                    }
+                }
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect.Clone();
+            }
         }
 
         public void Update() { }
@@ -59,18 +80,17 @@ namespace LinuxMod.Core.Mechanics
 
             LocalRenderer.GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
+            DiffusePointer = 0;
             foreach (ModelMesh mesh in Model.Meshes)
             {
-
                 if (Effect != null)
                 {
-                    foreach (ModelMeshPart part in mesh.MeshParts)
+                    foreach (Effect currentEffect in mesh.Effects)
                     {
-                        part.Effect = Effect;
-                        Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
-                        Effect.Parameters["View"].SetValue(view);
-                        Effect.Parameters["Projection"].SetValue(projection);
-                        ShaderParameters?.Invoke(Effect);
+                        currentEffect.Parameters["matWorldViewProj"]?.SetValue(mesh.ParentBone.Transform * world * view * projection);
+                        currentEffect.Parameters["matWorld"]?.SetValue(mesh.ParentBone.Transform * world);
+
+                        ShaderParameters?.Invoke(currentEffect);
                     }
                 }
                 else
@@ -98,9 +118,9 @@ namespace LinuxMod.Core.Mechanics
                             effect.Projection = projection;
                             effect.FogEnabled = true;
                             effect.FogEnd = 4000f;
-                            effect.FogStart = 2000f;
+                            effect.FogStart = 1000f;
+                            effect.FogColor = FogColor;
                             effect.PreferPerPixelLighting = true;
-                            effect.FogColor = new Vector3(1);
                         }
                     }
                 }

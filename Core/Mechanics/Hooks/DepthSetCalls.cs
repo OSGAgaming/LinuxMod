@@ -16,6 +16,8 @@ namespace LinuxMod.Core.Mechanics
     public class DepthSetCalls : Mechanic
     {
         public static DepthSetCalls Instance;
+        public static Action<SpriteBatch> OnPreDraw;
+        public static Action OnPreUpdate;
         public LintitySet CurrentLintitySet;
 
         public override void AddHooks()
@@ -25,6 +27,15 @@ namespace LinuxMod.Core.Mechanics
             Main.OnPreDraw += Main_OnPreDraw;
         }
 
+        public override void Unload()
+        {
+            On.Terraria.Main.DrawWoF -= Main_DrawWoF;
+            Main.OnPreDraw -= Main_OnPreDraw;
+
+            CurrentLintitySet = null;
+            Instance = null;
+            OnPreDraw = null;
+        }
         private void Main_OnPreDraw(GameTime obj)
         {
             RenderTargetBinding[] oldtargets = Main.graphics.GraphicsDevice.GetRenderTargets();
@@ -35,14 +46,10 @@ namespace LinuxMod.Core.Mechanics
             if (CurrentLintitySet != null)
                 DepthBuffer.DrawLayersToTarget(CurrentLintitySet, Main.spriteBatch);
 
-            //LinuxMod.GetLoadable<SeamapWater>().DrawWaterMeshes(Main.spriteBatch);
-            LinuxMod.GetLoadable<SeamapWater>().DrawOcclusionMap(Main.spriteBatch);
-            LinuxMod.GetLoadable<SeamapWater>().RenderWaterOcclusion(Main.spriteBatch);
-            LinuxMod.GetLoadable<SeamapWater>().DrawAboveWater(Main.spriteBatch);
-            LinuxMod.GetLoadable<SeamapWater>().DrawBelowWater(Main.spriteBatch);
+            OnPreDraw?.Invoke(Main.spriteBatch);
+            OnPreUpdate?.Invoke();
 
             DepthBuffer.ClearCalls();
-            LinuxMod.GetLoadable<SeamapWater>().ClearCalls();
 
             Main.graphics.GraphicsDevice.SetRenderTargets(oldtargets);
 
@@ -53,8 +60,7 @@ namespace LinuxMod.Core.Mechanics
             CurrentLintitySet?.Update();
 
             DepthBuffer.DrawLayers(Main.spriteBatch);
-            LinuxMod.GetLoadable<SeamapWater>().DrawTargets(Main.spriteBatch);
-
+            //SeamapComponents.WaterContainer.Draw(Main.spriteBatch);
             orig(self);
         }
     }

@@ -18,7 +18,7 @@ namespace LinuxMod.Core.Mechanics
 {
     public class ReflectableModel : ModelComponent, IReflectable
     {
-        public ReflectableModel(Model model, bool HasTexture) : base(model, HasTexture) { }
+        public ReflectableModel(Model model, bool HasTexture = false, Effect effect = null) : base(model, HasTexture, effect) { }
 
         public void ReflectDraw(SpriteBatch spriteBatch, int Yplane)
         {
@@ -28,7 +28,7 @@ namespace LinuxMod.Core.Mechanics
                     * Matrix.CreateRotationZ(Transform.Rotation.Z)
                     * Matrix.CreateScale(Transform.Scale)
                     * Matrix.CreateWorld(Transform.Position, Vector3.Forward, Vector3.Up); //Move the models position;
-              
+
             // Get camera matrices.
             CameraTransform camera = DepthBuffer.GetLayer(Layer).Camera;
 
@@ -41,19 +41,23 @@ namespace LinuxMod.Core.Mechanics
             Matrix projection = camera.ProjectionMatrix;
 
             LocalRenderer.GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            LocalRenderer.GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+
+            DiffusePointer = 0;
 
             foreach (ModelMesh mesh in Model.Meshes)
             {
-
                 if (Effect != null)
                 {
-                    foreach (ModelMeshPart part in mesh.MeshParts)
+                    foreach (Effect currentEffect in mesh.Effects)
                     {
-                        part.Effect = Effect;
-                        Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * world);
-                        Effect.Parameters["View"].SetValue(view);
-                        Effect.Parameters["Projection"].SetValue(projection);
-                        ShaderParameters?.Invoke(Effect);
+                        ShaderParameters?.Invoke(currentEffect);
+
+                        currentEffect.Parameters["matWorldViewProj"].
+                           SetValue(mesh.ParentBone.Transform * world * view * projection);
+                        currentEffect.Parameters["matWorld"].SetValue(mesh.ParentBone.Transform * world);
+                        currentEffect.Parameters["vecEye"].SetValue(new Vector4(ViewTransform, -1));
+                        currentEffect.Parameters["YCull"].SetValue(0);
                     }
                 }
                 else
@@ -83,7 +87,7 @@ namespace LinuxMod.Core.Mechanics
                             effect.FogEnd = 4000f;
                             effect.FogStart = 2000f;
                             effect.PreferPerPixelLighting = true;
-                            effect.FogColor = new Vector3(1);
+                            effect.FogColor = FogColor;
                         }
                     }
                 }

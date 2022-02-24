@@ -15,7 +15,7 @@ namespace LinuxMod.Core.Mechanics
 
         public EntityFocalCamera(
             Lintity entity, Vector3 cameraDirection, float fieldOfView = MathHelper.PiOver4,
-            FrustrumType frustrum = FrustrumType.FOV, float nearPlane = 1f, float farPlane = 5000f, bool Static = false)
+            FrustrumType frustrum = FrustrumType.FOV, float nearPlane = 1f, float farPlane = 50000f, bool Static = false)
 
             : base(cameraDirection, fieldOfView, frustrum, nearPlane, farPlane)
         {

@@ -12,13 +12,24 @@ namespace LinuxMod.Core.Mechanics
     public class PrimitivePass : Mechanic
     {
         public static PrimitivePass Instance;
-        public PrimitiveManager Primitives = new PrimitiveManager();
+        public PrimitiveManager Primitives;
+
+        public override void OnLoad()
+        {
+            Primitives = new PrimitiveManager();
+        }
         public override void AddHooks()
         {
             On.Terraria.Main.DrawProjectiles += Main_DrawProjectiles;
             Instance = this;
         }
 
+        public override void Unload()
+        {
+            On.Terraria.Main.DrawProjectiles -= Main_DrawProjectiles;
+            Primitives = null;
+            Instance = null;
+        }
         private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
             Primitives.Draw(Main.spriteBatch);
@@ -26,6 +37,5 @@ namespace LinuxMod.Core.Mechanics
         }
 
         public void CreateTrail(Primitive PT) => Primitives._trails.Add(PT);
-
     }
 }

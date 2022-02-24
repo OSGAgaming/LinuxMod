@@ -13,9 +13,11 @@ namespace LinuxMod.Core.Mechanics
 {
     public static class AutoloadMechanics
     {
-        public static List<Mechanic> MechanicsCache = new List<Mechanic>();
+        public static List<Mechanic> MechanicsCache;
         public static void Load()
         {
+            MechanicsCache = new List<Mechanic>();
+
             Type[] Mechanics = LinuxTechTips.GetInheritedClasses(typeof(Mechanic));
             foreach (Type type in Mechanics)
             {
@@ -23,6 +25,15 @@ namespace LinuxMod.Core.Mechanics
                 m.Load();
                 MechanicsCache.Add(m);
             }
+        }
+
+        public static void Unload()
+        {
+            foreach (Mechanic type in MechanicsCache)
+                type.Unload();
+
+            MechanicsCache.Clear();
+            MechanicsCache = null;
         }
     }
 }

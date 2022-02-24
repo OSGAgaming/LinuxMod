@@ -10,7 +10,7 @@ using Terraria.ModLoader;
 
 namespace LinuxMod.Core.Mechanics.Verlet
 {
-    public class VerletSystem : ILoadable
+    public class VerletSystem : ILoad
     {
         private int RENDERDISTANCE => 2000;
 

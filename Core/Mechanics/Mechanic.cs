@@ -41,5 +41,7 @@ namespace LinuxMod.Core.Mechanics
             AddHooks();
             OnLoad();
         }
+
+        public virtual void Unload() { }
     }
 }

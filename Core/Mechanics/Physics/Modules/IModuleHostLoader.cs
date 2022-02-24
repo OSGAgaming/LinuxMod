@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 
 namespace LinuxMod.Core.Mechanics
 {
@@ -7,6 +8,8 @@ namespace LinuxMod.Core.Mechanics
     {
         public static void Load()
         {
+            Module.HostCache = new List<IModuleHost>();
+
             Type[] Mechanics = LinuxTechTips.GetInheritedClasses(typeof(Module));
             Type classType = typeof(ModuleHost<>);
 
@@ -17,6 +20,12 @@ namespace LinuxMod.Core.Mechanics
 
                 Module.HostCache.Add(m);
             }
+        }
+
+        public static void Unload()
+        {
+            Module.HostCache.Clear();
+            Module.HostCache = null;
         }
     }
 

@@ -12,7 +12,7 @@ namespace LinuxMod.Core.Mechanics
 {
     public class Module : IPhysicsModule
     {
-        public static List<IModuleHost> HostCache = new List<IModuleHost>();
+        public static List<IModuleHost> HostCache;
 
         public static ModuleHost<T> GetHost<T>() where T : IPhysicsModule
         {

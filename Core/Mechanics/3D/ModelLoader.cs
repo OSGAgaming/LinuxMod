@@ -35,6 +35,8 @@ namespace LinuxMod.Core.Mechanics
         public static Model Clouds;
         public static Model Skybox;
         public static Model SeamapSkybox;
+        public static Model Lake;
+        public static Model Mountains;
 
         public static ContentManager contentManager;
         public static MethodInfo create_ContentReader;

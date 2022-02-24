@@ -5,13 +5,31 @@ matrix World;
 float progress;
 float2 coordDensity;
 float3 Target;
+float3 LightDirection;
 
 float SpecularPower;
+float distortionCoefficient;
+
+float4 tint;
+float lerptint;
+float reflectivity;
 
 texture dUdVMap;
 sampler dUdVSampler = sampler_state
 {
     Texture = (dUdVMap);
+};
+
+texture reflectionMap;
+sampler reflectionSampler = sampler_state
+{
+    Texture = (reflectionMap);
+};
+
+texture refractionMap;
+sampler refractionSampler = sampler_state
+{
+    Texture = (refractionMap);
 };
 
 struct VertexShaderInput
@@ -27,7 +45,8 @@ struct VertexShaderOutput
     float4 Position : SV_POSITION;
     float4 Color : COLOR0;
     float3 View : TEXCOORD1;
-    float3x3 worldToTangentSpace : TEXCOORD2;
+    //float3x3 worldToTangentSpace : TEXCOORD2;
+    float4 clipSpace : TEXCOORD2;
 };
 
 texture2D NormalMap;
@@ -55,19 +74,20 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
     output.Color = input.Color;
 
-    output.worldToTangentSpace[0] = mul(normalize(float3(0, -1, 0)), World);
-    output.worldToTangentSpace[1] = mul(normalize(float3(1, 0, 0)), World);
-    output.worldToTangentSpace[2] = mul(normalize(float3(0, 0, 1)), World);
-    
+    //output.worldToTangentSpace[0] = mul(normalize(float3(0, 1, 0)), World);
+    //output.worldToTangentSpace[1] = mul(normalize(float3(1, 0, 0)), World);
+    //output.worldToTangentSpace[2] = mul(normalize(float3(0, 0, 1)), World);
+   
     output.TextureCoordinates = input.TextureCoordinates;
     output.View = normalize(float4(Target, 1.0) - mul(input.Position, World));
+    output.clipSpace = pos;
     
     return output;
 }
 
-float4 GetNoise(float2 Coord)
+float2 GetNoise(float2 Coord)
 {
-    return tex2D(dUdVSampler, Coord);
+    return tex2D(dUdVSampler, Coord).rg;
 }
 
 float GetColor(float4 color)
@@ -76,31 +96,49 @@ float GetColor(float4 color)
 }
 
 float4 Noise(VertexShaderOutput input) : COLOR
-{
-    float d1 = GetColor(GetNoise((input.TextureCoordinates * coordDensity.x + float2(progress, progress)) % 1));
-    float d2 = GetColor(GetNoise((input.TextureCoordinates * coordDensity.y - float2(progress, progress)) % 1));
+{    
+    float2 d1 = GetNoise((input.TextureCoordinates * coordDensity.x + float2(progress, progress)) % 1) * 2.0f - 1;
+    float2 d2 = GetNoise((input.TextureCoordinates * coordDensity.y - float2(progress, progress)) % 1) * 2.0f - 1;
 
     float4 Color = input.Color;
       // Get the Color of the normal. The color describes the direction of the normal vector
       // and make it range from 0 to 1.
-    float3 n1 = tex2D(NormalMapSampler, input.TextureCoordinates * coordDensity.x + float2(progress, progress) % 1);
-    float3 n2 = tex2D(NormalMapSampler, input.TextureCoordinates * coordDensity.y - float2(progress, progress) % 1);
-
-    float3 N = (2.0 * (n1 * n2)) - 1.0f;
+        
+    float2 n1 = GetNoise((input.TextureCoordinates * coordDensity + float2(progress, 0)) % 1).rg * 0.1f;
+    n1 = input.TextureCoordinates * coordDensity + float2(n1.x, n1.y + progress);
     
-    N = normalize(mul(N, input.worldToTangentSpace));
+    float4 normal = tex2D(NormalMapSampler, n1 % 1);
+    float3 N = float3(normal.r * 2 - 1, normal.b, normal.g * 2 - 1);
+
+    float3x3 worldToTangentSpace;
+    
+    worldToTangentSpace[0] = float3(0, 1, 0);
+    worldToTangentSpace[1] = float3(1, 0, 0);
+    worldToTangentSpace[2] = float3(0, 0, 1);
+    
+    N = normalize(mul(N, worldToTangentSpace));
     
       // diffuse
-    float3 Light = float3(0, -1, 0);
+    float3 Light = LightDirection;
     float D = saturate(dot(N, Light));
       // reflection
-    float3 R = normalize(2 * D * N - Light);
+    float3 R = reflect(normalize(D), N);
       // specular
-    float S = pow(saturate(dot(R, input.View)), SpecularPower);
+    float S = pow(saturate(dot(R, input.View)), SpecularPower) * reflectivity;
 
-    float Distortion = d1 * d2;
+    float2 Distortion = d1 + d2;
+    float2 distortionVec = Distortion * distortionCoefficient;
+
+    float2 screenPos;
+    screenPos.x = input.clipSpace.x / input.clipSpace.w / 2.0f + 0.5f;
+    screenPos.y = -input.clipSpace.y / input.clipSpace.w / 2.0f + 0.5f;
     
-    return float4(Distortion, S, 0, 1);
+    float4 reflection = tex2D(reflectionSampler, float2(screenPos.x, 1 - screenPos.y) + distortionVec) + S;
+    float4 refraction = tex2D(refractionSampler, float2(screenPos.x, screenPos.y) + distortionVec) + S;
+    
+    float4 fresnelMix = lerp(reflection, refraction, abs(dot(input.View, float3(0, 1, 0))));
+    
+    return lerp(fresnelMix, tint, lerptint);
 }
 
 

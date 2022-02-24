@@ -11,11 +11,17 @@ namespace LinuxMod.Core.Mechanics
 {
     public static class DepthBuffer
     {
-        private static Dictionary<string, DepthLayer> layers = new Dictionary<string, DepthLayer>();
+        private static Dictionary<string, DepthLayer> layers;
 
         private static void Order() => layers.OrderBy(n => -n.Value.Priority);
 
-        public static void Unload() => layers.Clear();
+        public static void Load() => layers = new Dictionary<string, DepthLayer>();
+
+        public static void Unload()
+        {
+            layers.Clear();
+            layers = null;
+        }
 
         public static void RegisterLayer(DepthLayer layer, string name)
         {
@@ -64,7 +70,7 @@ namespace LinuxMod.Core.Mechanics
             if (layerName != null)
                 if (layers.ContainsKey(layerName))
                     return layers[layerName];
-           
+
             return layers["Default"];
         }
     }
@@ -140,7 +146,14 @@ namespace LinuxMod.Core.Mechanics
         {
             OnDraw();
 
+            sb.End();
+            sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone);
+
+            LayerEffect?.CurrentTechnique.Passes[0]?.Apply();
             sb.Draw(Target, Destination, ScissorSource, Color.White);
+
+            sb.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.TransformationMatrix);
         }
     }
 }

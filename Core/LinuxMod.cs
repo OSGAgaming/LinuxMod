@@ -5,6 +5,7 @@ using LinuxMod.Core.Subworlds;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Terraria;
 using Terraria.Graphics;
 using Terraria.ModLoader;
@@ -16,18 +17,18 @@ namespace LinuxMod.Core
     {
         private GameTime lastGameTime;
 
-        public static List<ILoadable> Loadables;
+        public static List<ILoad> Loadables;
 
         public override void Load()
         {
             if (!Main.dedServ)
             {
-                Loadables = new List<ILoadable>();
+                Loadables = new List<ILoad>();
 
-                Type[] loadables = LinuxTechTips.GetInheritedClasses(typeof(ILoadable));
+                Type[] loadables = LinuxTechTips.GetInheritedClasses(typeof(ILoad));
                 foreach (Type type in loadables)
                 {
-                    ILoadable loadable = Activator.CreateInstance(type) as ILoadable;
+                    ILoad loadable = Activator.CreateInstance(type) as ILoad;
                     loadable.Load();
 
                     Loadables.Add(loadable);
@@ -39,13 +40,15 @@ namespace LinuxMod.Core
                 ModelLoader.Load();
                 AutoloadMechanics.Load();
                 ModuleHostLoader.Load();
-                LocalRenderer.PrepareRenderer();
+                LocalRenderer.Load();
+
+                Debug.WriteLine("Loaded!");
             }
         }
 
         public static T GetLoadable<T>()
         {
-            foreach (ILoadable loadable in Loadables)
+            foreach (ILoad loadable in Loadables)
                 if (loadable is T) return (T)loadable;
 
             throw new NullReferenceException("Loadable could not be found");
@@ -92,6 +95,10 @@ namespace LinuxMod.Core
         {
             ModelLoader.Unload();
             LocalRenderer.Unload();
+            AutoloadMechanics.Unload();
+            ModuleHostLoader.Unload();
+             
+            UnloadShaders();
 
             for (int i = 0; i < Loadables.Count; i++)
                 Loadables[i] = null;
@@ -99,6 +106,9 @@ namespace LinuxMod.Core
             Loadables.Clear();
 
             Loadables = null;
+
+            Debug.WriteLine("Unloaded!");
+            Debug.WriteLine("");
         }
     }
 }

@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace LinuxMod
 {
-	public class SubworldInstanceManager : ILoadable
+	public class SubworldInstanceManager : ILoad
 	{
 		public bool IsSaving;
 

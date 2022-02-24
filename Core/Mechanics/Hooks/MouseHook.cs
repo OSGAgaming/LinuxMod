@@ -21,6 +21,10 @@ namespace LinuxMod.Core.Mechanics
             Main.OnPreDraw += Main_OnPreDraw;
         }
 
+        public override void Unload()
+        {
+            Main.OnPreDraw -= Main_OnPreDraw;
+        }
         private void Main_OnPreDraw(GameTime obj)
         {
             DeltaMouse = OldMouse - Main.MouseWorld;

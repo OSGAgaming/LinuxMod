@@ -11,7 +11,7 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class InsigniaHost : ILoadable
+    public class InsigniaHost : ILoad
     {
         public List<InsigniaAbility> Abilities = new List<InsigniaAbility>();
 

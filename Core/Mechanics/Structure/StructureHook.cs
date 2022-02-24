@@ -31,7 +31,7 @@ namespace LinuxMod.Core.Mechanics
         int delay;
 
         ModelComponent modelComponent = new ModelComponent(ModelLoader.Planet);
-        ModelComponent clouds = new ModelComponent(ModelLoader.Clouds);
+        ModelComponent clouds = new ModelComponent(ModelLoader.Clouds, false, LinuxMod.ExampleModelShader);
 
         private void Main_DrawProjectiles(On.Terraria.Main.orig_DrawProjectiles orig, Main self)
         {
@@ -73,8 +73,6 @@ namespace LinuxMod.Core.Mechanics
             modelComponent.Transform.Scale += ScaleVel;
             clouds.Transform.Scale += ScaleVel2;
 
-            modelComponent.Effect = null;
-            clouds.Effect = LinuxMod.ExampleModelShader;
             clouds.ShaderParameters = (effect) =>
             {
                 effect.Parameters["Progress"].SetValue(Main.GameUpdateCount);

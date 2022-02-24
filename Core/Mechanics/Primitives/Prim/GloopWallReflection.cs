@@ -44,7 +44,7 @@ namespace LinuxMod.Core.Mechanics.Primitives
         }
         public override void SetShaders()
         {
-            Effect effect = LinuxMod.PrimitiveShaders;
+            Effect effect = LinuxMod.PrimitiveShader;
             effect.Parameters["dimensions"].SetValue(water.frame.Size());
             effect.Parameters["averageDimensions"].SetValue(new Vector2(100,20));
             PrepareShader(effect, "WReflect", _counter);
