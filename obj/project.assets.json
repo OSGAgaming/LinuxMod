@@ -2,23 +2,23 @@
   "version": 3,
   "targets": {
     ".NETFramework,Version=v4.5": {
-      "tModLoader.CodeAssist/0.1.2": {
+      "tModLoader.CodeAssist/0.1.5": {
         "type": "package"
       }
     }
   },
   "libraries": {
-    "tModLoader.CodeAssist/0.1.2": {
-      "sha512": "o43lkrLmnOojQxVgmhmyAhCZV7DxL3gvcCaZvL7GcG7NH6hcyzSHFTM7tntoGthmx2OmOH8BUx1hZDhNhADV8Q==",
+    "tModLoader.CodeAssist/0.1.5": {
+      "sha512": "Sg/jKEg/z5eN+Cdi3/9CU4JfJwvXHVH+UDJf4Lipo26uTa+guLLJXH1XDJNPShTFwKK8jMUYbthINP4QhsgHSA==",
       "type": "package",
-      "path": "tmodloader.codeassist/0.1.2",
+      "path": "tmodloader.codeassist/0.1.5",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "NugetIcon.png",
         "analyzers/dotnet/cs/tModLoader.CodeAssist.dll",
-        "tmodloader.codeassist.0.1.2.nupkg.sha512",
+        "tmodloader.codeassist.0.1.5.nupkg.sha512",
         "tmodloader.codeassist.nuspec",
         "tools/install.ps1",
         "tools/uninstall.ps1"
@@ -31,19 +31,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tafid\\.nuget\\packages\\": {}
+    "C:\\Users\\Abubakar Tafida\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tafid\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\LinuxMod.csproj",
+      "projectUniqueName": "C:\\Users\\Abubakar Tafida\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\LinuxMod.csproj",
       "projectName": "LinuxMod",
-      "projectPath": "C:\\Users\\tafid\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\LinuxMod.csproj",
-      "packagesPath": "C:\\Users\\tafid\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tafid\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\obj\\",
+      "projectPath": "C:\\Users\\Abubakar Tafida\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\LinuxMod.csproj",
+      "packagesPath": "C:\\Users\\Abubakar Tafida\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Abubakar Tafida\\OneDrive\\Documents\\My Games\\Terraria\\ModLoader\\Mod Sources\\LinuxMod\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\tafid\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Abubakar Tafida\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -74,7 +74,7 @@
             "version": "[0.1.*, )"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.400\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }
