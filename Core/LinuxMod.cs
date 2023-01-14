@@ -41,6 +41,7 @@ namespace LinuxMod.Core
                 AutoloadMechanics.Load();
                 ModuleHostLoader.Load();
                 LocalRenderer.Load();
+                ParticulateStep.Load();
 
                 Debug.WriteLine("Loaded!");
             }
@@ -97,7 +98,8 @@ namespace LinuxMod.Core
             LocalRenderer.Unload();
             AutoloadMechanics.Unload();
             ModuleHostLoader.Unload();
-             
+            ParticulateStep.Unload();
+
             UnloadShaders();
 
             for (int i = 0; i < Loadables.Count; i++)

@@ -40,8 +40,8 @@ namespace LinuxMod.Core
         }
         public override void OnEnterWorld(Player player)
         {
-            if (!Main.LocalPlayer.GetModPlayer<SubworldPlayer>().InSubworld)
-                SubworldManager.EnterSubworld<SeamapSubworld>();
+            //if (!Main.LocalPlayer.GetModPlayer<SubworldPlayer>().InSubworld)
+            //    SubworldManager.EnterSubworld<CutsceneSubworld>();
         }
     }
 }
