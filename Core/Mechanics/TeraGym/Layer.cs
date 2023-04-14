@@ -16,7 +16,7 @@ namespace LinuxMod.Core.Mechanics
         public List<Node> nodes = new List<Node>();
         public int Size => nodes.Count;
 
-        private ActivationFunction activationFunction;
+        public ActivationFunction activationFunction;
 
         public NetLayer(int size, ActivationFunction activationFunction)
         {
@@ -51,6 +51,24 @@ namespace LinuxMod.Core.Mechanics
                 nodes[j].value += nodes[j].bias;
                 nodes[j].value = activationFunction.Compute(nodes[j].value);
             }
+        }
+
+        public float[] ComputeSoftMaxedLayer()
+        {
+            float totalE =  0;
+
+            foreach(Node n in nodes)
+            {
+                totalE += (float)Math.Pow(MathHelper.E, n.value);
+            }
+
+            float[] values = new float[Size];
+            for(int i = 0; i < Size; i++)
+            {
+                values[i] = ((float)Math.Pow(MathHelper.E, nodes[i].value)) / totalE;
+            }
+
+            return values;
         }
 
         public float Max()

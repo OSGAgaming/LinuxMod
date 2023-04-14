@@ -1,3 +1,4 @@
+using LinuxMod.Content.NPCs.Genetics;
 using LinuxMod.Core.Mechanics.Interfaces;
 using LinuxMod.Core.Mechanics.Primitives;
 using Microsoft.Xna.Framework;
@@ -12,45 +13,44 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class ParticulateHook : Mechanic
+    public class GeneticSimulationHook : Mechanic
     {
-        ParticulateHost PH;
-        private int MaxMistFields => 1;
+        private NPCSimulation<ExampleNPCAgent> simulation;
 
         public override void AddHooks()
         {
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
             Main.OnPreDraw += Main_OnPreDraw;
-            PH = new ParticulateHost();
         }
 
         public override void Unload()
         {
             On.Terraria.Main.DrawWoF -= Main_DrawWoF;
             Main.OnPreDraw -= Main_OnPreDraw;
-
-            PH = null;
         }
         private void Main_OnPreDraw(GameTime obj)
         {
-            PH?.Update();
+            if (!Main.gamePaused) simulation?.Update();
         }
 
         private void Main_DrawWoF(On.Terraria.Main.orig_DrawWoF orig, Main self)
         {
             orig(self);
-            /*
-            PH?.Draw(Main.spriteBatch);
 
-            if (LinuxInput.JustClicked && PH.Particulates.Count < MaxMistFields)
+            if (LinuxInput.JustClicked)
             {
-                PH?.GenerateMistField(Main.MouseWorld, 400, 600);
+                simulation = new NPCSimulation<ExampleNPCAgent>(
+                    ModContent.NPCType<ExampleAgent>(), 50, 
+                    (IDna, type) => new ExampleNPCAgent(IDna, type),
+                    (type) => new ExampleNPCAgent(type),
+                    0.03f, 120);
+
+                simulation.Deploy();
             }
-
-            if (Main.LocalPlayer.controlMount)
+            if (Main.LocalPlayer.controlUp)
             {
-                PH.Particulates.Clear();
-            }*/
+                simulation = null;
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace LinuxMod.Core.Mechanics
     {
         public override float Compute(float x)
         {
-            return 1 / (float)(1 + Math.Pow(MathHelper.E, -x));
+            return 1f / (float)(1 + Math.Pow(MathHelper.E, -x));
         }
     }
 

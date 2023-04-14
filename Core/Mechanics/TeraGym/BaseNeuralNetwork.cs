@@ -34,7 +34,7 @@ namespace LinuxMod.Core.Mechanics
         public void Draw(SpriteBatch sb, Vector2 position)
         {
             int horizontalSep = 100;
-            int verticalSep = 40;
+            int verticalSep = 20;
 
             for (int i = 0; i < Size; i++)
             {
@@ -42,7 +42,6 @@ namespace LinuxMod.Core.Mechanics
                 for (int j = 0; j < layer.Size; j++)
                 {
                     Vector2 v1 = position + new Vector2(i * horizontalSep, j * verticalSep);
-                    LinuxTechTips.DrawCircle(v1, new Vector2(4), Color.AliceBlue);
                     if (i > 0)
                     {
                         NetLayer lastLayer = GetLayer(i - 1);
@@ -51,9 +50,10 @@ namespace LinuxMod.Core.Mechanics
                             Vector2 v2 = position + new Vector2((i - 1) * horizontalSep, k * verticalSep);
                             float rawWeight = lastLayer.nodes[k].weights[j];
                             float weight = (rawWeight + 1) / 2f;
-                            LinuxTechTips.DrawLine(v1, v2, Color.Lerp(Color.IndianRed, Color.SeaGreen, weight), Math.Abs(rawWeight)*2);
+                            LinuxTechTips.DrawLine(v1, v2, Color.Lerp(Color.IndianRed, Color.SeaGreen, weight), Math.Abs(rawWeight) * 1f);
                         }
                     }
+                    LinuxTechTips.DrawCircle(v1, new Vector2(10), Color.Lerp(Color.AliceBlue, Color.Purple, layer.nodes[j].value));
                 }
             }
         }
@@ -74,9 +74,21 @@ namespace LinuxMod.Core.Mechanics
             return this;
         }
 
+        public BaseNeuralNetwork AddLayer(int size, ActivationFunction function)
+        {
+            HiddenLayers.Add(new NetLayer(size, function));
+            return this;
+        }
+
         public BaseNeuralNetwork SetOutput<T>(int size) where T : ActivationFunction, new()
         {
             Outputs = new NetLayer(size, new T());
+            return this;
+        }
+
+        public BaseNeuralNetwork SetOutput(int size, ActivationFunction function)
+        {
+            Outputs = new NetLayer(size, function);
             return this;
         }
 
@@ -87,6 +99,54 @@ namespace LinuxMod.Core.Mechanics
                 GetLayer(i).GenerateWeights(GetLayer(i + 1).Size, weightInitialisationFunction);
             }
             return this;
+        }
+
+        public IDna Combine(IDna combinee, float mutationRate)
+        {
+            BaseNeuralNetwork networkClone = new BaseNeuralNetwork(Inputs.Size);
+            for (int i = 0; i < HiddenLayers.Count; i++) networkClone.AddLayer(HiddenLayers[i].Size, HiddenLayers[i].activationFunction);
+            networkClone.SetOutput(Outputs.Size, Outputs.activationFunction);
+
+            networkClone.GenerateWeights(null);
+
+            if (combinee is BaseNeuralNetwork combineeNetwork)
+            {
+                for (int i = 0; i < Size - 1; i++)
+                {
+                    NetLayer layer = GetLayer(i);
+
+                    NetLayer cloneLayer = networkClone.GetLayer(i);
+                    NetLayer combineeLayer = combineeNetwork.GetLayer(i);
+                    for (int j = 0; j < layer.nodes.Count; j++)
+                    {
+                        if (Main.rand.NextFloat(1) > mutationRate)
+                        {
+                            cloneLayer.nodes[j].bias = (combineeLayer.nodes[j].bias + layer.nodes[j].bias) / 2f;
+                        }
+                        else
+                        {
+                            cloneLayer.nodes[j].bias = Main.rand.NextFloat(-1, 1);
+                        }
+
+                        for (int k = 0; k < layer.nodes[j].weights.Length; k++)
+                        {
+                            if (Main.rand.NextFloat(1) > mutationRate)
+                            {
+
+                                cloneLayer.nodes[j].weights[k] = (combineeLayer.nodes[j].weights[k] + layer.nodes[j].weights[k]) / 2f;
+                            }
+                            else
+                            {
+                                cloneLayer.nodes[j].weights[k] = (combineeLayer.nodes[j].weights[k] + layer.nodes[j].weights[k]) / 2f;
+                                cloneLayer.nodes[j].weights[k] += Main.rand.NextFloat(-1, 1);
+                            }
+                        }
+                    }
+                }
+
+                return networkClone;
+            }
+            return combinee;
         }
     }
 }

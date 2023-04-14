@@ -9,7 +9,7 @@ using LinuxMod.Core;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public interface INeuralNetwork
+    public interface INeuralNetwork : IDna
     {
         //Add something from the network to here
     }

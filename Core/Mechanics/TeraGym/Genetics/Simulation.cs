@@ -28,6 +28,17 @@ namespace LinuxMod.Core.Mechanics
             this.MaxSimulationTime = MaxSimulationTime;
         }
 
+        public virtual GeneticAgent InitialiseAgent() { return new GeneticAgent(); }
+        public virtual GeneticAgent InitialiseAgent(IDna dna) { return new GeneticAgent(dna); }
+
+        public void Deploy()
+        {
+            for (int i = 0; i < GenerationSize; i++)
+            {
+                Agents.Add(InitialiseAgent());
+            }
+        }
+
         public GeneticAgent PickFitnessWeightedAgent()
         {
             float totalFitness = 0;
@@ -51,7 +62,7 @@ namespace LinuxMod.Core.Mechanics
             for(int i = 0; i < GenerationSize; i++)
             {
                 IDna newDNA = PickFitnessWeightedAgent().Dna.Combine(PickFitnessWeightedAgent().Dna, MutationRate);
-                agents.Add(new GeneticAgent(newDNA));
+                agents.Add(InitialiseAgent(newDNA));
             }
 
             return agents;
@@ -60,18 +71,32 @@ namespace LinuxMod.Core.Mechanics
         public void Update()
         {
             Time++;
+            int inActivity = 0;
+
             foreach(GeneticAgent agent in Agents)
             {
-                if(agent is RuntimeGeneticAgent r) r.CalculateContinousFitness();
+                if (agent is ContinuosGeneticAgent r)
+                {
+                    r.Update();
+                    if (!r.IsActive()) inActivity++;
+                }
+                else
+                {
+                    inActivity++;
+                }
             }
-            if(Time % MaxSimulationTime == 0)
+
+            if(Time >= MaxSimulationTime || inActivity == Agents.Count)
             {
                 foreach (GeneticAgent agent in Agents)
                 {
-                    agent.CalculateFitness();
+                    if (agent is ContinuosGeneticAgent r) r.Kill();
+                    else agent.CalculateCurrentFitness();
                 }
 
-                Agents = GenerateFitnessWeightedPopulation();
+                List<GeneticAgent> newPop = GenerateFitnessWeightedPopulation();
+                Agents = newPop;
+                Time = 0;
             }
         }
     }

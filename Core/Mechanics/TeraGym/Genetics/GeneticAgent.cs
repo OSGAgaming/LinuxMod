@@ -23,19 +23,37 @@ namespace LinuxMod.Core.Mechanics
 
         public GeneticAgent()
         {
-            GenerateRandomAgent();
+            Dna = GenerateRandomAgent();
         }
 
-        public virtual void GenerateRandomAgent() { }
-        public virtual void CalculateFitness() { }
+        public virtual IDna GenerateRandomAgent() { return null; }
+        public virtual void CalculateCurrentFitness() { }
     }
 
-    public class RuntimeGeneticAgent : GeneticAgent
+    public class ContinuosGeneticAgent : GeneticAgent
     {
-        public RuntimeGeneticAgent(IDna Dna) : base(Dna)
-        {
-        }
+        private bool Active = true;
 
+        public ContinuosGeneticAgent(IDna Dna) : base(Dna) { }
+
+        public ContinuosGeneticAgent() : base() { }
+
+        public virtual void Update() 
+        {
+            CalculateContinousFitness();
+            OnUpdate();
+        }
+        public virtual void OnUpdate() { }
+
+        public virtual void OnKill() { }
+
+        public bool IsActive() => Active;
+        public void Kill()
+        {
+            CalculateCurrentFitness();
+            Active = false;
+            OnKill();
+        }
         public virtual void CalculateContinousFitness() { }
     }
 }
