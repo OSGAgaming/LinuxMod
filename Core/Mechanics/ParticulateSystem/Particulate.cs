@@ -18,6 +18,8 @@ namespace LinuxMod.Core
         public Point p;
         public byte type;
         public Color c;
+        public Vector2 velocity;
+
         public Particulate(Point p, byte type, ParticulateField field)
         {
             this.p = p;
@@ -37,6 +39,11 @@ namespace LinuxMod.Core
         {
             if (ParticulateStep.actions.ContainsKey(type))
                 ParticulateStep.actions[type].Draw(sb, this, field);
+        }
+
+        public void TryMoveTo(int i, int j, ParticulateField field)
+        {
+
         }
     }
 
@@ -128,7 +135,7 @@ namespace LinuxMod.Core
             {
                 CurrentType++;
                 if (CurrentType > 5) CurrentType = 1;
-                ScrollCoolDown = 120;
+                ScrollCoolDown = 30;
 
                 Main.NewText("Now spewing type: " + CurrentType);
             }

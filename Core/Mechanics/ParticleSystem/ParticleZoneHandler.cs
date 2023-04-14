@@ -12,6 +12,11 @@ namespace LinuxMod.Core
     {
         private readonly Dictionary<string, ParticleZone> particleZones = new Dictionary<string, ParticleZone>();
 
+        /// <summary>
+        /// Add a field where the particle simulation is contained
+        /// </summary>
+        /// <param name="NameOfZone">Zone ID</param>
+        /// <param name="MaxNumberOfParticlesInZone">Mainly for performance. Limiting particles in a zone</param>
         public void AddZone(string NameOfZone, int MaxNumberOfParticlesInZone)
         {
             particleZones.Add(NameOfZone, new ParticleZone(MaxNumberOfParticlesInZone));
