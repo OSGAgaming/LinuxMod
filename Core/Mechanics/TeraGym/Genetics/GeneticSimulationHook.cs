@@ -15,7 +15,7 @@ namespace LinuxMod.Core.Mechanics
 {
     public class GeneticSimulationHook : Mechanic
     {
-        private NPCSimulation<ExampleNPCAgent> simulation;
+        private NPCNeatSimulation<ExampleNPCNeatAgent> simulation;
 
         public override void AddHooks()
         {
@@ -38,16 +38,13 @@ namespace LinuxMod.Core.Mechanics
             orig(self);
 
             if (LinuxInput.JustClicked && simulation == null)
-            {
-                
-                simulation = new NPCSimulation<ExampleNPCAgent>(
+            {                
+                simulation = new NPCNeatSimulation<ExampleNPCNeatAgent>(12,8,
                     ModContent.NPCType<ExampleAgent>(), 80, 
-                    (IDna, type) => new ExampleNPCAgent(IDna, type),
-                    (type) => new ExampleNPCAgent(type),
-                    0.1f, 300);
-
+                    (IDna, type) => new ExampleNPCNeatAgent(IDna, type),
+                    (type) => new ExampleNPCNeatAgent(type),
+                    0.1f, 120);
                 simulation.Deploy();
-                
             }
             if (Main.LocalPlayer.controlUp)
             {

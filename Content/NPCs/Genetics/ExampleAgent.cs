@@ -67,9 +67,9 @@ namespace LinuxMod.Content.NPCs.Genetics
             return sight;
         }
 
-        public override void Response(NetLayer output)
+        public override void Response(float[] output)
         {
-            float[] controlChances = output.ComputeSoftMaxedLayer();
+            float[] controlChances = NetLayer.ComputeSoftMaxedLayer(output);
 
             int index = 0;
             float r = Main.rand.NextFloat(1);
@@ -79,15 +79,10 @@ namespace LinuxMod.Content.NPCs.Genetics
                 r -= controlChances[index++];
             }
 
-            for (int i = 0; i < output.nodes.Count; i++)
-            {
-                //Main.NewText();
-            }
-
             index--;
 
             index = (int)output.Max();
-
+            if(index != 0) Main.NewText(index);
             if (index == 0) npc.velocity.X += speed;
             else if (index == 1) npc.velocity.X -= speed;
             else if (index == 2) npc.velocity.Y += speed;

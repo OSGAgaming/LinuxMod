@@ -16,22 +16,22 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public double weight;
         public bool enabled = true;
 
-        public ConnectionGene(NodeGene from, NodeGene to)
+        public ConnectionGene(NodeGene from, NodeGene to) : base(0)
         {
             this.from = from;
             this.to = to;
         }
 
-        public bool equals(object o)
+        public override bool Equals(object o)
         {
             if (!(o is ConnectionGene)) return false;
             ConnectionGene c = (ConnectionGene)o;
             return from.Equals(c.from) && to.Equals(c.to);
         }
 
-        public int hashCode()
+        public override int GetHashCode()
         {
-            return from.hashCode() * to.hashCode();
+            return from.GetHashCode() * NeatHost.MAX_NODES +  to.GetHashCode();
         }
     }
 }

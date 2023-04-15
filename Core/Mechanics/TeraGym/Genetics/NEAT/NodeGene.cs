@@ -10,15 +10,15 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
 {
     public class NodeGene : Gene
     {
-        public double x, y;
+        public float x, y;
 
         public NodeGene(int innovationNumber) : base(innovationNumber) { }
 
-        public bool equals(object o)
+        public override bool Equals(object o)
         {
             if(!(o is NodeGene)) return false;
             return innovationNumber == ((NodeGene)o).innovationNumber; 
         }
-        public int hashCode() => innovationNumber;
+        public override int GetHashCode() => innovationNumber;
     }
 }

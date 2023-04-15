@@ -10,23 +10,26 @@ using System;
 using LinuxMod.Content.NPCs.Genetics;
 using System.Data;
 using LinuxMod.Core.Helper.Extensions;
+using LinuxMod.Core.Mechanics.TeraGym.NEAT;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class NPCSimulation<T> : Simulation where T : NPCAgent
+    public class NPCNeatSimulation<T> : NEATSimulation where T : NPCNeatAgent
     {
         public int Type = 0;
         public Func<IDna, int, T> GenerateAgentWithDNA;
         public Func<int, T> GenerateAgent;
 
-        public NPCSimulation(
+        public NPCNeatSimulation(
+            int inputSize,
+            int outputSize,
             int Type, 
             int GenerationSize, 
             Func<IDna, int, T> GenerateAgentWithDNA,
             Func<int, T> GenerateAgent,
             float MutationRate = 0.01F, 
             int MaxSimulationTime = 1) : 
-            base(GenerationSize, MutationRate, MaxSimulationTime)
+            base(inputSize, outputSize, GenerationSize, MutationRate, MaxSimulationTime)
         {
             this.Type = Type;
             this.GenerateAgentWithDNA = GenerateAgentWithDNA;
@@ -41,9 +44,9 @@ namespace LinuxMod.Core.Mechanics
         {
             if (BestAgent == null) return;
 
-            if (BestAgent is NPCAgent n)
+            if (BestAgent is NPCNeatAgent n)
             {
-                BaseNeuralNetwork network = ((BestAgent as NPCAgent)?.Entity.modNPC as ExampleAgent)?.network as BaseNeuralNetwork;
+                Genome network = ((BestAgent as NPCNeatAgent)?.Entity.modNPC as ExampleAgent)?.network as Genome;
                 network.Draw(sb, new Vector2(200));
                 LinuxTechTips.UITextToCenter("Best Neural Net: ", Color.Black, new Vector2(250, 100), 1);
                 LinuxTechTips.UITextToCenter("Population Size: " + GenerationSize.ToString(), Color.Black, new Vector2(250,500), 1);
@@ -52,9 +55,11 @@ namespace LinuxMod.Core.Mechanics
                 LinuxTechTips.UITextToCenter("Best Fitness: " + n.Fitness.ToString(), Color.Black, new Vector2(250, 650), 1);
 
                 LinuxTechTips.DrawCircle(n.Entity.Center, new Vector2(10), Color.Gold);
+                float[] output = network.Response;
 
-                for (int i = 0; i < network.Outputs.Size; i++)
+                for(int i = 0; i < output.Length; i++)
                 {
+                    Main.NewText(i + ": " + output[i]);
                 }
             }
         }

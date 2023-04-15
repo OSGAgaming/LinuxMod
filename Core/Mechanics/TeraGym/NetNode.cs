@@ -9,7 +9,7 @@ using LinuxMod.Core;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class Node
+    public class NetNode
     {
         public float value;
         public float bias;

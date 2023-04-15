@@ -13,7 +13,7 @@ namespace LinuxMod.Core.Mechanics
 {
     public class NetLayer
     {
-        public List<Node> nodes = new List<Node>();
+        public List<NetNode> nodes = new List<NetNode>();
         public int Size => nodes.Count;
 
         public ActivationFunction activationFunction;
@@ -22,10 +22,20 @@ namespace LinuxMod.Core.Mechanics
         {
             for (int i = 0; i < size; i++)
             {
-                nodes.Add(new Node());
+                nodes.Add(new NetNode());
             }
 
             this.activationFunction = activationFunction;
+        }
+
+        public float[] GetValues()
+        {
+            float[] values = new float[nodes.Count];
+            for(int i = 0; i <nodes.Count; i++)
+            {
+                values[i] = nodes[i].value;
+            }
+            return values;
         }
 
         public void Map(float[] values)
@@ -44,7 +54,7 @@ namespace LinuxMod.Core.Mechanics
 
                 for (int k = 0; k < previousLayer.nodes.Count; k++)
                 {
-                    Node node = previousLayer.nodes[k];
+                    NetNode node = previousLayer.nodes[k];
                     nodes[j].value += node.value * node.weights[j] + node.bias;
                 }
 
@@ -57,7 +67,7 @@ namespace LinuxMod.Core.Mechanics
         {
             float totalE =  0;
 
-            foreach(Node n in nodes)
+            foreach(NetNode n in nodes)
             {
                 totalE += (float)Math.Pow(MathHelper.E, n.value);
             }
@@ -66,6 +76,24 @@ namespace LinuxMod.Core.Mechanics
             for(int i = 0; i < Size; i++)
             {
                 values[i] = ((float)Math.Pow(MathHelper.E, nodes[i].value)) / totalE;
+            }
+
+            return values;
+        }
+
+        public static float[] ComputeSoftMaxedLayer(float[] values)
+        {
+            float totalE = 0;
+            
+            foreach (float n in values)
+            {
+                totalE += (float)Math.Pow(MathHelper.E, n);
+            }
+
+            float[] output = new float[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                output[i] = ((float)Math.Pow(MathHelper.E, values[i])) / totalE;
             }
 
             return values;

@@ -32,7 +32,7 @@ namespace LinuxMod.Core.Mechanics
 
     public class ContinuousGeneticAgent : GeneticAgent
     {
-        private bool Active = true;
+        protected bool Active = true;
 
         public ContinuousGeneticAgent(IDna Dna) : base(Dna) { }
 

@@ -35,7 +35,7 @@ namespace LinuxMod.Core.Mechanics
         public virtual GeneticAgent InitialiseAgent() { return new GeneticAgent(); }
         public virtual GeneticAgent InitialiseAgent(IDna dna) { return new GeneticAgent(dna); }
 
-        public void Deploy()
+        public virtual void Deploy()
         {
             for (int i = 0; i < GenerationSize; i++)
             {
@@ -99,7 +99,7 @@ namespace LinuxMod.Core.Mechanics
             Agents.Clear();
         }
 
-        public void Update()
+        public virtual void Update()
         {
             Time++;
             int inActivity = 0;

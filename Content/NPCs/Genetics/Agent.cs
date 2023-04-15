@@ -16,18 +16,18 @@ namespace LinuxMod.Content.NPCs.Genetics
 {
     public class Agent : ModNPC
     {
-        public BaseNeuralNetwork network;
+        public IDna network;
 
         public virtual List<float> FeedInputs() { return null; }
-        public virtual void Response(NetLayer output) { }
+        public virtual void Response(float[] output) { }
 
         public override void AI()
         {
             if(network == null) return;
 
-            network.UpdateNetwork(FeedInputs().ToArray());
+            network.Compute(FeedInputs().ToArray());
 
-            Response(network.Outputs);
+            Response(network.Response);
         }
     }
 }

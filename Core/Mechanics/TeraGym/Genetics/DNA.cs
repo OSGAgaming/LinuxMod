@@ -14,5 +14,7 @@ namespace LinuxMod.Core.Mechanics
     public interface IDna
     {
         IDna Combine(IDna combinee, float mutationRate);
+        void Compute(float[] inputs);
+        float[] Response { get; }
     }
 }

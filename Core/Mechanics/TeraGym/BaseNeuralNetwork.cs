@@ -18,6 +18,7 @@ namespace LinuxMod.Core.Mechanics
         public List<NetLayer> HiddenLayers = new List<NetLayer>();
         public int Size => HiddenLayers.Count + 2;
 
+        public float[] Response => Outputs.GetValues();
 
         public BaseNeuralNetwork(int inputSize)
         {
@@ -58,7 +59,7 @@ namespace LinuxMod.Core.Mechanics
             }
         }
 
-        public void UpdateNetwork(float[] inputs)
+        public void Compute(float[] inputs)
         {
             Inputs.Map(inputs);
 
