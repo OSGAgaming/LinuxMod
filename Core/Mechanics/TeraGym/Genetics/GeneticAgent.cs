@@ -30,17 +30,17 @@ namespace LinuxMod.Core.Mechanics
         public virtual void CalculateCurrentFitness() { }
     }
 
-    public class ContinuosGeneticAgent : GeneticAgent
+    public class ContinuousGeneticAgent : GeneticAgent
     {
         private bool Active = true;
 
-        public ContinuosGeneticAgent(IDna Dna) : base(Dna) { }
+        public ContinuousGeneticAgent(IDna Dna) : base(Dna) { }
 
-        public ContinuosGeneticAgent() : base() { }
+        public ContinuousGeneticAgent() : base() { }
 
         public virtual void Update() 
         {
-            CalculateContinousFitness();
+            CalculateContinuousFitness();
             OnUpdate();
         }
         public virtual void OnUpdate() { }
@@ -54,6 +54,6 @@ namespace LinuxMod.Core.Mechanics
             Active = false;
             OnKill();
         }
-        public virtual void CalculateContinousFitness() { }
+        public virtual void CalculateContinuousFitness() { }
     }
 }

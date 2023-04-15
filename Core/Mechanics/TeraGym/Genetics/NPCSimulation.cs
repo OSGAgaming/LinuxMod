@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Drawing;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System;
 using LinuxMod.Content.NPCs.Genetics;
 using System.Data;
+using LinuxMod.Core.Helper.Extensions;
 
 namespace LinuxMod.Core.Mechanics
 {
@@ -33,13 +33,31 @@ namespace LinuxMod.Core.Mechanics
             this.GenerateAgent = GenerateAgent;
         }
 
-        public override GeneticAgent InitialiseAgent()
+        public override GeneticAgent InitialiseAgent() => GenerateAgent.Invoke(Type);
+        
+        public override GeneticAgent InitialiseAgent(IDna dna) => GenerateAgentWithDNA.Invoke(dna, Type);
+
+        public override void Draw(SpriteBatch sb)
         {
-            return GenerateAgent.Invoke(Type);
+            if (BestAgent == null) return;
+
+            if (BestAgent is NPCAgent n)
+            {
+                BaseNeuralNetwork network = ((BestAgent as NPCAgent)?.Entity.modNPC as ExampleAgent)?.network;
+                network.Draw(sb, new Vector2(200));
+                LinuxTechTips.UITextToCenter("Best Neural Net: ", Color.Black, new Vector2(250, 100), 1);
+                LinuxTechTips.UITextToCenter("Population Size: " + GenerationSize.ToString(), Color.Black, new Vector2(250,500), 1);
+                LinuxTechTips.UITextToCenter("Generation: " + Generation.ToString(), Color.Black, new Vector2(250, 550), 1);
+                LinuxTechTips.UITextToCenter("Mutation Rate: " + MutationRate.ToString(), Color.Black, new Vector2(250, 600), 1);
+                LinuxTechTips.UITextToCenter("Best Fitness: " + n.Fitness.ToString(), Color.Black, new Vector2(250, 650), 1);
+
+                LinuxTechTips.DrawCircle(n.Entity.Center, new Vector2(10), Color.Gold);
+
+                for (int i = 0; i < network.Outputs.Size; i++)
+                {
+                }
+            }
         }
-        public override GeneticAgent InitialiseAgent(IDna dna)
-        {
-            return GenerateAgentWithDNA.Invoke(dna, Type);
-        }
+
     }
 }

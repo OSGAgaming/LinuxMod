@@ -17,17 +17,18 @@ namespace LinuxMod.Content.NPCs.Genetics
 {
     public class ExampleAgent : Agent
     {
-        public float speed => 0.5f;
+        public float speed => 1f;
 
+        List<Vector2> previous = new List<Vector2>();
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Gentic Agent");
+            DisplayName.SetDefault("Goobloid");
         }
 
         public override void SetDefaults()
         {
-            npc.width = 10;
-            npc.height = 10;
+            npc.width = 16;
+            npc.height = 16;
             npc.lifeMax = 13;
             npc.aiStyle = -1;
             npc.behindTiles = true;
@@ -35,21 +36,31 @@ namespace LinuxMod.Content.NPCs.Genetics
             npc.noTileCollide = false;
         }
 
+        public int Map(bool b) => b ? 0 : 2;
+
         public override List<float> FeedInputs()
         {
+            if(previous.Count <= 0)
+            {
+                previous.Add(npc.Center);
+            }
             List<float> sight = new List<float>();
             Point tilePos = npc.Center.ToTileCoordinates();
 
-            for (int i = -1; i < 2; i++)
-            {
-                for (int j = -1; j < 2; j++)
-                {
-                    Tile t = Framing.GetTileSafely(new Point((int)MathHelper.Clamp(tilePos.X, 1, Main.maxTilesX) + i, (int)MathHelper.Clamp(tilePos.Y, 1, Main.maxTilesY) + j));
-                    sight.Add((t.active() && Main.tileSolid[t.type]) ? 1 : 0);
-                }
-            }
-            sight.Add(npc.position.X - Main.LocalPlayer.position.X);
-            sight.Add(npc.position.Y - Main.LocalPlayer.position.Y);
+            float sightDistance = 64;
+
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.UnitY * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center + Vector2.UnitY * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.UnitX * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center + Vector2.UnitX * sightDistance, 1, 1)));
+
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center + Vector2.One * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.One * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center + Vector2.One * -Vector2.UnitX * sightDistance, 1, 1)));
+            sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.One * -Vector2.UnitX * sightDistance, 1, 1)));
+
+            sight.Add(Math.Min(200,npc.position.X - Main.LocalPlayer.position.X) / 10f);
+            sight.Add(Math.Min(200, npc.position.Y - Main.LocalPlayer.position.Y) / 10f);
             sight.Add(npc.velocity.X);
             sight.Add(npc.velocity.Y);
 
@@ -63,26 +74,45 @@ namespace LinuxMod.Content.NPCs.Genetics
             int index = 0;
             float r = Main.rand.NextFloat(1);
 
-            while(r > 0)
+            while (r > 0)
             {
                 r -= controlChances[index++];
             }
 
+            for (int i = 0; i < output.nodes.Count; i++)
+            {
+                //Main.NewText();
+            }
+
             index--;
+
+            index = (int)output.Max();
+
             if (index == 0) npc.velocity.X += speed;
             else if (index == 1) npc.velocity.X -= speed;
             else if (index == 2) npc.velocity.Y += speed;
             else if (index == 3) npc.velocity.Y -= speed;
+            else if (index == 4) npc.velocity += Vector2.Normalize(new Vector2(1, 1)) * speed;
+            else if (index == 5) npc.velocity += Vector2.Normalize(new Vector2(1, -1)) * speed;
+            else if (index == 6) npc.velocity += Vector2.Normalize(new Vector2(-1, 1)) * speed;
+            else if (index == 7) npc.velocity += Vector2.Normalize(new Vector2(-1, -1)) * speed;
+            //else if (index == 8) npc.velocity += Vector2.Zero;
 
-            npc.velocity *= 0.98f;
+            npc.velocity *= 0.8f;
+
+            npc.rotation += ((npc.velocity.ToRotation() + MathHelper.PiOver2) - npc.rotation) / 16f;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)
         {
             Vector2 nP = npc.position.ForDraw();
-            LinuxTechTips.DrawRectangle(new Rectangle((int)nP.X, (int)nP.Y, 10, 10), Color.White, 3);
+            LinuxTechTips.DrawRectangle(new Rectangle((int)nP.X, (int)nP.Y, npc.width, npc.height), Color.White, 1);
 
-            network?.Draw(spriteBatch, Main.screenPosition.ForDraw() + new Vector2(50));
+            float sightDistance = 64;
+            Texture2D tex = Main.npcTexture[npc.type];
+            spriteBatch.Draw(tex, npc.Center.ForDraw(), tex.Bounds, Color.White, npc.rotation, tex.TextureCenter(), 1f, SpriteEffects.None, 0f);
+            bool hasHit = Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.UnitY * sightDistance, 1, 1);
+            //network?.Draw(spriteBatch, Main.screenPosition.ForDraw() + new Vector2(200));
 
             return false;
         }

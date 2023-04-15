@@ -37,20 +37,25 @@ namespace LinuxMod.Core.Mechanics
         {
             orig(self);
 
-            if (LinuxInput.JustClicked)
+            if (LinuxInput.JustClicked && simulation == null)
             {
+                
                 simulation = new NPCSimulation<ExampleNPCAgent>(
-                    ModContent.NPCType<ExampleAgent>(), 50, 
+                    ModContent.NPCType<ExampleAgent>(), 80, 
                     (IDna, type) => new ExampleNPCAgent(IDna, type),
                     (type) => new ExampleNPCAgent(type),
-                    0.03f, 120);
+                    0.1f, 300);
 
                 simulation.Deploy();
+                
             }
             if (Main.LocalPlayer.controlUp)
             {
+                simulation?.Destroy();
                 simulation = null;
             }
+
+            simulation?.Draw(Main.spriteBatch);
         }
     }
 }

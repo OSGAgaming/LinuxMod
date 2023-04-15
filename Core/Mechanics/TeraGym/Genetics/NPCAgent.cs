@@ -12,7 +12,7 @@ using LinuxMod.Content.NPCs.Genetics;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class NPCAgent : ContinuosGeneticAgent
+    public class NPCAgent : ContinuousGeneticAgent
     {
         public NPC Entity;
         public int NPCType;
@@ -21,6 +21,9 @@ namespace LinuxMod.Core.Mechanics
         {
             int id = NPC.NewNPC((int)Main.LocalPlayer.position.X, (int)Main.LocalPlayer.position.Y, type);
             Entity = Main.npc[id];
+            Entity.position = Main.MouseWorld;
+            Entity.velocity.X = Main.rand.NextFloat(-0.1f, 0.1f);
+            Entity.velocity.Y = Main.rand.NextFloat(-0.1f, 0.1f);
 
             (Entity.modNPC as Agent).network = (BaseNeuralNetwork)Dna;
         }
@@ -28,6 +31,8 @@ namespace LinuxMod.Core.Mechanics
         {
             int id = NPC.NewNPC((int)Main.LocalPlayer.position.X, (int)Main.LocalPlayer.position.Y, type);
             Entity = Main.npc[id];
+            Entity.position = Main.MouseWorld;
+
             (Entity.modNPC as Agent).network = (BaseNeuralNetwork)Dna;
         }
 
