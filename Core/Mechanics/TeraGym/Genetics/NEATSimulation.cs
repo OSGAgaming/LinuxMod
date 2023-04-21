@@ -42,8 +42,8 @@ namespace LinuxMod.Core.Mechanics
             {
                 if (agent is ContinuousGeneticAgent r)
                 {
-                    r.Update();
                     if (!r.IsActive()) inActivity++;
+                    else r.Update();
                 }
                 else
                 {

@@ -28,7 +28,7 @@ namespace LinuxMod.Core
         public static Vector2 TextureCenter(this Texture2D texture) => new Vector2(texture.Width / 2, texture.Height / 2);
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
-        public static void UITextToCenter(string text, Color colour, Vector2 position, int style)
+        public static void UITextToCenter(string text, Color colour, Vector2 position, int style = 0)
         {
             var font = style == 0 ? Main.fontDeathText : Main.fontMouseText;
             Vector2 textSize = font.MeasureString(text);

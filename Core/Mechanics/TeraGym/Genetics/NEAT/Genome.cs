@@ -31,6 +31,25 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             return calculator.Calculate(input);
         }
 
+        public void FullyConnect()
+        {
+            foreach(NodeGene nodeGene in nodes)
+            {
+                foreach (NodeGene nodeGene2 in nodes)
+                {
+                    if(nodeGene.getInovationNumber() != nodeGene2.getInovationNumber())
+                    {
+                        if(nodeGene.x < nodeGene2.x)
+                        {
+                            ConnectionGene c = Neat.getConnection(nodeGene, nodeGene2);
+                            c.weight = Main.rand.NextFloat(-1, 1);
+                            connections.Add(c);
+                        }
+                    }
+                }
+            }
+        }
+
         public void Compute(float[] input)
         {
             Calculate(input);
@@ -94,7 +113,8 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             double N = Math.Max(g1.connections.Count, g2.connections.Count);
             if (N < 20) N = 1;
 
-            return (disjoint * Neat.C1) / N + (excess * Neat.C2) / N + weightDiff * Neat.C3;
+            double dist = (disjoint * Neat.C1) / N + (excess * Neat.C2) / N + weightDiff * Neat.C3;
+            return dist;
         }
 
         public IDna Combine(IDna combinee, float mutationRate)
@@ -158,14 +178,27 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             return genome;
         }
 
+        public void MutateWithProbability(double probability, Action a)
+        {
+            double p = probability;
+
+            while (p > 0)
+            {
+                if (Main.rand.NextFloat() < p)
+                {
+                    a.Invoke();
+                }
+                p--;
+            }
+        }
+
         public void Mutate()
         {
-            if (Neat.PROBABILITY_MUTATE_LINK > Main.rand.NextFloat()) MutateLink();
-            if (Neat.PROBABILITY_MUTATE_NODE > Main.rand.NextFloat()) MutateNode();
-            if (Neat.PROBABILITY_MUTATE_WEIGHT_SHIFT > Main.rand.NextFloat()) MutateWeightShift();
-            if (Neat.PROBABILITY_MUTATE_WEIGHT_RANDOM > Main.rand.NextFloat()) MutateWieghtRandom();
-            if (Neat.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK > Main.rand.NextFloat()) MutateLinkToggle();
-
+            MutateWithProbability(Neat.PROBABILITY_MUTATE_LINK, MutateLink);
+            MutateWithProbability(Neat.PROBABILITY_MUTATE_NODE, MutateNode);
+            MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_SHIFT, MutateWeightShift);
+            MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_RANDOM, MutateWieghtRandom);
+            MutateWithProbability(Neat.PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK, MutateLinkToggle);
         }
 
         public void MutateLink()
@@ -176,6 +209,9 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
                 NodeGene b = nodes[Main.rand.Next(nodes.Count)];
 
                 ConnectionGene con;
+
+                if (a == null || b == null) continue;
+
                 if (a.x == b.x) continue;
                 if (a.x < b.x)
                 {
@@ -255,14 +291,9 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             }
         }
 
-        public void Draw(SpriteBatch sb, Vector2 position)
+        public void Draw(SpriteBatch sb, Vector2 position, int scale)
         {
-            int size = 200;
-
-            foreach (NodeGene n in nodes)
-            {
-                LinuxTechTips.DrawCircle(position + new Vector2(size) * new Vector2(n.x, n.y), new Vector2(10), Color.Lerp(Color.AliceBlue, Color.Purple, 0));
-            }
+            int size = scale;
 
             foreach (ConnectionGene c in connections)
             {
@@ -271,7 +302,20 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
                 Vector2 p1 = position + new Vector2(size) * new Vector2(c.to.x, c.to.y);
                 Vector2 p2 = position + new Vector2(size) * new Vector2(c.from.x, c.from.y);
 
-                LinuxTechTips.DrawLine(p1, p2, Color.Lerp(Color.MediumVioletRed, Color.Goldenrod, (float)c.weight));
+                float innovation = c.getInovationNumber();
+
+                LinuxTechTips.DrawLine(p1, p2, Color.Lerp(Color.Red, Color.Green, (float)(c.weight + 1) / 2f));
+                //LinuxTechTips.UITextToCenter(innovation.ToString(), Color.Lerp(Color.Black, Color.Gray, (float)c.weight), (p1 + p2) / 2f, 1);
+
+            }
+
+            foreach (NodeGene n in nodes)
+            {
+                float val = calculator.nodeHashMap[n.getInovationNumber()].value;
+                float innovation = n.getInovationNumber();
+
+                LinuxTechTips.DrawCircle(position + new Vector2(size) * new Vector2(n.x, n.y), new Vector2(scale / 30f), Color.Lerp(Color.AliceBlue, Color.Purple, (val + 1) / 2f));
+                //LinuxTechTips.UITextToCenter(innovation.ToString(), Color.Lerp(Color.Black, Color.Gray, (val + 1) / 2f), position + new Vector2(size) * new Vector2(n.x, n.y), 1);
             }
         }
     }

@@ -14,31 +14,27 @@ using LinuxMod.Core.Mechanics.TeraGym.NEAT;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class NPCNeatSimulation<T> : NEATSimulation where T : NPCNeatAgent
+    public class NPCNeatSimulation<T> : NEATSimulation where T : NPCNeatAgent, new()
     {
-        public int Type = 0;
-        public Func<IDna, int, T> GenerateAgentWithDNA;
-        public Func<int, T> GenerateAgent;
+        public Func<IDna, T> GenerateAgentWithDNA;
+        public Vector2 DrawPosition => new Vector2(150, 200);
+        public int Size => 300;
+
 
         public NPCNeatSimulation(
             int inputSize,
             int outputSize,
-            int Type, 
-            int GenerationSize, 
-            Func<IDna, int, T> GenerateAgentWithDNA,
-            Func<int, T> GenerateAgent,
-            float MutationRate = 0.01F, 
-            int MaxSimulationTime = 1) : 
-            base(inputSize, outputSize, GenerationSize, MutationRate, MaxSimulationTime)
+            int GenerationSize,
+            Func<IDna, T> GenerateAgentWithDNA,
+            int MaxSimulationTime = 1) :
+            base(inputSize, outputSize, GenerationSize, 0, MaxSimulationTime)
         {
-            this.Type = Type;
             this.GenerateAgentWithDNA = GenerateAgentWithDNA;
-            this.GenerateAgent = GenerateAgent;
         }
 
-        public override GeneticAgent InitialiseAgent() => GenerateAgent.Invoke(Type);
-        
-        public override GeneticAgent InitialiseAgent(IDna dna) => GenerateAgentWithDNA.Invoke(dna, Type);
+        public override GeneticAgent InitialiseAgent() => new T();
+
+        public override GeneticAgent InitialiseAgent(IDna dna) => GenerateAgentWithDNA.Invoke(dna);
 
         public override void Draw(SpriteBatch sb)
         {
@@ -46,21 +42,29 @@ namespace LinuxMod.Core.Mechanics
 
             if (BestAgent is NPCNeatAgent n)
             {
-                Genome network = ((BestAgent as NPCNeatAgent)?.Entity.modNPC as ExampleAgent)?.network as Genome;
-                network.Draw(sb, new Vector2(200));
-                LinuxTechTips.UITextToCenter("Best Neural Net: ", Color.Black, new Vector2(250, 100), 1);
-                LinuxTechTips.UITextToCenter("Population Size: " + GenerationSize.ToString(), Color.Black, new Vector2(250,500), 1);
-                LinuxTechTips.UITextToCenter("Generation: " + Generation.ToString(), Color.Black, new Vector2(250, 550), 1);
-                LinuxTechTips.UITextToCenter("Mutation Rate: " + MutationRate.ToString(), Color.Black, new Vector2(250, 600), 1);
-                LinuxTechTips.UITextToCenter("Best Fitness: " + n.Fitness.ToString(), Color.Black, new Vector2(250, 650), 1);
+                Genome network = n.Entity.network as Genome;
 
-                LinuxTechTips.DrawCircle(n.Entity.Center, new Vector2(10), Color.Gold);
-                float[] output = network.Response;
+                network.Draw(sb, DrawPosition, Size);
 
-                for(int i = 0; i < output.Length; i++)
-                {
-                    Main.NewText(i + ": " + output[i]);
-                }
+                LinuxTechTips.UITextToLeft("Best Neural Net: ", Color.Black, DrawPosition, 1);
+                LinuxTechTips.UITextToLeft("Population Size: " + GenerationSize.ToString(), Color.Black, DrawPosition + new Vector2(0, Size), 1);
+                LinuxTechTips.UITextToLeft("Generation: " + Generation.ToString(), Color.Black, DrawPosition + new Vector2(0, Size + 50), 1);
+                LinuxTechTips.UITextToLeft("Best Fitness: " + n.Fitness.ToString(), Color.Black, DrawPosition + new Vector2(0, Size + 100), 1);
+                LinuxTechTips.UITextToLeft("Number of Species: " + neatHost.species.Count, Color.Black, DrawPosition + new Vector2(0, Size + 150), 1);
+
+                LinuxTechTips.DrawCircle(n.Entity.Center.ForDraw(), new Vector2(40), Color.Gold * 0.3f);
+            }
+
+            foreach (GeneticAgent a in Agents)
+            {
+                NPCNeatAgent agent = a as NPCNeatAgent;
+                if (!agent.IsActive()) continue;
+
+                int h = agent.GetSpecies().GetHashCode();
+                LinuxTechTips.DrawBoxFill(agent.Entity.position.ForDraw() - new Vector2(20), 10, 10, new Color(h % 255, (h % 120) * 2, (h % 15) * 21));
+
+                //Genome network = (agent.Entity as Agent)?.network as Genome;
+                //network.Draw(sb, agent.Entity.position.ForDraw() - new Vector2(-50,50), 50);
             }
         }
 

@@ -14,7 +14,7 @@ using LinuxMod.Core.Mechanics.Verlet;
 
 namespace LinuxMod.Content.NPCs.Genetics
 {
-    public class Agent : ModNPC
+    public class AgentNPC : ModNPC
     {
         public IDna network;
 

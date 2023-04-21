@@ -15,12 +15,13 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public List<NeatAgent> clients = new List<NeatAgent>();
         public NeatAgent representative;
         public double score;
+        public double staleness;
 
         public Species(NeatAgent representative)
         {
             this.representative = representative;
-            this.representative.SetSpecies(this);   
-            clients.Add(representative); 
+            this.representative.SetSpecies(this);
+            clients.Add(representative);
         }
 
         public bool Add(NeatAgent agent)
@@ -42,7 +43,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
 
         public void GoExtinct()
         {
-            foreach(NeatAgent c in clients)
+            foreach (NeatAgent c in clients)
             {
                 c.SetSpecies(null);
             }
@@ -51,17 +52,34 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public void EvaluateScore()
         {
             double v = 0;
-            foreach(NeatAgent a in clients)
+            foreach (NeatAgent a in clients)
             {
                 v += a.Fitness;
             }
             score = v / clients.Count;
         }
 
+        public GeneticAgent BestClient()
+        {
+            float max = float.MinValue;
+            GeneticAgent agent = null;
+
+            foreach (GeneticAgent a in clients)
+            {
+                if (a.Fitness > max)
+                {
+                    max = a.Fitness;
+                    agent = a;
+                }
+            }
+
+            return agent;
+        }
+
         public void Reset()
         {
             representative = clients[Main.rand.Next(clients.Count)];
-            foreach(NeatAgent c in clients)
+            foreach (NeatAgent c in clients)
             {
                 c.SetSpecies(null);
             }
@@ -81,6 +99,8 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             double amount = percentage * clients.Count;
             for (int i = 0; i < amount; i++)
             {
+                if (clients.Count <= 1) break;
+
                 clients[0].SetSpecies(null);
                 clients.RemoveAt(0);
             }

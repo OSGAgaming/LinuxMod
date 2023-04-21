@@ -18,6 +18,7 @@ namespace LinuxMod.Core.Mechanics
         int TimeToReach = 0;
         int TimeInWall = 0;
         int NewPlaces = 0;
+        int StuckInArea = 0;
 
         List<Vector2> PlacesSeen = new List<Vector2>();
         Vector2 Origin;
@@ -90,6 +91,7 @@ namespace LinuxMod.Core.Mechanics
                     NewPlaces++;
                     PlacesSeen.Add(Entity.Center);
                 }
+ 
             }
 
             if (tilesAround >= 1 && Entity.velocity.Length() <= 0.5f) TimeStuck++;
@@ -101,7 +103,7 @@ namespace LinuxMod.Core.Mechanics
                 TimeToReach = TimeAlive;
             }
 
-            if (TimeStuck > 30)
+            if (TimeStuck > 30 || StuckInArea > 20)
             {
                 Kill();
                 Fitness *= 0.5f;

@@ -43,7 +43,7 @@ namespace LinuxMod.Core.Mechanics
 
             if (BestAgent is NPCAgent n)
             {
-                BaseNeuralNetwork network = ((BestAgent as NPCAgent)?.Entity.modNPC as ExampleAgent)?.network as BaseNeuralNetwork;
+                BaseNeuralNetwork network = ((BestAgent as NPCAgent)?.Entity.modNPC as ExampleAgentNPC)?.network as BaseNeuralNetwork;
                 network.Draw(sb, new Vector2(200));
                 LinuxTechTips.UITextToCenter("Best Neural Net: ", Color.Black, new Vector2(250, 100), 1);
                 LinuxTechTips.UITextToCenter("Population Size: " + GenerationSize.ToString(), Color.Black, new Vector2(250,500), 1);

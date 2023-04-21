@@ -15,69 +15,66 @@ namespace LinuxMod.Core.Mechanics
     {
         int TimeAlive = 0;
         int TimeStuck = 0;
+        float WallPenalty = 0;
         int TimeToReach = 0;
-        int TimeInWall = 0;
         int NewPlaces = 0;
-        int Type = 0;
+        int StuckInArea = 0;
+
         List<Vector2> PlacesSeen = new List<Vector2>();
-        Vector2 Origin;
-        public ExampleNPCNeatAgent(IDna Dna, int type) : base(Dna, type) 
+
+        public ExampleNPCNeatAgent(IDna Dna) : base(Dna) { }
+
+        public ExampleNPCNeatAgent() : base() { }
+
+        public override Agent SpawnNPC()
         {
-            Type = type;
+            ExampleAgent npc = FakeNPCHost.AddNPC<ExampleAgent>();
+            npc.position = Main.MouseWorld;
+            npc.position.X += Main.rand.NextFloat(-8f, 8f);
+            npc.position.Y += Main.rand.NextFloat(-8f, 8f);
+
+            return npc;
         }
 
-        public ExampleNPCNeatAgent(int type) : base(type) 
-        {
-            Type = type;
-        }
-
-        public override void Reset()
+        public override void Refresh()
         {
             TimeAlive = 0;
             TimeStuck = 0;
+            WallPenalty = 0;
             TimeToReach = 0;
-            TimeInWall = 0;
             NewPlaces = 0;
-            Active = true;
-
+            StuckInArea = 0;
             PlacesSeen.Clear();
-
-            int id = NPC.NewNPC((int)Main.LocalPlayer.position.X, (int)Main.LocalPlayer.position.Y, Type);
-            Entity = Main.npc[id];
-            Entity.velocity.X = Main.rand.NextFloat(-0.1f, 0.1f);
-            Entity.velocity.Y = Main.rand.NextFloat(-0.1f, 0.1f);
-            Entity.position = Main.MouseWorld;
-            (Entity.modNPC as Agent).network = Dna;
-
-            Origin = Entity.position;
         }
 
         public override void CalculateCurrentFitness()
         {
+            if(TimeAlive == 0)
+            {
+                Fitness = 0;
+                return;
+            }
+
             float distance = Math.Max(0.01f, Vector2.Distance(Main.LocalPlayer.position, Entity.position));
-            float orgDistance = Math.Max(0.01f, Vector2.Distance(Origin, Main.LocalPlayer.position));
+            float target = 1000f;
+            bool canSee = Collision.CanHitLine(Entity.Center, 1, 1, Main.LocalPlayer.Center, 1, 1);
 
-            float distFunc = (orgDistance / distance - 1);
-            float target = 300f;
+            float DistanceFitness = canSee ? (1 + (float)Math.Pow(target / distance, 4)) : 1;
+            float IllegalMoveFitness = 1 + (float)Math.Pow(1 - WallPenalty / TimeAlive, MathHelper.E);
+            float ExplorationFitness = (float)Math.Pow(1 + (NewPlaces * 50) / TimeAlive, 4);
+            float ReachedTargetFitness = TimeToReach != 0 ? (1 + (float)Math.Pow(400f / TimeToReach, 2f) / 50f) : 1;
+            float CanSeeTargetFitness = canSee ? 1f : 0.5f;
 
+            if(DistanceFitness > 1) Main.NewText(DistanceFitness);
 
-            //Fitness += Math.Max(0.01f, target * target - distance * distance) / (target * target);
-            Fitness = (float)Math.Pow(target / Math.Max(0.01f, distance), MathHelper.E);
-            Fitness *= 0.7f + (float)Math.Pow(20f / Math.Max(1, TimeInWall), 1.7f) / 70f;
+            Fitness = DistanceFitness * IllegalMoveFitness * ExplorationFitness * ReachedTargetFitness * CanSeeTargetFitness;
 
-            if (!Collision.CanHitLine(Entity.Center, 1, 1, Main.LocalPlayer.Center, 1, 1)) Fitness *= 0.3f;
-            if(TimeToReach != 0) Fitness *= 1 + (float)Math.Pow(400f / Math.Max(1,TimeToReach), 1.7f) / 70f;
-            Fitness *= 1 + (float)Math.Pow(NewPlaces * 0.8f, MathHelper.E) / 70f;
             Fitness = Math.Max(Fitness, 0);
         }
 
         public override void CalculateContinuousFitness()
         {
             float distance = Math.Max(0.1f, Vector2.Distance(Main.LocalPlayer.position, Entity.position));
-            if(TimeAlive == 0)
-            {
-                Origin = Entity.position;
-            }
             TimeAlive++;
 
             Point tilePos = Entity.Center.ToTileCoordinates();
@@ -96,7 +93,7 @@ namespace LinuxMod.Core.Mechanics
                 bool seen = false;
                 for(int i = 0; i < PlacesSeen.Count; i++)
                 {
-                    if (Vector2.DistanceSquared(PlacesSeen[i], Entity.Center) < 40*40)
+                    if (Vector2.DistanceSquared(PlacesSeen[i], Entity.Center) < 50*50)
                     {
                         seen = true;
                         break;
@@ -106,22 +103,35 @@ namespace LinuxMod.Core.Mechanics
                 {
                     NewPlaces++;
                     PlacesSeen.Add(Entity.Center);
+                    StuckInArea = 0;
+                }
+                else
+                {
+                    StuckInArea++;
                 }
             }
 
-            if (tilesAround >= 1 && Entity.velocity.Length() <= 0.5f) TimeStuck++;
-
-            TimeInWall += tilesAround;
-
-            if (distance <= 70f)
+            if (tilesAround >= 1)
             {
-                TimeToReach = TimeAlive;
+                WallPenalty++;
+                if (Entity.velocity.Length() < 0.7f) TimeStuck++;
+            }
+            else
+            {
+                TimeStuck--;
+                TimeStuck = Math.Max(0, TimeStuck);
             }
 
-            if (TimeStuck > 30)
+            if (distance <= 40f)
+            {
+                TimeToReach = TimeAlive;
+                Kill();
+            }
+
+            if (TimeStuck > 50)
             {
                 Kill();
-                Fitness *= 0.5f;
+                Fitness *= (float)Math.Pow(3,TimeAlive / 200f) * 0.5f;
             }
             
             //Fitness += (1f / distance) * 0.01f;

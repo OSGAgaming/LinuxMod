@@ -24,19 +24,24 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public int outputSize;
         public int inputSize;
 
-        public double C1, C2, C3 = 1;
-        public double CP = 4;
+        public double C1 = 1;
+        public double C2 = 1;
+        public double C3 = 0.5f;
 
-        public double WEIGHT_SHIFT_STRENGTH = 0.3f;
+        public double CP = 3f;
+
+        public double WEIGHT_SHIFT_STRENGTH = 0.5f;
         public double WEIGHT_RANDOM_STRENGTH = 1f;
 
-        public double PROBABILITY_MUTATE_LINK = 0.2f;
-        public double PROBABILITY_MUTATE_NODE = 0.03f;
-        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.02f;
-        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.03f;
-        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0f;
+        public double PROBABILITY_MUTATE_LINK = 0.5f;
+        public double PROBABILITY_MUTATE_NODE = 0.2f;
+        public double PROBABILITY_MUTATE_WEIGHT_SHIFT = 0.8f;
+        public double PROBABILITY_MUTATE_WEIGHT_RANDOM = 0.1f;
+        public double PROBABILITY_MUTATE_WEIGHT_TOGGLE_LINK = 0.01f;
 
-        public float SURVIVORS = 0.8f;
+        public float SURVIVORS = 0.2f;
+
+        public int STALESPECIES = 10;
 
         public NeatHost(int inputSize, int outputSize, int clients, NEATSimulation parent)
         {
@@ -84,6 +89,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             for(int i = 0; i < this.maxClients; i++)
             {
                 Genome g = GenerateEmptyGenome();
+                //g.FullyConnect();
                 NeatAgent a = simulation.InitialiseAgent(g) as NeatAgent;
                 a.SetGenome(g);
                 GetClients().Add(a);
@@ -108,6 +114,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public static ConnectionGene getConnection(ConnectionGene connection)
         {
             ConnectionGene c = new ConnectionGene(connection.from, connection.to);
+            c.setInovationNumber(connection.getInovationNumber());
             c.weight = connection.weight;
             c.enabled = connection.enabled;
 
@@ -165,6 +172,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
                         found = true;
                         break;
                     }
+
                 }
 
                 if (!found)
@@ -181,7 +189,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             foreach (GeneticAgent a in agents)
             {
                 NeatAgent nA = a as NeatAgent;
-                nA.Reset();
+                nA.Initialise();
             }
         }
 
@@ -199,8 +207,17 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             {
                 if (species[i].Size() <= 1)
                 {
-                    species[i].GoExtinct();
-                    species.RemoveAt(i);
+                    species[i].staleness++;
+
+                    if (species[i].staleness >= STALESPECIES && simulation.BestAgent.Fitness != species[i].BestClient().Fitness)
+                    {
+                        species[i].GoExtinct();
+                        species.RemoveAt(i);
+                    }
+                }
+                else
+                {
+                    species[i].staleness = 0;
                 }
             }
         }
@@ -232,6 +249,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
                 {
                     Species s = PickWeightedSpecies();
                     nA.SetGenome(s.Breed());
+                    nA.Mutate();
                     s.ForceAdd(nA);
                 }
             }
@@ -242,7 +260,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
             foreach (GeneticAgent a in GetClients())
             {
                 NeatAgent nA = a as NeatAgent;
-                nA.Mutate();
+                //nA.Mutate();
             }
         }
     }

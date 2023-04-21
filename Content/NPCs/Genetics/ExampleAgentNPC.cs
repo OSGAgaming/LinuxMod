@@ -12,12 +12,16 @@ using LinuxMod.Core.Assets;
 using Terraria.ID;
 using LinuxMod.Core.Mechanics.Verlet;
 using System.Linq;
+using LinuxMod.Core.Mechanics.ScreenMap;
 
 namespace LinuxMod.Content.NPCs.Genetics
 {
-    public class ExampleAgent : Agent
+    public class ExampleAgentNPC : AgentNPC
     {
-        public float speed => 1f;
+        public float speed => 4f;
+        public float angularSpeed => 0.3f;
+
+        public float rotation = 0f;
 
         List<Vector2> previous = new List<Vector2>();
         public override void SetStaticDefaults()
@@ -58,44 +62,26 @@ namespace LinuxMod.Content.NPCs.Genetics
             sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.One * sightDistance, 1, 1)));
             sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center + Vector2.One * -Vector2.UnitX * sightDistance, 1, 1)));
             sight.Add(Map(Collision.CanHitLine(npc.Center, 1, 1, npc.Center - Vector2.One * -Vector2.UnitX * sightDistance, 1, 1)));
-
-            sight.Add(Math.Min(200,npc.position.X - Main.LocalPlayer.position.X) / 10f);
-            sight.Add(Math.Min(200, npc.position.Y - Main.LocalPlayer.position.Y) / 10f);
-            sight.Add(npc.velocity.X);
-            sight.Add(npc.velocity.Y);
+            
+            sight.Add((npc.position.X - Main.LocalPlayer.position.X) / 200f);
+            sight.Add((npc.position.Y - Main.LocalPlayer.position.Y) / 200f);
+            sight.Add(rotation % MathHelper.TwoPi);
 
             return sight;
         }
 
         public override void Response(float[] output)
         {
-            float[] controlChances = NetLayer.ComputeSoftMaxedLayer(output);
+            float value = output.Max();
+            int maxIndex = Array.IndexOf(output, value);
 
-            int index = 0;
-            float r = Main.rand.NextFloat(1);
+            if (maxIndex == 0) rotation += 0;
+            else if (maxIndex == 1) rotation -= angularSpeed;
+            else if (maxIndex == 2) rotation += angularSpeed;
 
-            while (r > 0)
-            {
-                r -= controlChances[index++];
-            }
+            npc.velocity = Vector2.UnitX.RotatedBy(rotation) * speed;
 
-            index--;
-
-            index = (int)output.Max();
-            if(index != 0) Main.NewText(index);
-            if (index == 0) npc.velocity.X += speed;
-            else if (index == 1) npc.velocity.X -= speed;
-            else if (index == 2) npc.velocity.Y += speed;
-            else if (index == 3) npc.velocity.Y -= speed;
-            else if (index == 4) npc.velocity += Vector2.Normalize(new Vector2(1, 1)) * speed;
-            else if (index == 5) npc.velocity += Vector2.Normalize(new Vector2(1, -1)) * speed;
-            else if (index == 6) npc.velocity += Vector2.Normalize(new Vector2(-1, 1)) * speed;
-            else if (index == 7) npc.velocity += Vector2.Normalize(new Vector2(-1, -1)) * speed;
-            //else if (index == 8) npc.velocity += Vector2.Zero;
-
-            npc.velocity *= 0.8f;
-
-            npc.rotation += ((npc.velocity.ToRotation() + MathHelper.PiOver2) - npc.rotation) / 16f;
+            npc.rotation = npc.velocity.ToRotation() + MathHelper.PiOver2;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor)

@@ -13,13 +13,12 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
         public List<NeatNode> inputNodes = new List<NeatNode>();
         public List<NeatNode> hiddenNodes = new List<NeatNode>();
         public List<NeatNode> outputNodes = new List<NeatNode>();
+        public Dictionary<int, NeatNode> nodeHashMap = new Dictionary<int, NeatNode>();
 
         public GenomeCalculator(Genome g)
         {
             List<NodeGene> nodes = g.nodes;
             List<ConnectionGene> cons = g.connections;
-
-            Dictionary<int, NeatNode> nodeHashMap = new Dictionary<int, NeatNode>();
 
             foreach(NodeGene n in nodes)
             {
@@ -29,7 +28,7 @@ namespace LinuxMod.Core.Mechanics.TeraGym.NEAT
                 if(n.x <= 0.1f)
                 {
                     inputNodes.Add(node);
-                } else if(n.x <= 0.9f)
+                } else if(n.x >= 0.9f)
                 {
                     outputNodes.Add(node);
                 }

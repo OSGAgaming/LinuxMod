@@ -30,6 +30,12 @@ namespace LinuxMod.Core.Mechanics
 
         public void GenerateCalculator() => GetGenome().GenerateCalculator();
 
-        public virtual void Reset() { }
+        public virtual void Refresh() { }
+        public virtual void Initialise() 
+        {
+            Active = true;
+            Refresh();
+        }
+
     }
 }

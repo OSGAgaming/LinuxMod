@@ -14,35 +14,27 @@ using Terraria.ModLoader.IO;
 
 namespace LinuxMod.Core.Mechanics
 {
-    public class GeneticSimulationHook : Mechanic
+    public class FakeNPCHook : Mechanic
     {
-        private NPCNeatSimulation<ExampleNPCNeatAgent> simulation;
-        public static GeneticSimulationHook Instance;
+        public FakeNPCHost FakeNPCs;
+        public static FakeNPCHook Instance;
 
         public override void OnLoad()
         {
+            FakeNPCs = new FakeNPCHost();
             Instance = this;
         }
 
         public override void AddHooks()
         {
             On.Terraria.Main.DrawWoF += Main_DrawWoF;
-            On.Terraria.Main.Update += Main_Update; 
+            On.Terraria.Main.Update += Main_Update;
         }
 
         private void Main_Update(On.Terraria.Main.orig_Update orig, Main self, GameTime gameTime)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                if (!Main.gamePaused)
-                {
-                    simulation?.Update();
-                    FakeNPCHook.Instance.FakeNPCs.Update();
-                }
-            }
-
+            //FakeNPCs.Update();
             orig(self, gameTime);
-
         }
 
         public override void Unload()
@@ -55,20 +47,7 @@ namespace LinuxMod.Core.Mechanics
         {
             orig(self);
 
-            if (LinuxInput.JustClicked && simulation == null)
-            {
-                simulation = new NPCNeatSimulation<ExampleNPCNeatAgent>(
-                    11, 3, 160,
-                    (IDna) => new ExampleNPCNeatAgent(IDna), 350);
-                simulation.Deploy();
-            }
-            if (Main.LocalPlayer.controlUp)
-            {
-                simulation?.Destroy();
-                simulation = null;
-            }
-
-            simulation?.Draw(Main.spriteBatch);
+            FakeNPCs.Draw(Main.spriteBatch);
         }
     }
 }
